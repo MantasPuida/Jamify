@@ -14,7 +14,6 @@ class HomeClass extends React.PureComponent<InnerProps> {
 
     logout();
     navigate("/dashboard");
-    // also logout from spotify
   };
 
   public render(): React.ReactNode {
