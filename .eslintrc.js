@@ -20,6 +20,7 @@ module.exports = {
     "import/prefer-default-export": "off",
     "react/jsx-boolean-value": [1, "always"],
     "comma-dangle": ["error", "never"],
-    semi: [1, "always"]
+    semi: [1, "always"],
+    quotes: [2, "double"]
   }
 };
