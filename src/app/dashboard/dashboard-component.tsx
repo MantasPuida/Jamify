@@ -1,8 +1,19 @@
-import Button from "@mui/material/Button";
 import * as React from "react";
+import { SPOTIFY_AUTH_URL } from "../../constants/constants";
+import { Notify } from "../notification/notification-component";
 
-export class Dashboard extends React.PureComponent {
+interface OuterProps {
+  error: boolean;
+}
+
+export class Dashboard extends React.PureComponent<OuterProps> {
   public render(): React.ReactNode {
-    return <Button>spotify</Button>;
+    const { error } = this.props;
+
+    if (error) {
+      Notify("Error accrued when logging in", "error");
+    }
+
+    return <a href={SPOTIFY_AUTH_URL}>Login with Spotify</a>;
   }
 }

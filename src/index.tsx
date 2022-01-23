@@ -1,15 +1,15 @@
-import React from "react";
+import * as React from "react";
 import ReactDOM from "react-dom";
-import { Provider } from "react-redux";
 import { AppStartup } from "./shared/app-startup";
 import reportWebVitals from "./reportWebVitals";
+import { AuthProvider } from "./context/spotify-context";
 
 const rootElement = document.getElementById("root");
 
 ReactDOM.render(
-  <Provider store={store}>
+  <AuthProvider>
     <AppStartup />
-  </Provider>,
+  </AuthProvider>,
   rootElement
 );
 

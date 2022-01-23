@@ -1,40 +1,26 @@
 import * as React from "react";
+import { ToastContainer } from "react-toastify";
+import { injectStyle } from "react-toastify/dist/inject-style";
 import { StyledEngineProvider, ThemeProvider } from "@mui/material/styles";
-import { SnackbarProvider } from "notistack";
 import { BrowserRouter } from "react-router-dom";
 import { AppTheme, AppThemeInstance } from "./app-theme";
-import { AppRoutes } from "../routes/app-routes";
-import { Loader } from "../app/loader/loader-component";
+import Jamify from "../app/Jamify";
 
-interface State {
-  loader: boolean;
-}
-
-export class AppStartup extends React.PureComponent<object, State> {
-  constructor(props: any) {
+export class AppStartup extends React.PureComponent {
+  constructor(props: object) {
     super(props);
-    this.state = { loader: true };
-  }
 
-  public componentDidMount(): void {
-    this.setState({ loader: false });
+    injectStyle();
   }
 
   public render(): React.ReactNode {
-    const { loader } = this.state;
-
-    if (loader) {
-      return <Loader />;
-    }
-
     return (
       <ThemeProvider<AppTheme> theme={AppThemeInstance}>
         <StyledEngineProvider injectFirst={true}>
-          <SnackbarProvider maxSnack={3}>
-            <BrowserRouter>
-              <AppRoutes />
-            </BrowserRouter>
-          </SnackbarProvider>
+          <BrowserRouter>
+            <Jamify />
+            <ToastContainer limit={3} />
+          </BrowserRouter>
         </StyledEngineProvider>
       </ThemeProvider>
     );
