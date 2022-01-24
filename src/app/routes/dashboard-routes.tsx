@@ -1,9 +1,10 @@
 import * as React from "react";
 import { Route, Routes, useLocation, useNavigate } from "react-router";
-import { useAuth } from "../../context/spotify-context";
+import { useSpotifyAuth } from "../../context/spotify-context";
 import { getHash } from "../../utils/helpers";
 import { NotFound } from "../errors/not-found-component";
 import { Dashboard } from "../dashboard/dashboard-component";
+import { AppRoutes } from "./routes";
 
 interface InnerProps {
   error: boolean;
@@ -15,7 +16,7 @@ function DashboardRoutesClass(props: InnerProps) {
 
   return (
     <Routes>
-      <Route path="/dashboard" element={<Dashboard error={error} />} />
+      <Route path={AppRoutes.Dashboard} element={<Dashboard error={error} />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
@@ -25,14 +26,14 @@ function DashboardRoutesClass(props: InnerProps) {
 const DashboardRoutes = (): JSX.Element => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const { register } = useSpotifyAuth();
   const [error, setError] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     if (location.pathname === "/") {
-      navigate("/dashboard");
+      navigate(AppRoutes.Dashboard);
     } else if (location.search) {
-      navigate("/dashboard");
+      navigate(AppRoutes.Dashboard);
       setError(true);
     }
 

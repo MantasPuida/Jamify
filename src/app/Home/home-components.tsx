@@ -1,7 +1,8 @@
 import Button from "@mui/material/Button";
 import * as React from "react";
 import { NavigateFunction, useNavigate } from "react-router";
-import { useAuth } from "../../context/spotify-context";
+import { useSpotifyAuth } from "../../context/spotify-context";
+import { AppRoutes } from "../routes/routes";
 
 interface InnerProps {
   logout: () => void;
@@ -13,7 +14,7 @@ class HomeClass extends React.PureComponent<InnerProps> {
     const { logout, navigate } = this.props;
 
     logout();
-    navigate("/dashboard");
+    navigate(AppRoutes.Dashboard);
   };
 
   public render(): React.ReactNode {
@@ -22,7 +23,7 @@ class HomeClass extends React.PureComponent<InnerProps> {
 }
 
 export const Home = React.memo(() => {
-  const { logout } = useAuth();
+  const { logout } = useSpotifyAuth();
   const navigate = useNavigate();
 
   return <HomeClass logout={logout} navigate={navigate} />;

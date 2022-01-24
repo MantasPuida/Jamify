@@ -11,7 +11,7 @@ const AuthContext = React.createContext<AuthContextType | null>(null);
 AuthContext.displayName = "AuthContext";
 
 // eslint-disable-next-line react/function-component-definition
-function AuthProvider({ children }: { children: React.ReactNode }) {
+function SpotifyAuthProvider({ children }: { children: React.ReactNode }) {
   const [userToken, setUserToken] = React.useState<null | string>(() => auth.getUserToken());
 
   const register = React.useCallback(
@@ -31,12 +31,12 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-function useAuth() {
+function useSpotifyAuth() {
   const context = React.useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth must be used within a AuthProvider");
+    throw new Error("useSpotifyAuth must be used within a SpotifyAuthProvider");
   }
   return context;
 }
 
-export { AuthProvider, useAuth };
+export { SpotifyAuthProvider, useSpotifyAuth };
