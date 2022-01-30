@@ -1,6 +1,6 @@
 type HashType = Record<string, string>;
 
-export const getHash = (locationHash: string): HashType => {
+export const getTokenFromHash = (locationHash: string): HashType => {
   const hash: HashType = locationHash
     .substring(1)
     .split("&")

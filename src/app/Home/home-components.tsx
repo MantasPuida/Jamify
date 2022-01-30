@@ -1,19 +1,32 @@
-import Button from "@mui/material/Button";
 import * as React from "react";
+import Button from "@mui/material/Button";
 import { NavigateFunction, useNavigate } from "react-router";
+import SpotifyWebApi from "spotify-web-api-node";
 import { useSpotifyAuth } from "../../context/spotify-context";
 import { AppRoutes } from "../routes/routes";
+import { useYoutubeAuth } from "../../context/youtube-context";
+
+type LogoutFunctionType = () => void;
 
 interface InnerProps {
-  logout: () => void;
+  logoutYoutube: LogoutFunctionType;
+  logoutSpotify: LogoutFunctionType;
   navigate: NavigateFunction;
 }
 
-class HomeClass extends React.PureComponent<InnerProps> {
-  private handleOnClick = () => {
-    const { logout, navigate } = this.props;
+interface OuterProps {
+  spotifyApi: SpotifyWebApi;
+}
 
-    logout();
+type Props = InnerProps & OuterProps;
+
+class HomeClass extends React.PureComponent<Props> {
+  private handleOnClick = () => {
+    const { logoutYoutube, logoutSpotify, navigate } = this.props;
+
+    // TODO: implement different logouts in order to keep playing music from single/multiple sources
+    logoutSpotify();
+    logoutYoutube();
     navigate(AppRoutes.Dashboard);
   };
 
@@ -22,9 +35,10 @@ class HomeClass extends React.PureComponent<InnerProps> {
   }
 }
 
-export const Home = React.memo(() => {
-  const { logout } = useSpotifyAuth();
+export const Home = React.memo<OuterProps>((props) => {
+  const { logout: logoutSpotify } = useSpotifyAuth();
+  const { logout: logoutYoutube } = useYoutubeAuth();
   const navigate = useNavigate();
 
-  return <HomeClass logout={logout} navigate={navigate} />;
+  return <HomeClass logoutSpotify={logoutSpotify} logoutYoutube={logoutYoutube} navigate={navigate} {...props} />;
 });
