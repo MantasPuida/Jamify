@@ -21,6 +21,9 @@ module.exports = {
     "react/jsx-boolean-value": [1, "always"],
     "comma-dangle": ["error", "never"],
     semi: [1, "always"],
-    quotes: [2, "double"]
+    quotes: [2, "double"],
+    "react/jsx-props-no-spreading": [0],
+    "react/state-in-constructor": [0],
+    "class-methods-use-this": [0]
   }
 };

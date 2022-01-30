@@ -1,7 +1,7 @@
-const localStorageKey = "__spotify_auth_token__";
+type LocalStorageKeysType = "__spotify_auth_token__" | "__youtube_auth_token__";
 
-function getUserToken(): string | null {
-  let token = null;
+function getUserToken(localStorageKey: LocalStorageKeysType): string | null {
+  let token: string | null = null;
   try {
     token = window.localStorage.getItem(localStorageKey);
   } catch (error) {
@@ -11,11 +11,11 @@ function getUserToken(): string | null {
   return token;
 }
 
-function logout(): void {
+function logout(localStorageKey: LocalStorageKeysType): void {
   window.localStorage.removeItem(localStorageKey);
 }
 
-function register(token: string): Promise<string | void> {
+function register(token: string, localStorageKey: LocalStorageKeysType): Promise<string | void> {
   window.localStorage.setItem(localStorageKey, token);
   return new Promise((resolve, reject) => {
     if (token) {

@@ -22,8 +22,8 @@ const SPOTIFY_PERMISSION_SCOPE = [
 
 const SPOTIFY_BASE_URL = "https://accounts.spotify.com/authorize";
 
+export const SpotifyCallback = "http://localhost:3000/auth/spotify/callback";
+
 export const SPOTIFY_AUTH_URL = `${SPOTIFY_BASE_URL}?client_id=${
   process.env.REACT_APP_SPOTIFY_CLIENT_ID
-}&redirect_uri=${process.env.REACT_APP_SPOTIFY_CLIENT_REDIRECT_URI}&scope=${SPOTIFY_PERMISSION_SCOPE.join(
-  " "
-)}&response_type=token&show_dialog=true`;
+}&redirect_uri=${SpotifyCallback}&scope=${SPOTIFY_PERMISSION_SCOPE.join(" ")}&response_type=token&show_dialog=true`;

@@ -5,12 +5,12 @@ import { getHash } from "../../utils/helpers";
 import { NotFound } from "../errors/not-found-component";
 import { Dashboard } from "../dashboard/dashboard-component";
 import { AppRoutes } from "./routes";
+import { SpotifyCallback } from "../../constants/constants-spotify";
 
 interface InnerProps {
   error: boolean;
 }
 
-// eslint-disable-next-line react/function-component-definition
 function DashboardRoutesClass(props: InnerProps) {
   const { error } = props;
 
@@ -37,7 +37,7 @@ const DashboardRoutes = (): JSX.Element => {
       setError(true);
     }
 
-    if (location.pathname === "/callback") {
+    if (location.pathname === SpotifyCallback) {
       const { access_token: accessToken } = getHash(location.hash);
 
       if (accessToken) {

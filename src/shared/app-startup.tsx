@@ -5,13 +5,43 @@ import { StyledEngineProvider, ThemeProvider } from "@mui/material/styles";
 import { BrowserRouter } from "react-router-dom";
 import { AppTheme, AppThemeInstance } from "./app-theme";
 import Jamify from "../app/Jamify";
+import { YOUTUBE_SCOPES } from "../constants/constants-youtube";
+import { useYoutubeAuth } from "../context/youtube-context";
 
-export class AppStartup extends React.PureComponent {
-  constructor(props: object) {
+type LoadCallback = (...args: any[]) => void;
+
+interface InnerProps {
+  setGoogleAuthObject: Function;
+}
+
+class AppStartupClass extends React.PureComponent<InnerProps> {
+  constructor(props: InnerProps) {
     super(props);
 
     injectStyle();
+    gapi.load("client:auth2", this.initClient);
   }
+
+  private initClient: LoadCallback = () => {
+    const discoveryUrl = "https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest";
+    const { setGoogleAuthObject } = this.props;
+
+    gapi.client
+      .init({
+        apiKey: process.env.REACT_APP_YOUTUBE_API_KEY,
+        clientId: process.env.REACT_APP_YOUTUBE_CLIENT_ID,
+        discoveryDocs: [discoveryUrl],
+        scope: YOUTUBE_SCOPES.join(" ")
+      })
+      .then(() => {
+        const GoogleAuth: gapi.auth2.GoogleAuth = gapi.auth2.getAuthInstance();
+        setGoogleAuthObject(GoogleAuth);
+      })
+      .catch((err) => {
+        // eslint-disable-next-line no-console
+        console.error(err);
+      });
+  };
 
   public render(): React.ReactNode {
     return (
@@ -26,3 +56,9 @@ export class AppStartup extends React.PureComponent {
     );
   }
 }
+
+export const AppStartup = React.memo(() => {
+  const { setGoogleAuthObject } = useYoutubeAuth();
+
+  return <AppStartupClass setGoogleAuthObject={setGoogleAuthObject} />;
+});
