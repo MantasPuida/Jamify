@@ -6,7 +6,6 @@ import { useYoutubeAuth } from "../context/youtube-context";
 const Authenticated = React.lazy(() => import("./routes/home-routes"));
 const UnAuthenticated = React.lazy(() => import("./routes/dashboard-routes"));
 
-// eslint-disable-next-line react/function-component-definition
 export default function Jamify(): JSX.Element {
   const { spotifyToken } = useSpotifyAuth();
   const { youtubeToken } = useYoutubeAuth();

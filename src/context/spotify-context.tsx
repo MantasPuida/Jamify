@@ -10,7 +10,6 @@ interface AuthContextType {
 const AuthContext = React.createContext<AuthContextType | null>(null);
 AuthContext.displayName = "AuthContext";
 
-// eslint-disable-next-line react/function-component-definition
 function SpotifyAuthProvider({ children }: { children: React.ReactNode }) {
   const [userToken, setUserToken] = React.useState<null | string>(() => auth.getUserToken("__spotify_auth_token__"));
 

@@ -1,22 +1,23 @@
 import * as React from "react";
 import { Route, Routes, useLocation, useNavigate } from "react-router";
 import { useSpotifyAuth } from "../../context/spotify-context";
-import { getHash } from "../../utils/helpers";
+import { getTokenFromHash } from "../../utils/helpers";
 import { NotFound } from "../errors/not-found-component";
 import { Dashboard } from "../dashboard/dashboard-component";
 import { AppRoutes } from "./routes";
-import { SpotifyCallback } from "../../constants/constants-spotify";
+import { SpotifyConstants } from "../../constants/constants-spotify";
 
 interface InnerProps {
   error: boolean;
+  setError: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 function DashboardRoutesClass(props: InnerProps) {
-  const { error } = props;
+  const { error, setError } = props;
 
   return (
     <Routes>
-      <Route path={AppRoutes.Dashboard} element={<Dashboard error={error} />} />
+      <Route path={AppRoutes.Dashboard} element={<Dashboard error={error} setError={setError} />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
@@ -37,8 +38,8 @@ const DashboardRoutes = (): JSX.Element => {
       setError(true);
     }
 
-    if (location.pathname === SpotifyCallback) {
-      const { access_token: accessToken } = getHash(location.hash);
+    if (location.pathname === SpotifyConstants.SPOTIFY_CALLBACK) {
+      const { access_token: accessToken } = getTokenFromHash(location.hash);
 
       if (accessToken) {
         register(accessToken);
@@ -46,7 +47,7 @@ const DashboardRoutes = (): JSX.Element => {
     }
   }, [location.pathname]);
 
-  return <DashboardRoutesClass error={error} />;
+  return <DashboardRoutesClass error={error} setError={setError} />;
 };
 
 export default DashboardRoutes;

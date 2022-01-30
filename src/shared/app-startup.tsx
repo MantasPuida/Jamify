@@ -5,7 +5,7 @@ import { StyledEngineProvider, ThemeProvider } from "@mui/material/styles";
 import { BrowserRouter } from "react-router-dom";
 import { AppTheme, AppThemeInstance } from "./app-theme";
 import Jamify from "../app/Jamify";
-import { YOUTUBE_SCOPES } from "../constants/constants-youtube";
+import { YoutubeConstants } from "../constants/constants-youtube";
 import { useYoutubeAuth } from "../context/youtube-context";
 
 type LoadCallback = (...args: any[]) => void;
@@ -31,7 +31,7 @@ class AppStartupClass extends React.PureComponent<InnerProps> {
         apiKey: process.env.REACT_APP_YOUTUBE_API_KEY,
         clientId: process.env.REACT_APP_YOUTUBE_CLIENT_ID,
         discoveryDocs: [discoveryUrl],
-        scope: YOUTUBE_SCOPES.join(" ")
+        scope: YoutubeConstants.YOUTUBE_SCOPES.join(" ")
       })
       .then(() => {
         const GoogleAuth: gapi.auth2.GoogleAuth = gapi.auth2.getAuthInstance();

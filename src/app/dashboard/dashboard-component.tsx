@@ -3,11 +3,13 @@ import { NavigateFunction, useNavigate } from "react-router";
 import { Button, ButtonProps } from "@mui/material";
 import { Notify } from "../notification/notification-component";
 import { useYoutubeAuth } from "../../context/youtube-context";
-import { SPOTIFY_AUTH_URL } from "../../constants/constants-spotify";
 import { AppRoutes } from "../routes/routes";
+import { SpotifyConstants } from "../../constants/constants-spotify";
+import { LastTick } from "../../utils/last-tick";
 
 interface OuterProps {
   error: boolean;
+  setError: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface InnerProps {
@@ -19,6 +21,14 @@ interface InnerProps {
 type Props = InnerProps & OuterProps;
 
 class DashboardClass extends React.PureComponent<Props> {
+  private handleNotify = (): void => {
+    const { setError } = this.props;
+    Notify("Unable to authenticate", "error");
+    LastTick(() => {
+      setError(false);
+    });
+  };
+
   private onClick: ButtonProps["onClick"] = () => {
     const { googleAuthObject, register, navigate } = this.props;
 
@@ -28,20 +38,20 @@ class DashboardClass extends React.PureComponent<Props> {
         register(value.getAuthResponse().access_token);
         navigate(AppRoutes.Home);
       })
-      .catch((err) => {
-        Notify(err, "error");
+      .catch(() => {
+        this.handleNotify();
       });
   };
 
   private handleOnClick: ButtonProps["onClick"] = () => {
-    window.open(SPOTIFY_AUTH_URL, "Login with Spotify", "width=800,height=600");
+    window.open(SpotifyConstants.SPOTIFY_AUTH_URL, "Login with Spotify");
   };
 
   public render(): React.ReactNode {
     const { error } = this.props;
 
     if (error) {
-      Notify("Error accrued when logging in", "error");
+      this.handleNotify();
     }
 
     return (

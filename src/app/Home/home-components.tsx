@@ -6,9 +6,11 @@ import { useSpotifyAuth } from "../../context/spotify-context";
 import { AppRoutes } from "../routes/routes";
 import { useYoutubeAuth } from "../../context/youtube-context";
 
+type LogoutFunctionType = () => void;
+
 interface InnerProps {
-  logoutYoutube: () => void;
-  logoutSpotify: () => void;
+  logoutYoutube: LogoutFunctionType;
+  logoutSpotify: LogoutFunctionType;
   navigate: NavigateFunction;
 }
 
@@ -22,6 +24,7 @@ class HomeClass extends React.PureComponent<Props> {
   private handleOnClick = () => {
     const { logoutYoutube, logoutSpotify, navigate } = this.props;
 
+    // TODO: implement different logouts in order to keep playing music from single/multiple sources
     logoutSpotify();
     logoutYoutube();
     navigate(AppRoutes.Dashboard);

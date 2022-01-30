@@ -12,7 +12,6 @@ interface AuthContextType {
 const AuthContext = React.createContext<AuthContextType | null>(null);
 AuthContext.displayName = "AuthContext";
 
-// eslint-disable-next-line react/function-component-definition
 function YoutubeAuthProvider({ children }: { children: React.ReactNode }) {
   const [userToken, setUserToken] = React.useState<null | string>(() => auth.getUserToken("__youtube_auth_token__"));
   const [googleAuthObject, setGoogleObject] = React.useState<gapi.auth2.GoogleAuth>();

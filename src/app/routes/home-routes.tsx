@@ -10,7 +10,6 @@ interface Props {
   spotifyApi: SpotifyWebApi;
 }
 
-// eslint-disable-next-line react/function-component-definition
 function HomeRoutesClass(props: Props) {
   const { spotifyApi } = props;
 

@@ -17,6 +17,7 @@ function logout(localStorageKey: LocalStorageKeysType): void {
 
 function register(token: string, localStorageKey: LocalStorageKeysType): Promise<string | void> {
   window.localStorage.setItem(localStorageKey, token);
+
   return new Promise((resolve, reject) => {
     if (token) {
       resolve(token);
