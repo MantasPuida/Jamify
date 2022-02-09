@@ -5,6 +5,7 @@ import { NotFound } from "../errors/not-found-component";
 import { Home } from "../Home/home-components";
 import { AppRoutes } from "./routes";
 import { useSpotifyAuth } from "../../context/spotify-context";
+import { SpotifyConstants } from "../../constants/constants-spotify";
 
 interface Props {
   spotifyApi: SpotifyWebApi;
@@ -32,7 +33,7 @@ const HomeRoutes = (): JSX.Element => {
   });
 
   React.useEffect(() => {
-    if (location.pathname === "/callback" || location.pathname === "/") {
+    if (location.pathname === SpotifyConstants.SPOTIFY_REDIRECT_PATHNAME || location.pathname === "/") {
       navigate(AppRoutes.Home);
     }
   }, [location.pathname]);

@@ -4,13 +4,16 @@ import { AppStartup } from "./shared/app-startup";
 import reportWebVitals from "./reportWebVitals";
 import { SpotifyAuthProvider } from "./context/spotify-context";
 import { YoutubeAuthProvider } from "./context/youtube-context";
+import { DeezerAuthProvider } from "./context/deezer-context";
 
 const rootElement = document.getElementById("root");
 
 ReactDOM.render(
   <SpotifyAuthProvider>
     <YoutubeAuthProvider>
-      <AppStartup />
+      <DeezerAuthProvider>
+        <AppStartup />
+      </DeezerAuthProvider>
     </YoutubeAuthProvider>
   </SpotifyAuthProvider>,
   rootElement

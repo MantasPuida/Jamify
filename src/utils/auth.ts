@@ -1,4 +1,4 @@
-type LocalStorageKeysType = "__spotify_auth_token__" | "__youtube_auth_token__";
+type LocalStorageKeysType = "__spotify_auth_token__" | "__youtube_auth_token__" | "__deezer_auth_token__";
 
 function getUserToken(localStorageKey: LocalStorageKeysType): string | null {
   let token: string | null = null;

@@ -6,6 +6,8 @@ import { useYoutubeAuth } from "../../context/youtube-context";
 import { AppRoutes } from "../routes/routes";
 import { SpotifyConstants } from "../../constants/constants-spotify";
 import { LastTick } from "../../utils/last-tick";
+import { useDeezerAuth } from "../../context/deezer-context";
+import { DeezerConstants } from "../../constants/constants-deezer";
 
 interface OuterProps {
   error: boolean;
@@ -14,7 +16,8 @@ interface OuterProps {
 
 interface InnerProps {
   googleAuthObject: gapi.auth2.GoogleAuthBase | undefined;
-  register: Function;
+  registerYoutubeToken: Function;
+  registerDeezerToken: Function;
   navigate: NavigateFunction;
 }
 
@@ -29,13 +32,13 @@ class DashboardClass extends React.PureComponent<Props> {
     });
   };
 
-  private onClick: ButtonProps["onClick"] = () => {
-    const { googleAuthObject, register, navigate } = this.props;
+  private handleLoginYoutube: ButtonProps["onClick"] = () => {
+    const { googleAuthObject, registerYoutubeToken, navigate } = this.props;
 
     googleAuthObject
       ?.signIn()
       .then((value: gapi.auth2.GoogleUser) => {
-        register(value.getAuthResponse().access_token);
+        registerYoutubeToken(value.getAuthResponse().access_token);
         navigate(AppRoutes.Home);
       })
       .catch(() => {
@@ -43,8 +46,27 @@ class DashboardClass extends React.PureComponent<Props> {
       });
   };
 
-  private handleOnClick: ButtonProps["onClick"] = () => {
-    window.open(SpotifyConstants.SPOTIFY_AUTH_URL, "Login with Spotify");
+  private handleLoginSpotify: ButtonProps["onClick"] = () => {
+    window.opener(SpotifyConstants.SPOTIFY_AUTH_URL);
+  };
+
+  private handleLoginDeezer: ButtonProps["onClick"] = () => {
+    const { registerDeezerToken, navigate } = this.props;
+
+    DZ.login(
+      (response) => {
+        const { status, authResponse } = response;
+
+        if (status === "connected" && authResponse.accessToken) {
+          const { accessToken } = authResponse;
+          registerDeezerToken(accessToken);
+          navigate(AppRoutes.Home);
+        } else {
+          this.handleNotify();
+        }
+      },
+      { perms: DeezerConstants.scopes.join(",") }
+    );
   };
 
   public render(): React.ReactNode {
@@ -55,17 +77,27 @@ class DashboardClass extends React.PureComponent<Props> {
     }
 
     return (
-      <>
-        <Button onClick={this.handleOnClick}>Login With Spotify</Button>
-        <Button onClick={this.onClick}>Login With Youtube</Button>
-      </>
+      <div>
+        <Button onClick={this.handleLoginSpotify}>Login With Spotify</Button>
+        <Button onClick={this.handleLoginYoutube}>Login With Youtube</Button>
+        <Button onClick={this.handleLoginDeezer}>Login With Deezer</Button>
+      </div>
     );
   }
 }
 
 export const Dashboard = React.memo<OuterProps>((props) => {
-  const { googleAuthObject, register } = useYoutubeAuth();
+  const { googleAuthObject, register: RegisterYoutubeToken } = useYoutubeAuth();
+  const { register: RegisterDeezerToken } = useDeezerAuth();
   const navigate = useNavigate();
 
-  return <DashboardClass googleAuthObject={googleAuthObject} register={register} navigate={navigate} {...props} />;
+  return (
+    <DashboardClass
+      googleAuthObject={googleAuthObject}
+      registerDeezerToken={RegisterDeezerToken}
+      registerYoutubeToken={RegisterYoutubeToken}
+      navigate={navigate}
+      {...props}
+    />
+  );
 });

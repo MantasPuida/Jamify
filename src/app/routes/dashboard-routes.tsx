@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Route, Routes, useLocation, useNavigate } from "react-router";
 import { useSpotifyAuth } from "../../context/spotify-context";
-import { getTokenFromHash } from "../../utils/helpers";
+import { Helpers } from "../../utils/helpers";
 import { NotFound } from "../errors/not-found-component";
 import { Dashboard } from "../dashboard/dashboard-component";
 import { AppRoutes } from "./routes";
@@ -27,22 +27,24 @@ function DashboardRoutesClass(props: InnerProps) {
 const DashboardRoutes = (): JSX.Element => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { register } = useSpotifyAuth();
+  const { register: registerSpotifyToken } = useSpotifyAuth();
   const [error, setError] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     if (location.pathname === "/") {
       navigate(AppRoutes.Dashboard);
-    } else if (location.search) {
+    }
+
+    if (location.search.includes("error")) {
       navigate(AppRoutes.Dashboard);
       setError(true);
     }
 
-    if (location.pathname === SpotifyConstants.SPOTIFY_CALLBACK) {
-      const { access_token: accessToken } = getTokenFromHash(location.hash);
+    if (location.pathname === SpotifyConstants.SPOTIFY_REDIRECT_PATHNAME) {
+      const { access_token: accessToken } = Helpers.getTokenFromHash(location.hash);
 
       if (accessToken) {
-        register(accessToken);
+        registerSpotifyToken(accessToken);
       }
     }
   }, [location.pathname]);
