@@ -7,6 +7,7 @@ import { AppTheme, AppThemeInstance } from "./app-theme";
 import Jamify from "../app/Jamify";
 import { YoutubeConstants } from "../constants/constants-youtube";
 import { useYoutubeAuth } from "../context/youtube-context";
+import { DeezerConstants } from "../constants/constants-deezer";
 
 type LoadCallback = (...args: any[]) => void;
 
@@ -19,18 +20,25 @@ class AppStartupClass extends React.PureComponent<InnerProps> {
     super(props);
 
     injectStyle();
-    gapi.load("client:auth2", this.initClient);
+    gapi.load("client:auth2", this.initGapiClient);
+    this.initDeezerClient();
   }
 
-  private initClient: LoadCallback = () => {
-    const discoveryUrl = "https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest";
+  private initDeezerClient = () => {
+    DZ.init({
+      appId: process.env.REACT_APP_DEEZER_APP_ID!,
+      channelUrl: DeezerConstants.DEEZER_REDIRECT_URI
+    });
+  };
+
+  private initGapiClient: LoadCallback = () => {
     const { setGoogleAuthObject } = this.props;
 
     gapi.client
       .init({
         apiKey: process.env.REACT_APP_YOUTUBE_API_KEY,
         clientId: process.env.REACT_APP_YOUTUBE_CLIENT_ID,
-        discoveryDocs: [discoveryUrl],
+        discoveryDocs: [YoutubeConstants.discoveryUrl],
         scope: YoutubeConstants.YOUTUBE_SCOPES.join(" ")
       })
       .then(() => {

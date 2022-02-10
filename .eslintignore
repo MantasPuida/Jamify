@@ -2,3 +2,4 @@
 tests
 babel.config.js
 jest.config.ts
+types
