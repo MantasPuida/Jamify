@@ -31,7 +31,7 @@ const DashboardRoutes = (): JSX.Element => {
   const [error, setError] = React.useState<boolean>(false);
 
   React.useEffect(() => {
-    if (location.pathname === "/") {
+    if (location.pathname === AppRoutes.Default) {
       navigate(AppRoutes.Dashboard);
     }
 

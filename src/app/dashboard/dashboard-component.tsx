@@ -1,5 +1,5 @@
 import * as React from "react";
-import { NavigateFunction, useNavigate } from "react-router";
+import { NavigateFunction, useLocation, Location, useNavigate } from "react-router";
 import { Button, ButtonProps } from "@mui/material";
 import { Notify } from "../notification/notification-component";
 import { useYoutubeAuth } from "../../context/youtube-context";
@@ -19,6 +19,7 @@ interface InnerProps {
   registerYoutubeToken: Function;
   registerDeezerToken: Function;
   navigate: NavigateFunction;
+  location: Location;
 }
 
 type Props = InnerProps & OuterProps;
@@ -47,7 +48,8 @@ class DashboardClass extends React.PureComponent<Props> {
   };
 
   private handleLoginSpotify: ButtonProps["onClick"] = () => {
-    window.opener(SpotifyConstants.SPOTIFY_AUTH_URL);
+    // TODO: implement popup
+    window.open(SpotifyConstants.SPOTIFY_AUTH_URL, "_self");
   };
 
   private handleLoginDeezer: ButtonProps["onClick"] = () => {
@@ -90,6 +92,7 @@ export const Dashboard = React.memo<OuterProps>((props) => {
   const { googleAuthObject, register: RegisterYoutubeToken } = useYoutubeAuth();
   const { register: RegisterDeezerToken } = useDeezerAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <DashboardClass
@@ -97,6 +100,7 @@ export const Dashboard = React.memo<OuterProps>((props) => {
       registerDeezerToken={RegisterDeezerToken}
       registerYoutubeToken={RegisterYoutubeToken}
       navigate={navigate}
+      location={location}
       {...props}
     />
   );

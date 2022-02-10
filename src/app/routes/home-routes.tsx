@@ -33,7 +33,7 @@ const HomeRoutes = (): JSX.Element => {
   });
 
   React.useEffect(() => {
-    if (location.pathname === SpotifyConstants.SPOTIFY_REDIRECT_PATHNAME || location.pathname === "/") {
+    if (location.pathname === SpotifyConstants.SPOTIFY_REDIRECT_PATHNAME || location.pathname === AppRoutes.Default) {
       navigate(AppRoutes.Home);
     }
   }, [location.pathname]);
