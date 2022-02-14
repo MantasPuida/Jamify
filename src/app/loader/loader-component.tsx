@@ -4,7 +4,7 @@ import "./loader.css";
 export class Loader extends React.PureComponent {
   public render(): React.ReactNode {
     return (
-      <main>
+      <div className="main">
         <div className="loader">
           <div className="row">
             <div className="arrow up outer outer-18" />
@@ -39,7 +39,7 @@ export class Loader extends React.PureComponent {
             <div className="arrow down outer outer-9" />
           </div>
         </div>
-      </main>
+      </div>
     );
   }
 }
