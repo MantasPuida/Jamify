@@ -1,4 +1,3 @@
-/* eslint-disable react/button-has-type */
 import * as React from "react";
 import { Avatar, Button, ButtonProps, Grid, Typography } from "@mui/material";
 import { WithStyles } from "@mui/styles";
@@ -7,9 +6,9 @@ import { DashboardStyles, useDashboardStyles } from "./dashboard-styles";
 import dashboardImage from "../../assets/dashboard/Dashboard_Image.png";
 import youtubeIcon from "../../assets/dashboard/Youtube_Icon_Black.png";
 import deezerIcon from "../../assets/dashboard/Deezer_Icon_Black.png";
-import spotifyIcon from "../../assets/dashboard/Spotify_Icon_CMYK_Black.png";
+import spotifyIcon from "../../assets/dashboard/Spotify_Icon_Black.png";
 
-import "./fontFamily.css";
+import "./FontFamily.css";
 
 interface OuterProps {
   spotifyLogin: ButtonProps["onClick"];
