@@ -1,11 +1,13 @@
 /* eslint-disable react/button-has-type */
 import * as React from "react";
-import { Button, ButtonProps, Grid, Typography } from "@mui/material";
+import { Avatar, Button, ButtonProps, Grid, Typography } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import Typewriter from "typewriter-effect";
 import { DashboardStyles, useDashboardStyles } from "./dashboard-styles";
 import dashboardImage from "../../assets/dashboard/Dashboard_Image.png";
-// import youtubeIcon from "../../assets/dashboard/Youtube_Icon.png";
+import youtubeIcon from "../../assets/dashboard/Youtube_Icon_Black.png";
+import deezerIcon from "../../assets/dashboard/Deezer_Icon_Black.png";
+import spotifyIcon from "../../assets/dashboard/Spotify_Icon_CMYK_Black.png";
 
 import "./fontFamily.css";
 
@@ -20,7 +22,7 @@ type Props = InnerProps & OuterProps;
 
 class LandingPageClass extends React.PureComponent<Props> {
   public render(): React.ReactNode {
-    const { classes } = this.props;
+    const { classes, deezerLogin, spotifyLogin, youtubeLogin } = this.props;
 
     return (
       <Grid container={true} className={classes.mainWindow}>
@@ -56,7 +58,36 @@ class LandingPageClass extends React.PureComponent<Props> {
               </Typography>
             </Grid>
             <Grid item={true} container={true} style={{ marginLeft: 55, paddingTop: 75 }}>
-              <Button variant="outlined">Login with Spotify</Button>
+              <Grid item={true} className={classes.loginButton} xs={12}>
+                <Button
+                  className={classes.button}
+                  variant="outlined"
+                  onClick={spotifyLogin}
+                  endIcon={<Avatar className={classes.avatar} src={spotifyIcon} />}
+                >
+                  <Typography fontFamily="Poppins, sans-serif">Login via Spotify</Typography>
+                </Button>
+              </Grid>
+              <Grid item={true} className={classes.loginButton} xs={12}>
+                <Button
+                  className={classes.button}
+                  variant="outlined"
+                  onClick={youtubeLogin}
+                  endIcon={<Avatar className={classes.avatar} src={youtubeIcon} />}
+                >
+                  <Typography fontFamily="Poppins, sans-serif">Login via Youtube</Typography>
+                </Button>
+              </Grid>
+              <Grid item={true} className={classes.loginButton} xs={12}>
+                <Button
+                  className={classes.button}
+                  variant="outlined"
+                  onClick={deezerLogin}
+                  endIcon={<Avatar className={classes.avatar} src={deezerIcon} />}
+                >
+                  <Typography fontFamily="Poppins, sans-serif">Login via Deezer</Typography>
+                </Button>
+              </Grid>
             </Grid>
           </Grid>
         </Grid>
