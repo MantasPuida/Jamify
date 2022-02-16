@@ -4,7 +4,6 @@ import { WithStyles } from "@mui/styles";
 import SpotifyWebApi from "spotify-web-api-node";
 import { HeaderComponent } from "./header/header-component";
 import { HomeLandingPageStyles, useHomeLandingPageStyles } from "./landing-page.styles";
-import "simplebar-react/dist/simplebar.min.css";
 // import YTMusic from "ytmusic-api";
 
 interface OuterProps {
