@@ -1,5 +1,7 @@
 export enum AppRoutes {
   Default = "/",
   Home = "/home",
-  Dashboard = "/dashboard"
+  Dashboard = "/dashboard",
+  Explore = "/explore",
+  Search = "/search"
 }

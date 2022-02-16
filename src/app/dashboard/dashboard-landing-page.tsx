@@ -19,7 +19,7 @@ interface OuterProps {
 type InnerProps = WithStyles<typeof DashboardStyles>;
 type Props = InnerProps & OuterProps;
 
-class LandingPageClass extends React.PureComponent<Props> {
+class DashboardLandingPageClass extends React.PureComponent<Props> {
   public render(): React.ReactNode {
     const { classes, deezerLogin, spotifyLogin, youtubeLogin } = this.props;
 
@@ -98,8 +98,8 @@ class LandingPageClass extends React.PureComponent<Props> {
   }
 }
 
-export const LandingPage = React.memo<OuterProps>((props) => {
+export const DashboardLandingPage = React.memo<OuterProps>((props) => {
   const classes = useDashboardStyles();
 
-  return <LandingPageClass {...props} classes={classes} />;
+  return <DashboardLandingPageClass {...props} classes={classes} />;
 });
