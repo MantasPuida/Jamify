@@ -8,7 +8,7 @@ import { useLocation, Location } from "react-router";
 import { HeaderStyles, useHeaderStyles } from "./header.styles";
 import { AppRoutes } from "../../routes/routes";
 
-import "./FontFamily.css";
+import "./fontFamily.css";
 import { AccountMenu } from "./header-account-menu";
 
 interface InnerProps extends WithStyles<typeof HeaderStyles> {

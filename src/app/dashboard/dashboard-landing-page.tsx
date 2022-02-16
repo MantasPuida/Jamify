@@ -8,7 +8,7 @@ import youtubeIcon from "../../assets/dashboard/Youtube_Icon_Black.png";
 import deezerIcon from "../../assets/dashboard/Deezer_Icon_Black.png";
 import spotifyIcon from "../../assets/dashboard/Spotify_Icon_Black.png";
 
-import "./FontFamily.css";
+import "./fontFamily.css";
 
 interface OuterProps {
   spotifyLogin: ButtonProps["onClick"];

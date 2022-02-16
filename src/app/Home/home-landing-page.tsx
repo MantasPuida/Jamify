@@ -1,34 +1,34 @@
-import { Grid } from "@mui/material";
 import * as React from "react";
+import { Grid } from "@mui/material";
+import { WithStyles } from "@mui/styles";
 import SpotifyWebApi from "spotify-web-api-node";
-import { Scrollbars } from "react-custom-scrollbars-2";
 import { HeaderComponent } from "./header/header-component";
+import { HomeLandingPageStyles, useHomeLandingPageStyles } from "./landing-page.styles";
+import "simplebar-react/dist/simplebar.min.css";
 // import YTMusic from "ytmusic-api";
 
 interface OuterProps {
   spotifyApi: SpotifyWebApi;
 }
 
-class HomeLandingPageClass extends React.PureComponent<OuterProps> {
+type InnerProps = WithStyles<typeof HomeLandingPageStyles>;
+
+type Props = InnerProps & OuterProps;
+
+class HomeLandingPageClass extends React.PureComponent<Props> {
   public render(): React.ReactNode {
+    const { classes } = this.props;
+
     return (
-      <Scrollbars
-        style={{ width: "100vw", height: "100vh" }}
-        autoHideTimeout={1000}
-        autoHide={true}
-        autoHideDuration={200}
-      >
-        <Grid
-          container={true}
-          item={true}
-          xs={12}
-          style={{ backgroundColor: "white", width: "100vw", height: "100vw" }}
-        >
-          <HeaderComponent />
-        </Grid>
-      </Scrollbars>
+      <Grid container={true} item={true} xs={12} className={classes.homeGrid}>
+        <HeaderComponent />
+      </Grid>
     );
   }
 }
 
-export const HomeLandingPage = React.memo<OuterProps>((props) => <HomeLandingPageClass {...props} />);
+export const HomeLandingPage = React.memo<OuterProps>((props) => {
+  const classes = useHomeLandingPageStyles();
+
+  return <HomeLandingPageClass {...props} classes={classes} />;
+});

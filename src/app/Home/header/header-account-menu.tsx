@@ -7,13 +7,13 @@ import Cog from "mdi-material-ui/Cog";
 import LogoutVariant from "mdi-material-ui/LogoutVariant";
 import AccountCircleOutline from "mdi-material-ui/AccountCircleOutline";
 import { Typography } from "@mui/material";
-
-import "./FontFamily.css";
 import { NavigateFunction, useNavigate } from "react-router";
 import { useSpotifyAuth } from "../../../context/spotify-context";
 import { useYoutubeAuth } from "../../../context/youtube-context";
 import { useDeezerAuth } from "../../../context/deezer-context";
 import { AppRoutes } from "../../routes/routes";
+
+import "./fontFamily.css";
 
 type LogoutFunctionType = () => void;
 
