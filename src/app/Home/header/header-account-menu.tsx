@@ -1,5 +1,6 @@
 import * as React from "react";
 import Menu from "@mui/material/Menu";
+import { WithStyles } from "@mui/styles";
 import MenuItem, { MenuItemProps } from "@mui/material/MenuItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import IconButton, { IconButtonProps } from "@mui/material/IconButton";
@@ -12,12 +13,13 @@ import { useSpotifyAuth } from "../../../context/spotify-context";
 import { useYoutubeAuth } from "../../../context/youtube-context";
 import { useDeezerAuth } from "../../../context/deezer-context";
 import { AppRoutes } from "../../routes/routes";
+import { HeaderStyles, useHeaderStyles } from "./header.styles";
 
 import "./fontFamily.css";
 
 type LogoutFunctionType = () => void;
 
-interface InnerProps {
+interface InnerProps extends WithStyles<typeof HeaderStyles> {
   anchorEl: null | HTMLElement;
   setAnchorEl: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   navigate: NavigateFunction;
@@ -68,19 +70,19 @@ class AccountMenuClass extends React.PureComponent<InnerProps> {
   };
 
   public render(): React.ReactNode {
-    const { anchorEl } = this.props;
+    const { anchorEl, classes } = this.props;
     const open = Boolean(anchorEl);
 
     return (
       <>
         <IconButton
           onClick={this.handleClick}
-          style={{ color: "white" }}
+          className={classes.headerMenuIconButton}
           aria-controls={open ? "account-menu" : undefined}
           aria-haspopup="true"
           aria-expanded={open ? "true" : undefined}
         >
-          <AccountCircleOutline style={{ width: 48, height: 48 }} />
+          <AccountCircleOutline className={classes.headerMenuIcon} />
         </IconButton>
         <Menu
           anchorEl={anchorEl}
@@ -92,7 +94,7 @@ class AccountMenuClass extends React.PureComponent<InnerProps> {
         >
           <MenuItem>
             <ListItemIcon>
-              <Cog fontSize="small" style={{ color: "black" }} />
+              <Cog fontSize="small" className={classes.listItemIcon} />
             </ListItemIcon>
             <Typography fontFamily="Poppins,sans-serif" fontSize={24} color="black">
               Settings
@@ -100,7 +102,7 @@ class AccountMenuClass extends React.PureComponent<InnerProps> {
           </MenuItem>
           <MenuItem onClick={this.handleOnLogout}>
             <ListItemIcon>
-              <LogoutVariant fontSize="small" style={{ color: "black" }} />
+              <LogoutVariant fontSize="small" className={classes.listItemIcon} />
             </ListItemIcon>
             <Typography fontFamily="Poppins,sans-serif" fontSize={24} color="black">
               Logout
@@ -118,6 +120,7 @@ export const AccountMenu = React.memo(() => {
   const { logout: logoutSpotify } = useSpotifyAuth();
   const { logout: logoutYoutube } = useYoutubeAuth();
   const { logout: logoutDeezer } = useDeezerAuth();
+  const classes = useHeaderStyles();
 
   return (
     <AccountMenuClass
@@ -127,6 +130,7 @@ export const AccountMenu = React.memo(() => {
       logoutSpotify={logoutSpotify}
       logoutYoutube={logoutYoutube}
       logoutDeezer={logoutDeezer}
+      classes={classes}
     />
   );
 });

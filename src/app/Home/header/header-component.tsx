@@ -41,9 +41,9 @@ class HeaderComponentClass extends React.PureComponent<InnerProps> {
 
     return (
       <Grid container={true} item={true} xs={12} className={classes.mainContainer}>
-        <Grid item={true} xs={2} color="white" className={classes.leftHeaderItem}>
-          <IconButton style={{ color: "white" }}>
-            <MusicAccidentalDoubleFlat style={{ width: 56, height: 56 }} />
+        <Grid item={true} xs={2} className={classes.leftHeaderItem}>
+          <IconButton className={classes.iconButton}>
+            <MusicAccidentalDoubleFlat className={classes.mainIcon} />
           </IconButton>
         </Grid>
         <Grid item={true} container={true} xs={8} color="white" className={classes.centerContent}>
@@ -73,7 +73,7 @@ class HeaderComponentClass extends React.PureComponent<InnerProps> {
             <Button
               variant="text"
               className={clsx({ [classes.textColor]: pathname === AppRoutes.Search }, classes.buttons)}
-              classes={{ iconSizeMedium: classes.IconInText }}
+              classes={{ iconSizeMedium: classes.iconInText }}
               onClick={this.handleOnSearchClick}
               startIcon={<Magnify />}
             >

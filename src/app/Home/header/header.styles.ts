@@ -21,7 +21,7 @@ export const HeaderStyles = () =>
         color: "white !important"
       }
     },
-    IconInText: {
+    iconInText: {
       "& > *:first-child": {
         fontSize: 28
       }
@@ -37,6 +37,25 @@ export const HeaderStyles = () =>
     centerContent: {
       justifyContent: "center",
       alignContent: "center"
+    },
+    mainIcon: {
+      width: 56,
+      height: 56
+    },
+    iconButton: {
+      color: "white"
+    },
+    headerMenuIcon: {
+      width: 48,
+      height: 48
+    },
+    headerMenuIconButton: {
+      color: "white"
+    },
+    listItemIcon: {
+      color: "black",
+      width: 25,
+      height: 25
     }
   });
 
