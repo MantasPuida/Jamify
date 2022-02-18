@@ -8,7 +8,7 @@ import { SpotifyConstants } from "../../constants/constants-spotify";
 import { LastTick } from "../../utils/last-tick";
 import { useDeezerAuth } from "../../context/deezer-context";
 import { DeezerConstants } from "../../constants/constants-deezer";
-import { LandingPage } from "./dashboard-landing-page";
+import { DashboardLandingPage } from "./dashboard-landing-page";
 
 interface OuterProps {
   error: boolean;
@@ -80,7 +80,7 @@ class DashboardClass extends React.PureComponent<Props> {
     }
 
     return (
-      <LandingPage
+      <DashboardLandingPage
         spotifyLogin={this.handleLoginSpotify}
         youtubeLogin={this.handleLoginYoutube}
         deezerLogin={this.handleLoginDeezer}
