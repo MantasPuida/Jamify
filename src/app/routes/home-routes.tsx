@@ -33,7 +33,9 @@ const HomeRoutes = (): JSX.Element => {
   const { spotifyToken } = useSpotifyAuth();
 
   const spotifyApi = new SpotifyWebApi({
-    accessToken: spotifyToken!
+    accessToken: spotifyToken!,
+    clientId: process.env.REACT_APP_SPOTIFY_CLIENT_ID,
+    clientSecret: process.env.REACT_APP_SPOTIFY_CLIENT_SECRET
   });
 
   React.useEffect(() => {

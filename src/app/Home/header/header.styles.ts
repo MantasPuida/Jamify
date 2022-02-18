@@ -3,7 +3,8 @@ import { createStyles, makeStyles } from "@mui/styles";
 export const HeaderStyles = () =>
   createStyles({
     mainContainer: {
-      height: "80px",
+      height: 80,
+      maxHeight: 80,
       backgroundColor: "black"
     },
     leftHeaderItem: {
