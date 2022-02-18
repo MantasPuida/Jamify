@@ -34,7 +34,8 @@ export const DashboardStyles = () =>
     },
     typewriter: {
       float: "right",
-      paddingLeft: 16
+      paddingLeft: 16,
+      fontFamily: "Poppins, sans-serif"
     },
     contentText: {
       paddingTop: 75
@@ -69,7 +70,7 @@ export const DashboardStyles = () =>
       justifyContent: "end"
     },
     loginButton: {
-      paddingTop: 16
+      paddingTop: 24
     }
   });
 

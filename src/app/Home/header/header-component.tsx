@@ -2,9 +2,9 @@ import * as React from "react";
 import clsx from "clsx";
 import Magnify from "mdi-material-ui/Magnify";
 import MusicAccidentalDoubleFlat from "mdi-material-ui/MusicAccidentalDoubleFlat";
-import { Button, Grid, IconButton, Typography } from "@mui/material";
+import { Button, ButtonProps, Grid, IconButton, Typography } from "@mui/material";
 import { WithStyles } from "@mui/styles";
-import { useLocation, Location } from "react-router";
+import { useLocation, Location, NavigateFunction, useNavigate } from "react-router";
 import { HeaderStyles, useHeaderStyles } from "./header.styles";
 import { AppRoutes } from "../../routes/routes";
 
@@ -13,9 +13,28 @@ import { AccountMenu } from "./header-account-menu";
 
 interface InnerProps extends WithStyles<typeof HeaderStyles> {
   location: Location;
+  navigate: NavigateFunction;
 }
 
 class HeaderComponentClass extends React.PureComponent<InnerProps> {
+  private handleOnExploreClick: ButtonProps["onClick"] = () => {
+    const { navigate } = this.props;
+
+    navigate(AppRoutes.Explore);
+  };
+
+  private handleOnSearchClick: ButtonProps["onClick"] = () => {
+    const { navigate } = this.props;
+
+    navigate(AppRoutes.Search);
+  };
+
+  private handleOnHomeClick: ButtonProps["onClick"] = () => {
+    const { navigate } = this.props;
+
+    navigate(AppRoutes.Home);
+  };
+
   public render(): React.ReactNode {
     const { classes, location } = this.props;
     const { pathname } = location;
@@ -32,6 +51,7 @@ class HeaderComponentClass extends React.PureComponent<InnerProps> {
             <Button
               variant="text"
               className={clsx({ [classes.textColor]: pathname === AppRoutes.Home }, classes.buttons)}
+              onClick={this.handleOnHomeClick}
             >
               <Typography fontSize={28} fontFamily="Poppins,sans-serif">
                 Home
@@ -42,6 +62,7 @@ class HeaderComponentClass extends React.PureComponent<InnerProps> {
             <Button
               variant="text"
               className={clsx({ [classes.textColor]: pathname === AppRoutes.Explore }, classes.buttons)}
+              onClick={this.handleOnExploreClick}
             >
               <Typography fontSize={28} fontFamily="Poppins,sans-serif">
                 Explore
@@ -53,6 +74,7 @@ class HeaderComponentClass extends React.PureComponent<InnerProps> {
               variant="text"
               className={clsx({ [classes.textColor]: pathname === AppRoutes.Search }, classes.buttons)}
               classes={{ iconSizeMedium: classes.IconInText }}
+              onClick={this.handleOnSearchClick}
               startIcon={<Magnify />}
             >
               <Typography fontSize={28} fontFamily="Poppins,sans-serif">
@@ -70,8 +92,9 @@ class HeaderComponentClass extends React.PureComponent<InnerProps> {
 }
 
 export const HeaderComponent = React.memo(() => {
-  const location = useLocation();
   const classes = useHeaderStyles();
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  return <HeaderComponentClass location={location} classes={classes} />;
+  return <HeaderComponentClass location={location} navigate={navigate} classes={classes} />;
 });
