@@ -8,6 +8,7 @@ import { useSpotifyAuth } from "../../context/spotify-context";
 import { SpotifyConstants } from "../../constants/constants-spotify";
 import { Explore } from "../explore/explore-component";
 import { Search } from "../search/search-component";
+import { Playlist } from "../playlist/playlist-class";
 
 interface Props {
   spotifyApi: SpotifyWebApi;
@@ -21,6 +22,7 @@ function HomeRoutesClass(props: Props) {
       <Route path={AppRoutes.Home} element={<Home spotifyApi={spotifyApi} />} />
       <Route path={AppRoutes.Explore} element={<Explore />} />
       <Route path={AppRoutes.Search} element={<Search />} />
+      <Route path={AppRoutes.Playlist} element={<Playlist spotifyApi={spotifyApi} />} />
       <Route path="*" element={<NotFound />} />;
     </Routes>
   );

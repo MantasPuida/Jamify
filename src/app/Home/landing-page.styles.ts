@@ -7,7 +7,7 @@ export const HomeLandingPageStyles = () =>
       height: "100vh"
     },
     homeGrid: {
-      backgroundColor: "white"
+      backgroundColor: "black"
     }
   });
 

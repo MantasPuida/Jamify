@@ -26,7 +26,7 @@ export const DashboardStyles = () =>
       zIndex: 2
     },
     leftSide: {
-      marginTop: 125
+      marginTop: 75
     },
     boxGrid: {
       zIndex: 1,
@@ -42,14 +42,14 @@ export const DashboardStyles = () =>
     },
     box: {
       width: "150px",
-      height: "315px",
+      height: "260px",
       backgroundImage: "linear-gradient(270deg, #11998e, #38ef7d)"
     },
     button: {
       color: "black",
       width: "300px",
       flex: "1 1 auto",
-      padding: "25px",
+      padding: "15px",
       textAlign: "center",
       transition: "0.5s",
       backgroundSize: "200% auto",

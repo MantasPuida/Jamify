@@ -1,7 +1,7 @@
 import * as React from "react";
 import clsx from "clsx";
 import Magnify from "mdi-material-ui/Magnify";
-import MusicAccidentalDoubleFlat from "mdi-material-ui/MusicAccidentalDoubleFlat";
+import MusicRestQuarter from "mdi-material-ui/MusicRestQuarter";
 import { Button, ButtonProps, Grid, IconButton, Typography } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import { useLocation, Location, NavigateFunction, useNavigate } from "react-router";
@@ -43,7 +43,7 @@ class HeaderComponentClass extends React.PureComponent<InnerProps> {
       <Grid container={true} item={true} xs={12} className={classes.mainContainer}>
         <Grid item={true} xs={2} className={classes.leftHeaderItem}>
           <IconButton className={classes.iconButton}>
-            <MusicAccidentalDoubleFlat className={classes.mainIcon} />
+            <MusicRestQuarter className={classes.mainIcon} />
           </IconButton>
         </Grid>
         <Grid item={true} container={true} xs={8} color="white" className={classes.centerContent}>

@@ -3,5 +3,6 @@ export enum AppRoutes {
   Home = "/home",
   Dashboard = "/dashboard",
   Explore = "/explore",
-  Search = "/search"
+  Search = "/search",
+  Playlist = "/playlist"
 }
