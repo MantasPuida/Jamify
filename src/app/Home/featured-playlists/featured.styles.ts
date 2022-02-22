@@ -7,22 +7,25 @@ export const FeaturedPlaylistsStyles = () =>
       padding: "32px 0 24px 0",
       margin: "0 150px"
     },
-    card: {
-      width: 250,
-      height: 350,
-      float: "left",
-      marginTop: 24,
-      marginRight: 12,
-      marginBottom: 24,
-      marginLeft: 12
+    carousel: {
+      marginLeft: -5,
+      width: "81%",
+      paddingTop: 8
     },
-    cardActionArea: {
-      width: "100%",
-      height: "100%",
-      backgroundColor: "black"
+    image: {
+      borderRadius: "1%",
+      maxWidth: "260px",
+      height: "100%"
     },
-    cardContent: {
-      paddingLeft: 0
+    carouselItemText: {
+      marginLeft: 10
+    },
+    featuredText: {
+      textTransform: "none",
+      padding: "0px",
+      "&:hover": {
+        textDecoration: "solid underline white 2px"
+      }
     }
   });
 

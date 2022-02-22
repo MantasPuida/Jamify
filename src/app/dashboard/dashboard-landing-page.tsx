@@ -31,15 +31,15 @@ class DashboardLandingPageClass extends React.PureComponent<Props> {
               <div className={classes.box} />
             </Grid>
             <Grid item={true} className={classes.textGrid}>
-              <Typography fontFamily="Poppins, sans-serif" fontSize={80} className={classes.mainText} color="white">
+              <Typography fontFamily="Poppins, sans-serif" fontSize={56} className={classes.mainText} color="white">
                 Get ready for your music
               </Typography>
             </Grid>
             <Grid item={true} className={classes.contentText}>
               <Typography
                 fontFamily="sans-serif"
-                fontSize={40}
-                className={classes.mainText}
+                fontSize={50}
+                className={classes.descriptiveTest}
                 color="white"
                 component="div"
               >

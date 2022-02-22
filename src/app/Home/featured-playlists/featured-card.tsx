@@ -1,9 +1,13 @@
+/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 import * as React from "react";
-import { Card, CardActionArea, CardActionAreaProps, CardContent, CardMedia, Grid, Typography } from "@mui/material";
+import { Button, Grid, Typography } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import { NavigateFunction, useNavigate } from "react-router";
 import { FeaturedPlaylistsStyles, useFeaturedPlaylistsStyles } from "./featured.styles";
 import { AppRoutes } from "../../routes/routes";
+
+import "./carousel-items.css";
 
 interface OuterProps {
   playlist: SpotifyApi.PlaylistObjectSimplified;
@@ -20,20 +24,7 @@ export interface FeaturedPlaylistState {
 type Props = InnerProps & OuterProps;
 
 class FeaturedCardClass extends React.PureComponent<Props> {
-  private parseDescription = (description: string | null): string | null => {
-    if (description) {
-      if (description.includes("<") || description.includes(">")) {
-        const regex: RegExp = /<[^>]*>/gm;
-        return description.replaceAll(regex, "");
-      }
-
-      return description;
-    }
-
-    return null;
-  };
-
-  private handleOnCardClick: CardActionAreaProps["onClick"] = (event) => {
+  private handleOnCardClick: React.MouseEventHandler = (event) => {
     event.preventDefault();
     event.stopPropagation();
 
@@ -46,27 +37,28 @@ class FeaturedCardClass extends React.PureComponent<Props> {
     const { classes, playlist } = this.props;
 
     return (
-      <Grid item={true} key={playlist.id}>
-        <Card className={classes.card}>
-          <CardActionArea className={classes.cardActionArea} onClick={this.handleOnCardClick}>
-            <CardMedia component="img" image={playlist.images[0].url} alt={playlist.name} />
-            <CardContent className={classes.cardContent}>
-              <Typography
-                gutterBottom={true}
-                fontFamily="Poppins,sans-serif"
-                fontSize={19}
-                variant="h5"
-                component="div"
-                color="white"
-              >
+      <Grid container={true} item={true} xs={12} key={playlist.id}>
+        <Grid container={true} item={true} xs={12}>
+          <Grid item={true}>
+            <Button>
+              <div className="tint-img">
+                <img
+                  src={playlist.images[0].url}
+                  alt={playlist.name}
+                  className={classes.image}
+                  onClick={this.handleOnCardClick}
+                />
+              </div>
+            </Button>
+          </Grid>
+          <Grid item={true}>
+            <Button className={classes.featuredText} onClick={this.handleOnCardClick}>
+              <Typography className={classes.carouselItemText} fontFamily="Poppins,sans-serif" color="white">
                 {playlist.name}
               </Typography>
-              <Typography variant="body2" fontSize={14} color="lightgray">
-                {this.parseDescription(playlist.description)}
-              </Typography>
-            </CardContent>
-          </CardActionArea>
-        </Card>
+            </Button>
+          </Grid>
+        </Grid>
       </Grid>
     );
   }

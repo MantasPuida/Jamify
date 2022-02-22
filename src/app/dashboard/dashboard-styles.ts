@@ -20,13 +20,19 @@ export const DashboardStyles = () =>
       height: "100%"
     },
     mainText: {
-      marginLeft: "55px"
+      marginLeft: 50,
+      marginTop: 10,
+      width: 381
+    },
+    descriptiveTest: {
+      marginLeft: 50,
+      marginTop: 10
     },
     textGrid: {
       zIndex: 2
     },
     leftSide: {
-      marginTop: 75
+      marginTop: 60
     },
     boxGrid: {
       zIndex: 1,
@@ -38,18 +44,18 @@ export const DashboardStyles = () =>
       fontFamily: "Poppins, sans-serif"
     },
     contentText: {
-      paddingTop: 75
+      paddingTop: 80
     },
     box: {
-      width: "150px",
-      height: "260px",
+      width: "100px",
+      height: "200px",
       backgroundImage: "linear-gradient(270deg, #11998e, #38ef7d)"
     },
     button: {
       color: "black",
-      width: "300px",
+      width: "245px",
       flex: "1 1 auto",
-      padding: "15px",
+      padding: "20px",
       textAlign: "center",
       transition: "0.5s",
       backgroundSize: "200% auto",
@@ -66,7 +72,6 @@ export const DashboardStyles = () =>
       }
     },
     avatar: {
-      marginLeft: 36,
       justifyContent: "end"
     },
     loginButton: {
