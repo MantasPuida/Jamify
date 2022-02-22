@@ -2,7 +2,7 @@ import * as React from "react";
 import clsx from "clsx";
 import Magnify from "mdi-material-ui/Magnify";
 import MusicRestQuarter from "mdi-material-ui/MusicRestQuarter";
-import { Button, ButtonProps, Grid, IconButton, Typography } from "@mui/material";
+import { Button, ButtonProps, Grid, IconButton, IconButtonProps, Typography } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import { useLocation, Location, NavigateFunction, useNavigate } from "react-router";
 import { HeaderStyles, useHeaderStyles } from "./header.styles";
@@ -17,19 +17,37 @@ interface InnerProps extends WithStyles<typeof HeaderStyles> {
 }
 
 class HeaderComponentClass extends React.PureComponent<InnerProps> {
-  private handleOnExploreClick: ButtonProps["onClick"] = () => {
+  private handleOnExploreClick: ButtonProps["onClick"] = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
     const { navigate } = this.props;
 
     navigate(AppRoutes.Explore);
   };
 
-  private handleOnSearchClick: ButtonProps["onClick"] = () => {
+  private handleOnSearchClick: ButtonProps["onClick"] = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
     const { navigate } = this.props;
 
     navigate(AppRoutes.Search);
   };
 
-  private handleOnHomeClick: ButtonProps["onClick"] = () => {
+  private handleOnHomeClick: ButtonProps["onClick"] = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const { navigate } = this.props;
+
+    navigate(AppRoutes.Home);
+  };
+
+  private handleOnIconClick: IconButtonProps["onClick"] = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
     const { navigate } = this.props;
 
     navigate(AppRoutes.Home);
@@ -42,7 +60,7 @@ class HeaderComponentClass extends React.PureComponent<InnerProps> {
     return (
       <Grid container={true} item={true} xs={12} className={classes.mainContainer}>
         <Grid item={true} xs={2} className={classes.leftHeaderItem}>
-          <IconButton className={classes.iconButton}>
+          <IconButton className={classes.iconButton} onClick={this.handleOnIconClick}>
             <MusicRestQuarter className={classes.mainIcon} />
           </IconButton>
         </Grid>

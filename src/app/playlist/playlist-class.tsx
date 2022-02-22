@@ -7,7 +7,8 @@ import { FeaturedPlaylistState } from "../Home/featured-playlists/featured-card"
 import { HeaderComponent } from "../Home/header/header-component";
 import { HomeLandingPageStyles, useHomeLandingPageStyles } from "../Home/landing-page.styles";
 import { Notify } from "../notification/notification-component";
-import { PlaylistComponent } from "./playlist-component";
+import { PlaylistTopComponent } from "./playlist-component";
+import { TracksComponent } from "./tracks-component";
 
 type PlaylistTracksResponse = SpotifyApi.PlaylistTrackResponse;
 
@@ -20,14 +21,17 @@ interface OuterProps {
   spotifyApi: SpotifyWebApi;
 }
 
-class PlaylistClass extends React.PureComponent<InnerProps> {
+type Props = InnerProps & OuterProps;
+
+class PlaylistClass extends React.PureComponent<Props> {
   public render(): React.ReactNode {
-    const { classes, playlist, playlistTracks } = this.props;
+    const { classes, playlist, playlistTracks, spotifyApi } = this.props;
 
     return (
       <Grid container={true} item={true} xs={12} className={classes.homeGrid}>
         <HeaderComponent />
-        <PlaylistComponent playlist={playlist} playlistTracks={playlistTracks} />
+        <PlaylistTopComponent playlist={playlist} />
+        <TracksComponent playlistTracks={playlistTracks} spotifyApi={spotifyApi} />
       </Grid>
     );
   }
@@ -63,5 +67,7 @@ export const Playlist = React.memo<OuterProps>((props) => {
     return <></>;
   }
 
-  return <PlaylistClass playlist={playlist} playlistTracks={playlistTracks} classes={classes} />;
+  return (
+    <PlaylistClass playlist={playlist} playlistTracks={playlistTracks} classes={classes} spotifyApi={spotifyApi} />
+  );
 });
