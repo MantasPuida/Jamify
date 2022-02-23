@@ -10,6 +10,7 @@
     "@mui/styles": "^5.4.1",
     "@mui/system": "^5.4.1",
     "@mui/types": "^7.1.1",
+    "@types/gapi.client.youtube": "^3.0.2",
     "babel-jest": "^27.4.6",
     "clsx": "^1.1.1",
     "eslint-config-airbnb": "^19.0.2",

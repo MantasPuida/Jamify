@@ -8,7 +8,7 @@ import { useSpotifyAuth } from "../../context/spotify-context";
 import { SpotifyConstants } from "../../constants/constants-spotify";
 import { Explore } from "../explore/explore-component";
 import { Search } from "../search/search-component";
-import { Playlist } from "../playlist/playlist-class";
+import { Playlist } from "../spotify-playlist/playlist-class";
 
 interface Props {
   spotifyApi: SpotifyWebApi;
