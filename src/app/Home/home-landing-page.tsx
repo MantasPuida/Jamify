@@ -23,6 +23,7 @@ class HomeLandingPageClass extends React.PureComponent<Props> {
       <Grid container={true} item={true} xs={12} className={classes.homeGrid}>
         <HeaderComponent />
         <FeaturedPlaylists spotifyApi={spotifyApi} />
+        <div style={{ backgroundColor: "black", height: "100vh" }} />
       </Grid>
     );
   }
