@@ -9,6 +9,7 @@ import { HomeLandingPageStyles, useHomeLandingPageStyles } from "../Home/landing
 import { Notify } from "../notification/notification-component";
 import { PlaylistTopComponent } from "./playlist-component";
 import { TracksComponent } from "./tracks-component";
+import { useSpotifyAuth } from "../../context/spotify-context";
 
 type PlaylistTracksResponse = SpotifyApi.PlaylistTrackResponse;
 
@@ -42,6 +43,7 @@ export const Playlist = React.memo<OuterProps>((props) => {
   const location = useLocation();
   const locationState = location.state as FeaturedPlaylistState;
   const classes = useHomeLandingPageStyles();
+  const { logout } = useSpotifyAuth();
 
   if (!locationState || !locationState.playlist) {
     // eslint-disable-next-line react/jsx-no-useless-fragment
@@ -58,7 +60,8 @@ export const Playlist = React.memo<OuterProps>((props) => {
         setTracks(value.body);
       })
       .catch(() => {
-        Notify("Unable to fetch Spotify data", "error");
+        logout();
+        Notify("Unable to synchronize with Spotify", "error");
       });
   }, [location.pathname]);
 

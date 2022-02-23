@@ -38,7 +38,6 @@ class FeaturedPlaylistsClass extends React.PureComponent<Props> {
 
     const responsive = {
       superLargeDesktop: {
-        // the naming can be any, depends on you.
         breakpoint: { max: 4000, min: 3000 },
         items: 5
       },
@@ -56,7 +55,6 @@ class FeaturedPlaylistsClass extends React.PureComponent<Props> {
       }
     };
 
-    // eslint-disable-next-line consistent-return
     return (
       <Grid container={true} item={true} xs={12} className={classes.featuredPlaylistsGrid}>
         <Grid container={true}>
@@ -90,7 +88,7 @@ class FeaturedPlaylistsClass extends React.PureComponent<Props> {
 
 export const FeaturedPlaylists = React.memo<OuterProps>((props) => {
   const classes = useFeaturedPlaylistsStyles();
-  const { spotifyToken } = useSpotifyAuth();
+  const { spotifyToken, logout } = useSpotifyAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [featuredObj, setFeaturedObj] = React.useState<undefined | FeaturedPlaylist>();
@@ -106,7 +104,8 @@ export const FeaturedPlaylists = React.memo<OuterProps>((props) => {
           setFeaturedObj(value.body);
         })
         .catch(() => {
-          Notify("Unable to fetch Spotify data", "error");
+          logout();
+          Notify("Unable to synchronize with Spotify", "error");
         });
     }
   }, [location.pathname]);

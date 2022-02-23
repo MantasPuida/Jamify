@@ -38,7 +38,7 @@ class DashboardLandingPageClass extends React.PureComponent<Props> {
             <Grid item={true} className={classes.contentText}>
               <Typography
                 fontFamily="sans-serif"
-                fontSize={50}
+                fontSize={48}
                 className={classes.descriptiveTest}
                 color="white"
                 component="div"
