@@ -2,21 +2,28 @@ import * as React from "react";
 import clsx from "clsx";
 import Magnify from "mdi-material-ui/Magnify";
 import MusicRestQuarter from "mdi-material-ui/MusicRestQuarter";
+import SpotifyWebApi from "spotify-web-api-node";
 import { Button, ButtonProps, Grid, IconButton, IconButtonProps, Typography } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import { useLocation, Location, NavigateFunction, useNavigate } from "react-router";
 import { HeaderStyles, useHeaderStyles } from "./header.styles";
 import { AppRoutes } from "../../routes/routes";
+import { AccountMenu } from "./header-account-menu";
 
 import "./fontFamily.css";
-import { AccountMenu } from "./header-account-menu";
 
 interface InnerProps extends WithStyles<typeof HeaderStyles> {
   location: Location;
   navigate: NavigateFunction;
 }
 
-class HeaderComponentClass extends React.PureComponent<InnerProps> {
+interface OuterProps {
+  spotifyApi: SpotifyWebApi;
+}
+
+type Props = OuterProps & InnerProps;
+
+class HeaderComponentClass extends React.PureComponent<Props> {
   private handleOnExploreClick: ButtonProps["onClick"] = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -54,7 +61,7 @@ class HeaderComponentClass extends React.PureComponent<InnerProps> {
   };
 
   public render(): React.ReactNode {
-    const { classes, location } = this.props;
+    const { classes, location, spotifyApi } = this.props;
     const { pathname } = location;
 
     return (
@@ -102,17 +109,17 @@ class HeaderComponentClass extends React.PureComponent<InnerProps> {
           </Grid>
         </Grid>
         <Grid item={true} xs={2} color="white" className={classes.rightHeaderItem}>
-          <AccountMenu />
+          <AccountMenu spotifyApi={spotifyApi} />
         </Grid>
       </Grid>
     );
   }
 }
 
-export const HeaderComponent = React.memo(() => {
+export const HeaderComponent = React.memo<OuterProps>((props) => {
   const classes = useHeaderStyles();
   const location = useLocation();
   const navigate = useNavigate();
 
-  return <HeaderComponentClass location={location} navigate={navigate} classes={classes} />;
+  return <HeaderComponentClass location={location} {...props} navigate={navigate} classes={classes} />;
 });

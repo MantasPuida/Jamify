@@ -20,8 +20,8 @@ function HomeRoutesClass(props: Props) {
   return (
     <Routes>
       <Route path={AppRoutes.Home} element={<Home spotifyApi={spotifyApi} />} />
-      <Route path={AppRoutes.Explore} element={<Explore />} />
-      <Route path={AppRoutes.Search} element={<Search />} />
+      <Route path={AppRoutes.Explore} element={<Explore spotifyApi={spotifyApi} />} />
+      <Route path={AppRoutes.Search} element={<Search spotifyApi={spotifyApi} />} />
       <Route path={AppRoutes.Playlist} element={<Playlist spotifyApi={spotifyApi} />} />
       <Route path="*" element={<NotFound />} />;
     </Routes>

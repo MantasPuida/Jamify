@@ -7,6 +7,7 @@ import IconButton, { IconButtonProps } from "@mui/material/IconButton";
 import Cog from "mdi-material-ui/Cog";
 import LogoutVariant from "mdi-material-ui/LogoutVariant";
 import AccountCircleOutline from "mdi-material-ui/AccountCircleOutline";
+import SpotifyWebApi from "spotify-web-api-node";
 import { ButtonProps, Typography } from "@mui/material";
 import { NavigateFunction, useNavigate } from "react-router";
 import { useSpotifyAuth } from "../../../context/spotify-context";
@@ -14,9 +15,9 @@ import { useYoutubeAuth } from "../../../context/youtube-context";
 import { useDeezerAuth } from "../../../context/deezer-context";
 import { AppRoutes } from "../../routes/routes";
 import { HeaderStyles, useHeaderStyles } from "./header.styles";
+import { SettingsDialog } from "./header-settings-dialog";
 
 import "./fontFamily.css";
-import { SettingsDialog } from "./header-settings-dialog";
 
 type LogoutFunctionType = () => void;
 
@@ -31,7 +32,13 @@ interface InnerProps extends WithStyles<typeof HeaderStyles> {
   logoutDeezer: LogoutFunctionType;
 }
 
-class AccountMenuClass extends React.PureComponent<InnerProps> {
+interface OuterProps {
+  spotifyApi: SpotifyWebApi;
+}
+
+type Props = InnerProps & OuterProps;
+
+class AccountMenuClass extends React.PureComponent<Props> {
   private handleDialogClose: ButtonProps["onClick"] = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -92,7 +99,7 @@ class AccountMenuClass extends React.PureComponent<InnerProps> {
   };
 
   public render(): React.ReactNode {
-    const { anchorEl, classes, isDialogOpen } = this.props;
+    const { anchorEl, classes, isDialogOpen, spotifyApi } = this.props;
     const isMenuOpen = Boolean(anchorEl);
 
     return (
@@ -131,13 +138,17 @@ class AccountMenuClass extends React.PureComponent<InnerProps> {
             </Typography>
           </MenuItem>
         </Menu>
-        <SettingsDialog isDialogOpen={isDialogOpen} handleDialogClose={this.handleDialogClose} />
+        <SettingsDialog
+          isDialogOpen={isDialogOpen}
+          handleDialogClose={this.handleDialogClose}
+          spotifyApi={spotifyApi}
+        />
       </>
     );
   }
 }
 
-export const AccountMenu = React.memo(() => {
+export const AccountMenu = React.memo<OuterProps>((props) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [isDialogOpen, setDialogOpen] = React.useState<boolean>(false);
   const navigate = useNavigate();
@@ -157,6 +168,7 @@ export const AccountMenu = React.memo(() => {
       logoutYoutube={logoutYoutube}
       logoutDeezer={logoutDeezer}
       classes={classes}
+      {...props}
     />
   );
 });
