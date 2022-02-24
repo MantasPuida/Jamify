@@ -1,30 +1,35 @@
 import * as React from "react";
-import { Avatar, Button, ButtonProps, Grid, Typography } from "@mui/material";
+import { NavigateFunction, useNavigate } from "react-router";
+import { Avatar, Button, ButtonProps, CircularProgress, Grid, Typography } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import { useYoutubeAuth } from "../../../context/youtube-context";
 import { SettingsStyles, useSettingsStyles } from "./settings.styles";
 import youtubeIcon from "../../../assets/dashboard/Youtube_Icon_Black.png";
-
-import "./fontFamily.css";
 import { AppRoutes } from "../../routes/routes";
 import { Notify } from "../../notification/notification-component";
 
+import "./fontFamily.css";
+
 interface OuterProps {
   isYoutubeConnected: boolean;
+  handleDialogClose: ButtonProps["onClick"];
 }
 
 interface InnerProps extends WithStyles<typeof SettingsStyles> {
   googleAuthObject: gapi.auth2.GoogleAuthBase | undefined;
+  register: Function;
+  navigate: NavigateFunction;
 }
 
 interface State {
+  loading: boolean;
   googleUser?: gapi.auth2.BasicProfile;
 }
 
 type Props = InnerProps & OuterProps;
 
 class HeaderSettingsDialogYouTubeClass extends React.PureComponent<Props, State> {
-  public state: State = {};
+  public state: State = { loading: true };
 
   constructor(props: Props) {
     super(props);
@@ -36,19 +41,27 @@ class HeaderSettingsDialogYouTubeClass extends React.PureComponent<Props, State>
     const googleUserObject = googleAuthObject?.currentUser.get().getBasicProfile();
 
     this.state = {
-      googleUser: googleUserObject
+      googleUser: googleUserObject,
+      loading: false
     };
   };
 
-  private youtubeLogin: ButtonProps["onClick"] = () => {
-    const { googleAuthObject, registerYoutubeToken, navigate } = this.props;
+  private youtubeLogin: ButtonProps["onClick"] = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const { googleAuthObject, register, navigate, handleDialogClose } = this.props;
 
     googleAuthObject
       ?.signIn()
       .then((value: gapi.auth2.GoogleUser) => {
         const { access_token: AccessToken } = value.getAuthResponse();
-        registerYoutubeToken(AccessToken);
+        register(AccessToken);
         gapi.client.setToken({ access_token: AccessToken });
+
+        if (handleDialogClose) {
+          handleDialogClose(event);
+        }
 
         navigate(AppRoutes.Home);
       })
@@ -59,7 +72,11 @@ class HeaderSettingsDialogYouTubeClass extends React.PureComponent<Props, State>
 
   public render(): React.ReactNode {
     const { isYoutubeConnected, classes } = this.props;
-    const { googleUser } = this.state;
+    const { googleUser, loading } = this.state;
+
+    if (loading) {
+      return <CircularProgress style={{ marginTop: "13%", marginLeft: "45%", color: "black" }} />;
+    }
 
     if (!isYoutubeConnected || !googleUser) {
       return (
@@ -99,8 +116,17 @@ class HeaderSettingsDialogYouTubeClass extends React.PureComponent<Props, State>
 }
 
 export const HeaderSettingsDialogYouTube = React.memo<OuterProps>((props) => {
-  const { googleAuthObject } = useYoutubeAuth();
+  const { googleAuthObject, register } = useYoutubeAuth();
   const classes = useSettingsStyles();
+  const navigate = useNavigate();
 
-  return <HeaderSettingsDialogYouTubeClass {...props} googleAuthObject={googleAuthObject} classes={classes} />;
+  return (
+    <HeaderSettingsDialogYouTubeClass
+      {...props}
+      navigate={navigate}
+      register={register}
+      googleAuthObject={googleAuthObject}
+      classes={classes}
+    />
+  );
 });

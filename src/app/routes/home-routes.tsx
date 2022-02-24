@@ -9,6 +9,7 @@ import { SpotifyConstants } from "../../constants/constants-spotify";
 import { Explore } from "../explore/explore-component";
 import { Search } from "../search/search-component";
 import { Playlist } from "../spotify-playlist/playlist-class";
+import { Helpers } from "../../utils/helpers";
 
 interface Props {
   spotifyApi: SpotifyWebApi;
@@ -32,7 +33,7 @@ function HomeRoutesClass(props: Props) {
 const HomeRoutes = (): JSX.Element => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { spotifyToken } = useSpotifyAuth();
+  const { spotifyToken, register } = useSpotifyAuth();
 
   const spotifyApi = new SpotifyWebApi({
     accessToken: spotifyToken!,
@@ -41,7 +42,16 @@ const HomeRoutes = (): JSX.Element => {
   });
 
   React.useEffect(() => {
-    if (location.pathname === SpotifyConstants.SPOTIFY_REDIRECT_PATHNAME || location.pathname === AppRoutes.Default) {
+    if (location.pathname === SpotifyConstants.SPOTIFY_REDIRECT_PATHNAME) {
+      const { access_token: accessToken } = Helpers.getTokenFromHash(location.hash);
+
+      if (accessToken) {
+        register(accessToken);
+        navigate(AppRoutes.Home);
+      }
+    }
+
+    if (location.pathname === AppRoutes.Default) {
       navigate(AppRoutes.Home);
     }
   }, [location.pathname]);
