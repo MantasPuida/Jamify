@@ -1,15 +1,25 @@
 import * as React from "react";
-import { Button, Grid, Typography } from "@mui/material";
+import { NavigateFunction, useNavigate } from "react-router";
+import { Avatar, Button, ButtonProps, CircularProgress, Grid, Typography } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import { SettingsStyles, useSettingsStyles } from "./settings.styles";
+import deezerIcon from "../../../assets/dashboard/Deezer_Icon_Black.png";
+import { DeezerConstants } from "../../../constants/constants-deezer";
+import { AppRoutes } from "../../routes/routes";
+import { Notify } from "../../notification/notification-component";
+import { useDeezerAuth } from "../../../context/deezer-context";
 
 import "./fontFamily.css";
 
 interface OuterProps {
   isDeezerConnected: boolean;
+  handleDialogClose: ButtonProps["onClick"];
 }
 
-type InnerProps = WithStyles<typeof SettingsStyles>;
+interface InnerProps extends WithStyles<typeof SettingsStyles> {
+  navigate: NavigateFunction;
+  register: Function;
+}
 
 interface ProfileData {
   userName: string;
@@ -18,13 +28,14 @@ interface ProfileData {
 }
 
 interface State {
+  loading: boolean;
   deezerProfile?: ProfileData;
 }
 
 type Props = InnerProps & OuterProps;
 
 class HeaderSettingsDialogDeezerClass extends React.PureComponent<Props, State> {
-  public state: State = {};
+  public state: State = { loading: true };
 
   constructor(props: Props) {
     super(props);
@@ -39,17 +50,60 @@ class HeaderSettingsDialogDeezerClass extends React.PureComponent<Props, State> 
           email: value.email,
           pictureUrl: value.picture_big,
           userName: value.name
-        }
+        },
+        loading: false
       });
     });
   };
 
+  private deezerLogin: ButtonProps["onClick"] = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const { register, navigate, handleDialogClose } = this.props;
+
+    DZ.login(
+      (response) => {
+        const { status, authResponse } = response;
+
+        if (status === "connected" && authResponse.accessToken) {
+          const { accessToken } = authResponse;
+          register(accessToken);
+
+          if (handleDialogClose) {
+            handleDialogClose(event);
+          }
+
+          navigate(AppRoutes.Home);
+        } else {
+          Notify("Unable to authenticate", "error");
+        }
+      },
+      { perms: DeezerConstants.scopes.join(",") }
+    );
+  };
+
   public render(): React.ReactNode {
-    const { isDeezerConnected } = this.props;
-    const { deezerProfile } = this.state;
+    const { isDeezerConnected, classes } = this.props;
+    const { deezerProfile, loading } = this.state;
+
+    if (loading) {
+      return <CircularProgress style={{ marginTop: "13%", marginLeft: "45%", color: "black" }} />;
+    }
 
     if (!isDeezerConnected || !deezerProfile) {
-      return <Button>Login To Deezer</Button>;
+      return (
+        <Grid item={true} className={classes.loginButton} xs={12}>
+          <Button
+            className={classes.button}
+            variant="outlined"
+            onClick={this.deezerLogin}
+            endIcon={<Avatar className={classes.avatar} src={deezerIcon} />}
+          >
+            <Typography fontFamily="Poppins, sans-serif">Login via Deezer</Typography>
+          </Button>
+        </Grid>
+      );
     }
 
     const { email, pictureUrl, userName } = deezerProfile;
@@ -73,7 +127,9 @@ class HeaderSettingsDialogDeezerClass extends React.PureComponent<Props, State> 
 }
 
 export const HeaderSettingsDialogDeezer = React.memo<OuterProps>((props) => {
+  const { register } = useDeezerAuth();
+  const navigate = useNavigate();
   const classes = useSettingsStyles();
 
-  return <HeaderSettingsDialogDeezerClass {...props} classes={classes} />;
+  return <HeaderSettingsDialogDeezerClass {...props} register={register} navigate={navigate} classes={classes} />;
 });

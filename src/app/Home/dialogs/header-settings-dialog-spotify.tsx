@@ -1,5 +1,6 @@
 import * as React from "react";
-import { Avatar, Button, ButtonProps, Grid, Typography } from "@mui/material";
+import { Avatar, Button, ButtonProps, CircularProgress, Grid, Typography } from "@mui/material";
+import { useLocation, Location } from "react-router";
 import SpotifyWebApi from "spotify-web-api-node";
 import { WithStyles } from "@mui/styles";
 import spotifyIcon from "../../../assets/dashboard/Spotify_Icon_Black.png";
@@ -11,18 +12,22 @@ import "./fontFamily.css";
 interface OuterProps {
   isSpotifyConnected: boolean;
   spotifyApi: SpotifyWebApi;
+  handleDialogClose: ButtonProps["onClick"];
 }
 
-type InnerProps = WithStyles<typeof SettingsStyles>;
+interface InnerProps extends WithStyles<typeof SettingsStyles> {
+  location: Location;
+}
 
 interface State {
+  loading: boolean;
   spotifyProfile?: SpotifyApi.CurrentUsersProfileResponse;
 }
 
 type Props = InnerProps & OuterProps;
 
 class HeaderSettingsDialogSpotifyClass extends React.PureComponent<Props, State> {
-  public state: State = {};
+  public state: State = { loading: true };
 
   constructor(props: Props) {
     super(props);
@@ -34,9 +39,10 @@ class HeaderSettingsDialogSpotifyClass extends React.PureComponent<Props, State>
     spotifyApi
       .getMe()
       .then((callback) => {
-        this.setState({ spotifyProfile: callback.body });
+        this.setState({ spotifyProfile: callback.body, loading: false });
       })
       .catch((err) => {
+        this.setState({ loading: false });
         // eslint-disable-next-line no-console
         console.error(err);
       });
@@ -46,12 +52,22 @@ class HeaderSettingsDialogSpotifyClass extends React.PureComponent<Props, State>
     event.preventDefault();
     event.stopPropagation();
 
+    const { handleDialogClose } = this.props;
+
     window.open(SpotifyConstants.SPOTIFY_AUTH_URL, "_self");
+
+    if (handleDialogClose) {
+      handleDialogClose(event);
+    }
   };
 
   public render(): React.ReactNode {
     const { isSpotifyConnected, classes } = this.props;
-    const { spotifyProfile } = this.state;
+    const { spotifyProfile, loading } = this.state;
+
+    if (loading) {
+      return <CircularProgress style={{ marginTop: "13%", marginLeft: "45%", color: "black" }} />;
+    }
 
     if (!isSpotifyConnected || !spotifyProfile) {
       return (
@@ -71,7 +87,8 @@ class HeaderSettingsDialogSpotifyClass extends React.PureComponent<Props, State>
     const { images, display_name: displayName, email } = spotifyProfile;
 
     if (!images) {
-      return <>empty</>;
+      // eslint-disable-next-line react/jsx-no-useless-fragment
+      return <></>;
     }
 
     return (
@@ -94,6 +111,7 @@ class HeaderSettingsDialogSpotifyClass extends React.PureComponent<Props, State>
 
 export const HeaderSettingsDialogSpotify = React.memo<OuterProps>((props) => {
   const classes = useSettingsStyles();
+  const location = useLocation();
 
-  return <HeaderSettingsDialogSpotifyClass {...props} classes={classes} />;
+  return <HeaderSettingsDialogSpotifyClass {...props} classes={classes} location={location} />;
 });

@@ -13,12 +13,14 @@ import {
 import Spotify from "mdi-material-ui/Spotify";
 import PlayCircleOutline from "mdi-material-ui/PlayCircleOutline";
 import SpotifyWebApi from "spotify-web-api-node";
+import { WithStyles } from "@mui/styles";
 import { useDeezerAuth } from "../../../context/deezer-context";
 import { useYoutubeAuth } from "../../../context/youtube-context";
 import { useSpotifyAuth } from "../../../context/spotify-context";
 import { HeaderSettingsDialogSpotify } from "../dialogs/header-settings-dialog-spotify";
 import { HeaderSettingsDialogYouTube } from "../dialogs/header-settings-dialog-youtube";
 import { HeaderSettingsDialogDeezer } from "../dialogs/header-settings-dialog-deezer";
+import { HeaderSettingsStyles, useHeaderSettingsStyles } from "./header-settings.styles";
 
 import "./fontFamily.css";
 
@@ -30,7 +32,7 @@ interface OuterProps {
 
 type BottomNavigationValues = "Spotify" | "YouTube" | "Deezer";
 
-interface InnerProps {
+interface InnerProps extends WithStyles<typeof HeaderSettingsStyles> {
   setValue: React.Dispatch<React.SetStateAction<BottomNavigationValues>>;
   value: string;
   isDeezerConnected: boolean;
@@ -75,13 +77,20 @@ class SettingsDialogClass extends React.PureComponent<Props> {
         </DialogTitle>
         <DialogContent style={{ minWidth: 500, minHeight: 200 }}>
           {(value as BottomNavigationValues) === "Spotify" && (
-            <HeaderSettingsDialogSpotify isSpotifyConnected={isSpotifyConnected} spotifyApi={spotifyApi} />
+            <HeaderSettingsDialogSpotify
+              isSpotifyConnected={isSpotifyConnected}
+              handleDialogClose={handleDialogClose}
+              spotifyApi={spotifyApi}
+            />
           )}
           {(value as BottomNavigationValues) === "YouTube" && (
-            <HeaderSettingsDialogYouTube isYoutubeConnected={isYoutubeConnected} />
+            <HeaderSettingsDialogYouTube
+              isYoutubeConnected={isYoutubeConnected}
+              handleDialogClose={handleDialogClose}
+            />
           )}
           {(value as BottomNavigationValues) === "Deezer" && (
-            <HeaderSettingsDialogDeezer isDeezerConnected={isDeezerConnected} />
+            <HeaderSettingsDialogDeezer isDeezerConnected={isDeezerConnected} handleDialogClose={handleDialogClose} />
           )}
         </DialogContent>
         <DialogActions>
@@ -98,6 +107,7 @@ class SettingsDialogClass extends React.PureComponent<Props> {
 
 export const SettingsDialog = React.memo<OuterProps>((props) => {
   const [value, setValue] = React.useState<BottomNavigationValues>("Spotify");
+  const classes = useHeaderSettingsStyles();
   const { deezerToken } = useDeezerAuth();
   const { youtubeToken } = useYoutubeAuth();
   const { spotifyToken } = useSpotifyAuth();
@@ -125,6 +135,7 @@ export const SettingsDialog = React.memo<OuterProps>((props) => {
       isDeezerConnected={isDeezerConnected}
       isYoutubeConnected={isYoutubeConnected}
       isSpotifyConnected={isSpotifyConnected}
+      classes={classes}
       {...props}
     />
   );
