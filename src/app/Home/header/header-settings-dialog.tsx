@@ -7,20 +7,35 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
-  DialogTitle
+  DialogTitle,
+  Typography
 } from "@mui/material";
 import Spotify from "mdi-material-ui/Spotify";
 import PlayCircleOutline from "mdi-material-ui/PlayCircleOutline";
+import SpotifyWebApi from "spotify-web-api-node";
+import { useDeezerAuth } from "../../../context/deezer-context";
+import { useYoutubeAuth } from "../../../context/youtube-context";
+import { useSpotifyAuth } from "../../../context/spotify-context";
+import { HeaderSettingsDialogSpotify } from "../dialogs/header-settings-dialog-spotify";
+import { HeaderSettingsDialogYouTube } from "../dialogs/header-settings-dialog-youtube";
+import { HeaderSettingsDialogDeezer } from "../dialogs/header-settings-dialog-deezer";
+
+import "./fontFamily.css";
 
 interface OuterProps {
   handleDialogClose: ButtonProps["onClick"];
   isDialogOpen: boolean;
+  spotifyApi: SpotifyWebApi;
 }
 
+type BottomNavigationValues = "Spotify" | "YouTube" | "Deezer";
+
 interface InnerProps {
-  setValue: React.Dispatch<React.SetStateAction<string>>;
+  setValue: React.Dispatch<React.SetStateAction<BottomNavigationValues>>;
   value: string;
+  isDeezerConnected: boolean;
+  isSpotifyConnected: boolean;
+  isYoutubeConnected: boolean;
 }
 
 type Props = InnerProps & OuterProps;
@@ -36,7 +51,15 @@ class SettingsDialogClass extends React.PureComponent<Props> {
   };
 
   public render(): React.ReactNode {
-    const { isDialogOpen, handleDialogClose, value } = this.props;
+    const {
+      isDialogOpen,
+      handleDialogClose,
+      value,
+      isSpotifyConnected,
+      isYoutubeConnected,
+      isDeezerConnected,
+      spotifyApi
+    } = this.props;
 
     return (
       <Dialog
@@ -45,18 +68,27 @@ class SettingsDialogClass extends React.PureComponent<Props> {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">Use Googles location service?</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Let Google help apps determine location. This means sending anonymous location data to Google, even when no
-            apps are running.
-          </DialogContentText>
+        <DialogTitle id="alert-dialog-title">
+          <Typography fontFamily="Poppins,sans-serif" style={{ color: "black" }} fontSize={24}>
+            {value} Settings
+          </Typography>
+        </DialogTitle>
+        <DialogContent style={{ minWidth: 500, minHeight: 200 }}>
+          {(value as BottomNavigationValues) === "Spotify" && (
+            <HeaderSettingsDialogSpotify isSpotifyConnected={isSpotifyConnected} spotifyApi={spotifyApi} />
+          )}
+          {(value as BottomNavigationValues) === "YouTube" && (
+            <HeaderSettingsDialogYouTube isYoutubeConnected={isYoutubeConnected} />
+          )}
+          {(value as BottomNavigationValues) === "Deezer" && (
+            <HeaderSettingsDialogDeezer isDeezerConnected={isDeezerConnected} />
+          )}
         </DialogContent>
         <DialogActions>
           <BottomNavigation sx={{ width: "100%" }} value={value} onChange={this.handleNavigationChange}>
-            <BottomNavigationAction label="Spotify" value="spotify" icon={<Spotify />} />
-            <BottomNavigationAction label="Youtube" value="youtube" icon={<PlayCircleOutline />} />
-            <BottomNavigationAction label="Deezer" value="deezer" icon={<Spotify />} />
+            <BottomNavigationAction label="Spotify" value="Spotify" icon={<Spotify />} />
+            <BottomNavigationAction label="Youtube" value="YouTube" icon={<PlayCircleOutline />} />
+            <BottomNavigationAction label="Deezer" value="Deezer" icon={<Spotify />} />
           </BottomNavigation>
         </DialogActions>
       </Dialog>
@@ -65,7 +97,35 @@ class SettingsDialogClass extends React.PureComponent<Props> {
 }
 
 export const SettingsDialog = React.memo<OuterProps>((props) => {
-  const [value, setValue] = React.useState<string>("recents");
+  const [value, setValue] = React.useState<BottomNavigationValues>("Spotify");
+  const { deezerToken } = useDeezerAuth();
+  const { youtubeToken } = useYoutubeAuth();
+  const { spotifyToken } = useSpotifyAuth();
 
-  return <SettingsDialogClass value={value} setValue={setValue} {...props} />;
+  let isYoutubeConnected: boolean = false;
+  let isDeezerConnected: boolean = false;
+  let isSpotifyConnected: boolean = false;
+
+  if (deezerToken) {
+    isDeezerConnected = true;
+  }
+
+  if (youtubeToken) {
+    isYoutubeConnected = true;
+  }
+
+  if (spotifyToken) {
+    isSpotifyConnected = true;
+  }
+
+  return (
+    <SettingsDialogClass
+      value={value}
+      setValue={setValue}
+      isDeezerConnected={isDeezerConnected}
+      isYoutubeConnected={isYoutubeConnected}
+      isSpotifyConnected={isSpotifyConnected}
+      {...props}
+    />
+  );
 });

@@ -21,7 +21,7 @@ class HomeLandingPageClass extends React.PureComponent<Props> {
 
     return (
       <Grid container={true} item={true} xs={12} className={classes.homeGrid}>
-        <HeaderComponent />
+        <HeaderComponent spotifyApi={spotifyApi} />
         <FeaturedPlaylists spotifyApi={spotifyApi} />
         <YoutubePlaylists />
       </Grid>

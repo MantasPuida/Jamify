@@ -33,6 +33,8 @@ function YoutubeAuthProvider({ children }: { children: React.ReactNode }) {
   const logout = React.useCallback(() => {
     auth.logout("__youtube_auth_token__");
     setUserToken(null);
+    googleAuthObject?.signOut();
+    googleAuthObject?.disconnect();
   }, [setUserToken]);
 
   const value = React.useMemo(
