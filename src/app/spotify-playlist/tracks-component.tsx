@@ -3,7 +3,6 @@ import SpotifyWebApi from "spotify-web-api-node";
 import {
   Button,
   Grid,
-  IconButton,
   Paper,
   Table,
   TableBody,
@@ -74,74 +73,85 @@ class TracksComponentClass extends React.PureComponent<Props> {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {playlistTracks.items.map((row) => (
-                    <TableRow
-                      classes={{ hover: classes.hover }}
-                      hover={true}
-                      role="checkbox"
-                      tabIndex={-1}
-                      key={row.track.id}
-                    >
-                      <TableCell key={row.track.id} style={{ paddingLeft: 0, minWidth: 350, maxWidth: 550 }}>
-                        <Button style={{ padding: 0, color: "transparent" }}>
-                          <img
-                            className={classes.playlistImageStyle}
-                            src={row.track.album.images[0].url}
-                            alt={row.track.name}
-                            width={40}
-                            id="rowTrackImage"
-                          />
-                          <IconButton className={classes.playlistIconButton}>
-                            <Play id="playSvgIcon" className={classes.playlistIconButtonIcon} />
-                          </IconButton>
-                        </Button>
-                        <Button className={classes.buttonText} variant="text">
-                          <Typography
-                            style={{ height: "100%", marginTop: 4 }}
-                            fontFamily="Poppins, sans-serif"
-                            fontSize={16}
-                            fontWeight={500}
-                            color="white"
-                          >
-                            {row.track.name}
-                          </Typography>
-                        </Button>
-                      </TableCell>
-                      <TableCell className={classes.artistTableCell}>
-                        <Button className={classes.buttonTextHover} variant="text">
+                  {playlistTracks.items.map((row) => {
+                    if (!row || !row.track || !row.track.id || !row.track.album) {
+                      const randomKey = Math.floor(Math.random() * 5000);
+                      return <React.Fragment key={randomKey} />;
+                    }
+
+                    return (
+                      <TableRow
+                        classes={{ hover: classes.hover }}
+                        hover={true}
+                        role="checkbox"
+                        tabIndex={-1}
+                        key={row.track.id}
+                      >
+                        <TableCell key={row.track.id} style={{ paddingLeft: 0, minWidth: 350, maxWidth: 550 }}>
+                          <Button style={{ padding: 0, color: "transparent" }}>
+                            <img
+                              className={classes.playlistImageStyle}
+                              src={row.track.album.images[0].url}
+                              alt={row.track.name}
+                              width={40}
+                              id="rowTrackImage"
+                            />
+                            <div className={classes.playlistIconButton}>
+                              <Play id="playSvgIcon" className={classes.playlistIconButtonIcon} />
+                            </div>
+                          </Button>
+                          <Button className={classes.buttonText} variant="text">
+                            <Typography
+                              style={{ height: "100%", marginTop: 4 }}
+                              fontFamily="Poppins, sans-serif"
+                              fontSize={16}
+                              fontWeight={500}
+                              color="white"
+                            >
+                              {row.track.name}
+                            </Typography>
+                          </Button>
+                        </TableCell>
+                        <TableCell className={classes.artistTableCell}>
+                          <Button className={classes.buttonTextHover} variant="text">
+                            <Typography
+                              fontFamily="Poppins, sans-serif"
+                              fontSize={16}
+                              className={classes.artistTypography}
+                            >
+                              {row.track.artists.map((artist, index) => {
+                                const { length } = row.track.artists;
+                                if (length > 1 && index < length - 1) {
+                                  return `${artist.name}, `;
+                                }
+                                return artist.name;
+                              })}
+                            </Typography>
+                          </Button>
+                        </TableCell>
+                        <TableCell style={{ minWidth: 500 }}>
+                          <Button className={classes.buttonTextHover} variant="text">
+                            <Typography
+                              fontFamily="Poppins, sans-serif"
+                              fontSize={16}
+                              className={classes.artistTypography}
+                            >
+                              {row.track.album.name}
+                            </Typography>
+                          </Button>
+                        </TableCell>
+                        <TableCell style={{ textAlign: "end" }}>
                           <Typography
                             fontFamily="Poppins, sans-serif"
                             fontSize={16}
                             className={classes.artistTypography}
                           >
-                            {row.track.artists.map((artist, index) => {
-                              const { length } = row.track.artists;
-                              if (length > 1 && index < length - 1) {
-                                return `${artist.name}, `;
-                              }
-                              return artist.name;
-                            })}
+                            {this.convertMilliseconds(row.track.duration_ms)}
                           </Typography>
-                        </Button>
-                      </TableCell>
-                      <TableCell style={{ minWidth: 500 }}>
-                        <Button className={classes.buttonTextHover} variant="text">
-                          <Typography
-                            fontFamily="Poppins, sans-serif"
-                            fontSize={16}
-                            className={classes.artistTypography}
-                          >
-                            {row.track.album.name}
-                          </Typography>
-                        </Button>
-                      </TableCell>
-                      <TableCell style={{ textAlign: "end" }}>
-                        <Typography fontFamily="Poppins, sans-serif" fontSize={16} className={classes.artistTypography}>
-                          {this.convertMilliseconds(row.track.duration_ms)}
-                        </Typography>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </TableContainer>
