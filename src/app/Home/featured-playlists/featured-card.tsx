@@ -38,7 +38,7 @@ class FeaturedCardClass extends React.PureComponent<Props> {
 
     return (
       <Grid container={true} item={true} xs={12} key={playlist.id}>
-        <Grid container={true} item={true} xs={12}>
+        <Grid container={true} item={true} xs={12} style={{ marginRight: 50 }}>
           <Grid item={true}>
             <Button>
               <div className="tint-img">
