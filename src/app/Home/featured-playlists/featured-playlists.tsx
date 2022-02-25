@@ -4,7 +4,7 @@ import { Navigation } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/react";
 import SpotifyWebApi from "spotify-web-api-node";
 import { WithStyles } from "@mui/styles";
-import { Box, Grid, Typography } from "@mui/material";
+import { Grid, Typography } from "@mui/material";
 import { FeaturedPlaylistsStyles, useFeaturedPlaylistsStyles } from "./featured.styles";
 import { useSpotifyAuth } from "../../../context/spotify-context";
 import { Notify } from "../../notification/notification-component";
@@ -49,22 +49,20 @@ class FeaturedPlaylistsClass extends React.PureComponent<Props> {
           </Typography>
         </Grid>
         <Grid item={true} xs={12}>
-          <Box>
-            <Swiper
-              slidesPerView={5}
-              className="mySwiper"
-              centeredSlides={false}
-              navigation={true}
-              modules={[Navigation]}
-              style={{ maxWidth: "85%", marginLeft: -20, paddingLeft: 15 }}
-            >
-              {playlists.items.map((x) => (
-                <SwiperSlide style={{ backgroundColor: "black" }} key={x.id}>
-                  <FeaturedCard playlist={x} />
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          </Box>
+          <Swiper
+            slidesPerView={5}
+            className="mySwiper"
+            centeredSlides={false}
+            navigation={true}
+            modules={[Navigation]}
+            style={{ maxWidth: "85%", marginLeft: -20, paddingLeft: 15 }}
+          >
+            {playlists.items.map((x) => (
+              <SwiperSlide style={{ backgroundColor: "black" }} key={x.id}>
+                <FeaturedCard playlist={x} />
+              </SwiperSlide>
+            ))}
+          </Swiper>
         </Grid>
       </Grid>
     );

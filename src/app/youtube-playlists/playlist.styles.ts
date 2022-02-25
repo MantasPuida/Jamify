@@ -4,8 +4,13 @@ export const YoutubeTracksStyles = () =>
   createStyles({
     youtubeTracksGrid: {
       backgroundColor: "black",
-      padding: "32px 0 24px 0",
+      padding: "40px 0 24px 0",
       margin: "0 150px"
+    },
+    image: {
+      borderRadius: "1%",
+      maxWidth: "260px",
+      height: "100%"
     }
   });
 
