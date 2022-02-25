@@ -23,6 +23,7 @@ import { HeaderSettingsDialogDeezer } from "../dialogs/header-settings-dialog-de
 import { HeaderSettingsStyles, useHeaderSettingsStyles } from "./header-settings.styles";
 
 import "./fontFamily.css";
+import { DeezerIcon } from "./deezer-icon-svg";
 
 interface OuterProps {
   handleDialogClose: ButtonProps["onClick"];
@@ -97,7 +98,7 @@ class SettingsDialogClass extends React.PureComponent<Props> {
           <BottomNavigation sx={{ width: "100%" }} value={value} onChange={this.handleNavigationChange}>
             <BottomNavigationAction label="Spotify" value="Spotify" icon={<Spotify />} />
             <BottomNavigationAction label="Youtube" value="YouTube" icon={<PlayCircleOutline />} />
-            <BottomNavigationAction label="Deezer" value="Deezer" icon={<Spotify />} />
+            <BottomNavigationAction label="Deezer" value="Deezer" icon={<DeezerIcon />} />
           </BottomNavigation>
         </DialogActions>
       </Dialog>

@@ -19,6 +19,7 @@ interface OuterProps {
 interface InnerProps extends WithStyles<typeof SettingsStyles> {
   navigate: NavigateFunction;
   register: Function;
+  deezerToken: string | null;
 }
 
 interface ProfileData {
@@ -40,11 +41,11 @@ class HeaderSettingsDialogDeezerClass extends React.PureComponent<Props, State> 
   constructor(props: Props) {
     super(props);
 
-    this.fetchUserData();
+    this.fetchUserData(props.deezerToken);
   }
 
-  private fetchUserData = (): void => {
-    DZ.api("/user/me", (value) => {
+  private fetchUserData = (token: string | null): void => {
+    DZ.api(`/user/me?access_token=${token}`, (value) => {
       this.setState({
         deezerProfile: {
           email: value.email,
@@ -127,9 +128,17 @@ class HeaderSettingsDialogDeezerClass extends React.PureComponent<Props, State> 
 }
 
 export const HeaderSettingsDialogDeezer = React.memo<OuterProps>((props) => {
-  const { register } = useDeezerAuth();
+  const { register, deezerToken } = useDeezerAuth();
   const navigate = useNavigate();
   const classes = useSettingsStyles();
 
-  return <HeaderSettingsDialogDeezerClass {...props} register={register} navigate={navigate} classes={classes} />;
+  return (
+    <HeaderSettingsDialogDeezerClass
+      {...props}
+      deezerToken={deezerToken}
+      register={register}
+      navigate={navigate}
+      classes={classes}
+    />
+  );
 });
