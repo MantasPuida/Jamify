@@ -2,14 +2,15 @@
 import { Grid, Typography } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import * as React from "react";
-import { Navigation } from "swiper";
+import { Grid as SwiperGrid, Navigation } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { useYoutubeTracksStyles, YoutubeTracksStyles } from "./playlist.styles";
+import { TracksCards } from "./playlist-cards";
 
 import "swiper/css";
 import "swiper/css/navigation";
+import "swiper/css/grid";
 import "./styles.css";
-import { TracksCards } from "./playlist-cards";
 
 type InnerProps = WithStyles<typeof YoutubeTracksStyles>;
 
@@ -51,7 +52,7 @@ class YoutubePlaylistsClass extends React.PureComponent<InnerProps, State> {
         .list({
           playlistId: todaysHits,
           part: ["snippet"],
-          maxResults: 200
+          maxResults: 999
         })
         .then((value) => {
           this.setState({
@@ -85,18 +86,23 @@ class YoutubePlaylistsClass extends React.PureComponent<InnerProps, State> {
             Today's Hits
           </Typography>
         </Grid>
-        <Grid item={true} xs={12}>
+        <Grid item={true} xs={12} style={{ marginRight: 200 }}>
           <Swiper
-            slidesPerView={5}
+            slidesPerView={3}
+            grid={{
+              rows: 4
+            }}
             className="mySwiper"
             centeredSlides={false}
             navigation={true}
-            modules={[Navigation]}
-            style={{ maxWidth: "85%", marginLeft: -20, paddingLeft: 15 }}
+            modules={[SwiperGrid, Navigation]}
+            draggable={false}
+            freeMode={false}
+            style={{ maxWidth: "85%", marginLeft: -15, paddingLeft: 10 }}
           >
-            {tracks.items.map((track) => (
+            {tracks.items.map((track, index) => (
               <SwiperSlide style={{ backgroundColor: "black" }} key={track.id}>
-                <TracksCards track={track} />
+                <TracksCards track={track} trackIndex={index} />
               </SwiperSlide>
             ))}
           </Swiper>
@@ -108,16 +114,6 @@ class YoutubePlaylistsClass extends React.PureComponent<InnerProps, State> {
 
 export const YoutubePlaylists = React.memo(() => {
   const classes = useYoutubeTracksStyles();
-  //   const location = useLocation();
-  //   const todaysHits = "RDCLAK5uy_nqRa4MZhGLlzdFysGGDQyuGA43aqJR8FQ";
-
-  //   React.useEffect(() => {
-  //     gapi.client.youtube.playlistItems
-  //       .list({ playlistId: todaysHits, part: "snippet", maxResults: 200 })
-  //       .then((value) => {
-  //         console.log(value);
-  //       });
-  //   }, [location.pathname]);
 
   return <YoutubePlaylistsClass classes={classes} />;
 });

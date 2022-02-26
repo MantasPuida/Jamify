@@ -8,9 +8,25 @@ export const YoutubeTracksStyles = () =>
       margin: "0 150px"
     },
     image: {
-      borderRadius: "1%",
-      maxWidth: "260px",
-      height: "100%"
+      borderRadius: "5%",
+      maxWidth: "96px"
+    },
+    typography: {
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      width: "100%",
+      WebkitLineClamp: 3,
+      display: "block"
+    },
+    helperTypography: {
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      width: "100%",
+      WebkitLineClamp: 3,
+      display: "block",
+      color: "rgba(255, 255, 255, .7)"
     }
   });
 

@@ -48,6 +48,7 @@ const HomeRoutes = (): JSX.Element => {
       if (accessToken) {
         register(accessToken);
         navigate(AppRoutes.Home);
+        window.location.reload();
       }
     }
 
