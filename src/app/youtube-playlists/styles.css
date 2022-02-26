@@ -49,7 +49,7 @@ body {
 }
 
 .swiper-button-next {
-  background-image: url(../../../assets/svg/chevron-right.svg);
+  background-image: url(../../assets/svg/chevron-right.svg);
   background-repeat: no-repeat;
   background-size: 100% auto;
   background-position: center;
@@ -65,7 +65,7 @@ body {
 .swiper-button-prev {
   position: absolute;
   left: 5px;
-  background-image: url(../../../assets/svg/chevron-right.svg);
+  background-image: url(../../assets/svg/chevron-right.svg);
   background-repeat: no-repeat;
   background-size: 100% auto;
   background-position: center;

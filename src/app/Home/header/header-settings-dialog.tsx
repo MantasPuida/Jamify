@@ -17,9 +17,9 @@ import { WithStyles } from "@mui/styles";
 import { useDeezerAuth } from "../../../context/deezer-context";
 import { useYoutubeAuth } from "../../../context/youtube-context";
 import { useSpotifyAuth } from "../../../context/spotify-context";
-import { HeaderSettingsDialogSpotify } from "../dialogs/header-settings-dialog-spotify";
-import { HeaderSettingsDialogYouTube } from "../dialogs/header-settings-dialog-youtube";
-import { HeaderSettingsDialogDeezer } from "../dialogs/header-settings-dialog-deezer";
+import { HeaderSettingsDialogSpotify } from "../dialog-content/header-settings-dialog-spotify";
+import { HeaderSettingsDialogYouTube } from "../dialog-content/header-settings-dialog-youtube";
+import { HeaderSettingsDialogDeezer } from "../dialog-content/header-settings-dialog-deezer";
 import { HeaderSettingsStyles, useHeaderSettingsStyles } from "./header-settings.styles";
 
 import "./fontFamily.css";
