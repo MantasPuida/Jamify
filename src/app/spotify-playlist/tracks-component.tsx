@@ -62,7 +62,7 @@ class TracksComponentClass extends React.PureComponent<Props> {
                       <Typography className={classes.headerTypography}>Track</Typography>
                     </TableCell>
                     <TableCell>
-                      <Typography className={classes.headerTypography}>Artist</Typography>
+                      <Typography className={classes.headerTypography}>Artists</Typography>
                     </TableCell>
                     <TableCell>
                       <Typography className={classes.headerTypography}>Album</Typography>
@@ -102,7 +102,7 @@ class TracksComponentClass extends React.PureComponent<Props> {
                           </Button>
                           <Button className={classes.buttonText} variant="text">
                             <Typography
-                              style={{ height: "100%", marginTop: 4 }}
+                              style={{ height: "100%", marginTop: 4, textAlign: "left", minWidth: 400 }}
                               fontFamily="Poppins, sans-serif"
                               fontSize={16}
                               fontWeight={500}

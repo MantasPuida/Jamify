@@ -1,14 +1,13 @@
 import * as React from "react";
 import { Button, Grid, Typography } from "@mui/material";
+import Play from "mdi-material-ui/Play";
 import { WithStyles } from "@mui/styles";
 import { YoutubeTracksStyles, useYoutubeTracksStyles } from "./playlist.styles";
 
-import "./carousel-items.css";
 import "./fontFamily.css";
 
 interface OuterProps {
   track: gapi.client.youtube.PlaylistItem;
-  trackIndex: number;
 }
 
 interface InnerProps extends WithStyles<typeof YoutubeTracksStyles> {}
@@ -40,8 +39,6 @@ class TracksCardsClass extends React.PureComponent<Props> {
 
     const { title, thumbnails, videoOwnerChannelTitle } = track.snippet;
 
-    // const isIndexEven: boolean = trackIndex % 2 === 0;
-
     let imageUrl: string | undefined = thumbnails.default?.url;
 
     if (thumbnails.maxres) {
@@ -65,8 +62,9 @@ class TracksCardsClass extends React.PureComponent<Props> {
       <Grid container={true} item={true} xs={12} key={track.id}>
         <Grid item={true} xs={2}>
           <Button>
-            <div className="tint-img">
-              <img src={imageUrl} alt={title} className={classes.image} />
+            <img src={imageUrl} alt={title} className={classes.image} id="gridRowTrack" />
+            <div style={{ position: "absolute", width: 32, height: 32, marginTop: 8 }}>
+              <Play id="ytPlaySvgIcon" style={{ color: "white", display: "none" }} />
             </div>
           </Button>
         </Grid>
@@ -79,8 +77,10 @@ class TracksCardsClass extends React.PureComponent<Props> {
                 justifyContent: "left",
                 maxWidth: 425,
                 paddingTop: 4,
-                paddingBottom: 2
+                paddingBottom: 2,
+                color: "transparent"
               }}
+              variant="text"
             >
               <Typography className={classes.typography} fontFamily="Poppins,sans-serif" fontSize={16} color="white">
                 {this.parseTitle(title)}
@@ -94,8 +94,12 @@ class TracksCardsClass extends React.PureComponent<Props> {
                 textTransform: "none",
                 justifyContent: "left",
                 maxWidth: 425,
-                paddingTop: 0
+                color: "transparent",
+                paddingTop: 0,
+                paddingBottom: 0
               }}
+              className={classes.buttonOnHover}
+              variant="text"
             >
               <Typography className={classes.helperTypography} fontFamily="Poppins,sans-serif" fontSize={12}>
                 {videoOwnerChannelTitle}

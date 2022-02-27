@@ -44,6 +44,20 @@ body {
   align-items: center;
 }
 
+.swiper-slide:hover img#gridRowTrack {
+  opacity: 0.6;
+  transition: opacity 0.4s;
+}
+
+.swiper-slide img#gridRowTrack {
+  opacity: 1;
+  transition: opacity 0.4s;
+}
+
+.swiper-slide:hover div#ytPlaySvgIcon {
+  display: "block !important";
+}
+
 .swiper-wrapper {
   height: auto;
   display: -webkit-inline-box;

@@ -27,6 +27,11 @@ export const YoutubeTracksStyles = () =>
       WebkitLineClamp: 3,
       display: "block",
       color: "rgba(255, 255, 255, .7)"
+    },
+    buttonOnHover: {
+      "&:hover": {
+        textDecoration: "solid underline rgba(255, 255, 255, .7) 1px"
+      }
     }
   });
 

@@ -5,6 +5,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import SpotifyWebApi from "spotify-web-api-node";
 import { WithStyles } from "@mui/styles";
 import { Box, Grid, Typography } from "@mui/material";
+import Spotify from "mdi-material-ui/Spotify";
 import { FeaturedPlaylistsStyles, useFeaturedPlaylistsStyles } from "./featured.styles";
 import { useSpotifyAuth } from "../../../context/spotify-context";
 import { Notify } from "../../notification/notification-component";
@@ -40,13 +41,26 @@ class FeaturedPlaylistsClass extends React.PureComponent<Props> {
 
     return (
       <Grid container={true} item={true} xs={12} className={classes.featuredPlaylistsGrid}>
-        <Grid item={true} xs={12}>
-          <Typography fontSize={45} fontWeight={900} fontFamily="Poppins,sans-serif" color="white">
-            Featured Playlists
-          </Typography>
-          <Typography fontSize={25} fontWeight={400} fontFamily="Poppins,sans-serif" color="white">
-            {message ?? "Editor's picks"}
-          </Typography>
+        <Grid container={true} item={true} xs={12}>
+          <Grid item={true} xs={12}>
+            <Typography fontSize={45} fontWeight={900} fontFamily="Poppins,sans-serif" color="white">
+              Featured Playlists
+            </Typography>
+          </Grid>
+          <Grid item={true}>
+            <Typography
+              fontSize={25}
+              fontWeight={400}
+              fontFamily="Poppins,sans-serif"
+              color="white"
+              style={{ float: "left" }}
+            >
+              {message ?? "Editor's picks"}
+            </Typography>
+          </Grid>
+          <Grid item={true} style={{ paddingLeft: 8, marginTop: 6 }}>
+            <Spotify style={{ color: "#1DB954" }} />
+          </Grid>
         </Grid>
         <Grid item={true} xs={12}>
           <Box>

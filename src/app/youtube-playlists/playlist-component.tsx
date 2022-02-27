@@ -1,7 +1,8 @@
 /* eslint-disable react/no-unescaped-entities */
+import * as React from "react";
 import { Grid, Typography } from "@mui/material";
 import { WithStyles } from "@mui/styles";
-import * as React from "react";
+import PlayCircleOutline from "mdi-material-ui/PlayCircleOutline";
 import { Grid as SwiperGrid, Navigation } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { useYoutubeTracksStyles, YoutubeTracksStyles } from "./playlist.styles";
@@ -78,13 +79,20 @@ class YoutubePlaylistsClass extends React.PureComponent<InnerProps, State> {
 
     return (
       <Grid container={true} item={true} xs={12} className={classes.youtubeTracksGrid}>
-        <Grid item={true} xs={12}>
-          <Typography fontSize={45} fontWeight={900} fontFamily="Poppins,sans-serif" color="white">
-            Recommended Songs
-          </Typography>
-          <Typography fontSize={25} fontWeight={400} fontFamily="Poppins,sans-serif" color="white">
-            Today's Hits
-          </Typography>
+        <Grid container={true} item={true} xs={12}>
+          <Grid item={true} xs={12}>
+            <Typography fontSize={45} fontWeight={900} fontFamily="Poppins,sans-serif" color="white">
+              Recommended Songs
+            </Typography>
+          </Grid>
+          <Grid item={true}>
+            <Typography fontSize={25} fontWeight={400} fontFamily="Poppins,sans-serif" color="white">
+              Today's Hits
+            </Typography>
+          </Grid>
+          <Grid item={true} style={{ paddingLeft: 8, marginTop: 6 }}>
+            <PlayCircleOutline style={{ color: "#FF0000" }} />
+          </Grid>
         </Grid>
         <Grid item={true} xs={12} style={{ marginRight: 200 }}>
           <Swiper
@@ -98,11 +106,13 @@ class YoutubePlaylistsClass extends React.PureComponent<InnerProps, State> {
             modules={[SwiperGrid, Navigation]}
             draggable={false}
             freeMode={false}
+            grabCursor={false}
+            noSwiping={true}
             style={{ maxWidth: "85%", marginLeft: -15, paddingLeft: 10 }}
           >
-            {tracks.items.map((track, index) => (
+            {tracks.items.map((track) => (
               <SwiperSlide style={{ backgroundColor: "black" }} key={track.id}>
-                <TracksCards track={track} trackIndex={index} />
+                <TracksCards track={track} />
               </SwiperSlide>
             ))}
           </Swiper>
