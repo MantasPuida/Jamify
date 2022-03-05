@@ -1,32 +1,34 @@
 import * as React from "react";
-import { Button, Grid, Typography } from "@mui/material";
+import { Button, ButtonProps, Grid, Typography } from "@mui/material";
 import Play from "mdi-material-ui/Play";
 import { WithStyles } from "@mui/styles";
 import { YoutubeTracksStyles, useYoutubeTracksStyles } from "./playlist.styles";
 
 import "./fontFamily.css";
+import { usePlayerContext } from "../../context/player-context";
+import { parseTitle } from "../../helpers/title-parser";
+import { extractThumbnail } from "../../helpers/thumbnails";
 
 interface OuterProps {
   track: gapi.client.youtube.PlaylistItem;
 }
 
-interface InnerProps extends WithStyles<typeof YoutubeTracksStyles> {}
+interface InnerProps extends WithStyles<typeof YoutubeTracksStyles> {
+  setPlayerOpen: Function;
+  setPlayerTrack: Function;
+}
 
 type Props = InnerProps & OuterProps;
 
 class TracksCardsClass extends React.PureComponent<Props> {
-  private parseTitle = (title: string): string => {
-    if (title.endsWith("]")) {
-      const regexBrackets: RegExp = /\[.*?\]/g;
-      return title.replaceAll(regexBrackets, "");
-    }
+  private handleOnTrackClick: ButtonProps["onClick"] = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
 
-    if (title.endsWith(")")) {
-      const regexParentheses: RegExp = /\(.*\)/g;
-      return title.replaceAll(regexParentheses, "");
-    }
+    const { setPlayerOpen, setPlayerTrack, track } = this.props;
 
-    return title;
+    setPlayerOpen(true);
+    setPlayerTrack(track);
   };
 
   public render(): React.ReactNode {
@@ -39,29 +41,12 @@ class TracksCardsClass extends React.PureComponent<Props> {
 
     const { title, thumbnails, videoOwnerChannelTitle } = track.snippet;
 
-    let imageUrl: string | undefined = thumbnails.default?.url;
-
-    if (thumbnails.maxres) {
-      const { maxres } = thumbnails;
-      if (maxres.url) {
-        imageUrl = maxres.url;
-      }
-    } else if (thumbnails.standard) {
-      const { standard } = thumbnails;
-      if (standard.url) {
-        imageUrl = standard.url;
-      }
-    } else if (thumbnails.high) {
-      const { high } = thumbnails;
-      if (high.url) {
-        imageUrl = high.url;
-      }
-    }
+    const imageUrl = extractThumbnail(thumbnails);
 
     return (
       <Grid container={true} item={true} xs={12} key={track.id}>
         <Grid item={true} xs={2}>
-          <Button>
+          <Button onClick={this.handleOnTrackClick}>
             <img src={imageUrl} alt={title} className={classes.image} id="gridRowTrack" />
             <div style={{ position: "absolute", width: 32, height: 32, marginTop: 8 }}>
               <Play id="ytPlaySvgIcon" style={{ color: "white", display: "none" }} />
@@ -71,6 +56,7 @@ class TracksCardsClass extends React.PureComponent<Props> {
         <Grid container={true} item={true} xs={10} style={{ textAlign: "left" }}>
           <Grid item={true} xs={10}>
             <Button
+              onClick={this.handleOnTrackClick}
               style={{
                 textAlign: "left",
                 textTransform: "none",
@@ -83,7 +69,7 @@ class TracksCardsClass extends React.PureComponent<Props> {
               variant="text"
             >
               <Typography className={classes.typography} fontFamily="Poppins,sans-serif" fontSize={16} color="white">
-                {this.parseTitle(title)}
+                {parseTitle(title)}
               </Typography>
             </Button>
           </Grid>
@@ -113,7 +99,8 @@ class TracksCardsClass extends React.PureComponent<Props> {
 }
 
 export const TracksCards = React.memo<OuterProps>((props) => {
+  const { setOpen, setTrack } = usePlayerContext();
   const classes = useYoutubeTracksStyles();
 
-  return <TracksCardsClass {...props} classes={classes} />;
+  return <TracksCardsClass {...props} classes={classes} setPlayerOpen={setOpen} setPlayerTrack={setTrack} />;
 });
