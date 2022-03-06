@@ -10,12 +10,15 @@ import { Notify } from "../notification/notification-component";
 import { PlaylistTopComponent } from "./playlist-component";
 import { TracksComponent } from "./tracks-component";
 import { useSpotifyAuth } from "../../context/spotify-context";
+import { Player } from "../player/player-component";
+import { usePlayerContext } from "../../context/player-context";
 
 type PlaylistTracksResponse = SpotifyApi.PlaylistTrackResponse;
 
 interface InnerProps extends WithStyles<typeof HomeLandingPageStyles> {
   playlist: SpotifyApi.PlaylistObjectSimplified;
   playlistTracks: PlaylistTracksResponse;
+  isPlayerOpen: boolean;
 }
 
 interface OuterProps {
@@ -26,13 +29,14 @@ type Props = InnerProps & OuterProps;
 
 class PlaylistClass extends React.PureComponent<Props> {
   public render(): React.ReactNode {
-    const { classes, playlist, playlistTracks, spotifyApi } = this.props;
+    const { classes, playlist, playlistTracks, spotifyApi, isPlayerOpen } = this.props;
 
     return (
       <Grid container={true} item={true} xs={12} className={classes.homeGrid}>
         <HeaderComponent spotifyApi={spotifyApi} />
         <PlaylistTopComponent playlist={playlist} />
         <TracksComponent playlistTracks={playlistTracks} spotifyApi={spotifyApi} />
+        {isPlayerOpen && <Player />}
       </Grid>
     );
   }
@@ -40,6 +44,7 @@ class PlaylistClass extends React.PureComponent<Props> {
 
 export const Playlist = React.memo<OuterProps>((props) => {
   const [playlistTracks, setTracks] = React.useState<PlaylistTracksResponse | undefined>();
+  const { isOpen } = usePlayerContext();
   const location = useLocation();
   const locationState = location.state as FeaturedPlaylistState;
   const classes = useHomeLandingPageStyles();
@@ -71,6 +76,12 @@ export const Playlist = React.memo<OuterProps>((props) => {
   }
 
   return (
-    <PlaylistClass playlist={playlist} playlistTracks={playlistTracks} classes={classes} spotifyApi={spotifyApi} />
+    <PlaylistClass
+      playlist={playlist}
+      playlistTracks={playlistTracks}
+      classes={classes}
+      spotifyApi={spotifyApi}
+      isPlayerOpen={isOpen}
+    />
   );
 });

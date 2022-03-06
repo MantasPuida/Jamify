@@ -2,170 +2,162 @@
 import * as React from "react";
 import { WithStyles } from "@mui/styles";
 import ReactPlayer, { ReactPlayerProps } from "react-player";
+import memoizeOne from "memoize-one";
 import { Stack, Grid, IconButton, IconButtonProps, Slider, SliderProps, Typography, Box, styled } from "@mui/material";
 import PauseRounded from "mdi-material-ui/Pause";
 import PlayArrowRounded from "mdi-material-ui/Play";
 import FastForwardRounded from "mdi-material-ui/FastForward";
 import FastRewindRounded from "mdi-material-ui/Rewind";
 import VolumeUpRounded from "mdi-material-ui/VolumeHigh";
-import VolumeDownRounded from "mdi-material-ui/VolumeMedium";
-import { usePlayerContext } from "../../context/player-context";
-import { extractThumbnail } from "../../helpers/thumbnails";
+import { TrackObject, usePlayerContext } from "../../context/player-context";
 import { parseTitle } from "../../helpers/title-parser";
 import { PlayerStyles, usePlayerStyles } from "./player.styles";
 
 const Widget = styled("div")(() => ({
-  padding: 16,
-  borderRadius: 16,
   width: "100%",
   margin: "auto",
   position: "relative",
+  height: 72,
   zIndex: 1,
   backgroundColor: "rgba(0,0,0,0.6)",
   backdropFilter: "blur(40px)"
 }));
 
-const TinyText = styled(Typography)({
-  fontSize: "0.75rem",
-  opacity: 0.38,
-  fontWeight: 500,
-  letterSpacing: 0.2,
-  color: "white"
-});
-
-interface State {
-  position: number;
-  paused: boolean;
-  volume: number;
-  duration: number;
-}
+interface OuterProps {}
 
 interface InnerProps extends WithStyles<typeof PlayerStyles> {
-  track?: gapi.client.youtube.PlaylistItem;
+  track?: TrackObject;
+  duration: number;
+  paused: boolean;
+  position: number;
+  volume: number;
+  setDuration: Function;
+  setPaused: Function;
+  setPosition: Function;
+  setVolume: Function;
 }
 
-class PlayerClass extends React.PureComponent<InnerProps, State> {
-  public state: State = {
-    position: 0,
-    paused: false,
-    volume: 0.5,
-    duration: 0
-  };
+type Props = InnerProps & OuterProps;
 
+class PlayerClass extends React.PureComponent<Props> {
   private playerRef: ReactPlayer | null = null;
 
+  private formatDuration: (value: number) => string = memoizeOne((value) => {
+    const minute = Math.floor(value / 60);
+    const secondLeft = value - minute * 60;
+    return `${minute}:${secondLeft <= 9 ? `0${secondLeft}` : secondLeft}`;
+  });
+
   private handleSliderOnChange: SliderProps["onChange"] = (_, value) => {
-    this.setState({ position: value as number });
+    const { setPosition } = this.props;
+
+    setPosition(value as number);
     if (this.playerRef) {
       this.playerRef.seekTo(value as number);
     }
   };
 
   private handleVolumeOnChange: SliderProps["onChange"] = (_, value) => {
+    const { setVolume } = this.props;
     const volumeNormalized = (value as number) / 100;
-    this.setState({ volume: volumeNormalized });
+
+    setVolume(volumeNormalized);
   };
 
   private handleOnPlayPause: IconButtonProps["onClick"] = (event) => {
     event.preventDefault();
     event.stopPropagation();
 
-    this.setState((state) => ({ paused: !state.paused }));
+    const { setPaused, paused } = this.props;
+
+    setPaused(!paused);
   };
 
   private handleOnDuration: ReactPlayerProps["onDuration"] = (songDuration) => {
-    this.setState({ duration: songDuration });
+    const { setDuration } = this.props;
+    setDuration(songDuration);
   };
 
   private handleOnProgress: ReactPlayerProps["onProgress"] = (playedObj) => {
     const { playedSeconds } = playedObj;
-    this.setState({ position: Math.trunc(playedSeconds) });
+    const { setPosition } = this.props;
+
+    setPosition(Math.trunc(playedSeconds));
   };
 
-  private formatDuration(value: number) {
-    const minute = Math.floor(value / 60);
-    const secondLeft = value - minute * 60;
-    return `${minute}:${secondLeft < 9 ? `0${secondLeft}` : secondLeft}`;
-  }
-
   public render(): React.ReactNode {
-    const { track, classes } = this.props;
-    if (!track || !track.id || !track.snippet || !track.snippet.thumbnails || !track.snippet.title) {
+    const { track, classes, paused, position, volume, duration } = this.props;
+    if (!track) {
       // eslint-disable-next-line react/jsx-no-useless-fragment
       return <></>;
     }
 
-    const { paused, position, volume, duration } = this.state;
-    const mainIconColor = "#fff";
-    const lightIconColor = "rgba(255,255,255,0.4)";
-
-    const { snippet } = track;
-    const { title, thumbnails, videoOwnerChannelTitle } = snippet;
-    const imageUrl = extractThumbnail(thumbnails);
+    const { channelTitle, thumbnail, title, videoId } = track;
 
     return (
-      <Grid container={true} item={true} xs={12} style={{ width: "100%", overflow: "hidden" }}>
+      <Grid
+        container={true}
+        item={true}
+        xs={12}
+        style={{ width: "100%", bottom: 0, position: "fixed", backgroundColor: "#909090", zIndex: 1, marginTop: 150 }}
+      >
         <Widget>
           <Grid item={true} xs={12}>
             <Slider
               aria-label="time-indicator"
               size="small"
               value={position}
-              min={0}
+              min={-0.6}
               step={1}
               max={duration}
               onChange={this.handleSliderOnChange}
               className={classes.slider}
             />
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                mt: -2
-              }}
-            >
-              <TinyText>{this.formatDuration(position)}</TinyText>
-              <TinyText>-{this.formatDuration(duration - position)}</TinyText>
-            </Box>
           </Grid>
           <Grid
             container={true}
             item={true}
             xs={12}
-            style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: -1, width: "100%" }}
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: -6, width: "100%" }}
           >
-            <Grid item={true} xs={3} style={{ justifyContent: "start" }}>
-              <IconButton aria-label="previous song">
-                <FastRewindRounded fontSize="large" htmlColor={mainIconColor} />
-              </IconButton>
-              <IconButton aria-label={paused ? "play" : "pause"} onClick={this.handleOnPlayPause}>
-                {paused ? (
-                  <PlayArrowRounded sx={{ fontSize: "3rem" }} htmlColor={mainIconColor} />
-                ) : (
-                  <PauseRounded sx={{ fontSize: "3rem" }} htmlColor={mainIconColor} />
-                )}
-              </IconButton>
-              <IconButton aria-label="next song">
-                <FastForwardRounded fontSize="large" htmlColor={mainIconColor} />
-              </IconButton>
+            <Grid item={true} xs={3} style={{ paddingLeft: 8 }}>
+              <Grid container={true} item={true} xs={12}>
+                <IconButton aria-label="previous song" style={{ marginTop: -8 }}>
+                  <FastRewindRounded style={{ fontSize: "24px" }} htmlColor="#fff" />
+                </IconButton>
+                <IconButton
+                  aria-label={paused ? "play" : "pause"}
+                  onClick={this.handleOnPlayPause}
+                  style={{ marginTop: -8 }}
+                >
+                  {paused ? (
+                    <PlayArrowRounded sx={{ fontSize: "40px" }} htmlColor="#fff" />
+                  ) : (
+                    <PauseRounded sx={{ fontSize: "40px" }} htmlColor="#fff" />
+                  )}
+                </IconButton>
+                <IconButton aria-label="next song" style={{ marginTop: -8 }}>
+                  <FastForwardRounded style={{ fontSize: "24px" }} htmlColor="#fff" />
+                </IconButton>
+                <Typography color="#aaa" style={{ paddingLeft: 16, marginTop: 10 }} fontSize={12}>
+                  {this.formatDuration(position)} / {this.formatDuration(duration)}
+                </Typography>
+              </Grid>
             </Grid>
             <Grid
               item={true}
               xs={6}
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", marginTop: -8 }}
             >
-              <img alt="can't win - Chilling Sunday" src={imageUrl} width={96} />
+              <img alt="can't win - Chilling Sunday" src={thumbnail} width={88} />
               <Box sx={{ ml: 1.5, minWidth: 0, color: "white" }}>
-                <Typography fontWeight={400} fontFamily="Poppins,sans-serif" noWrap={true}>
-                  {parseTitle(title)}
-                </Typography>
-                <Typography fontWeight={400} fontFamily="Poppins,sans-serif" noWrap={true} letterSpacing={-0.25}>
-                  {videoOwnerChannelTitle}
+                <Typography noWrap={true}>{parseTitle(title)}</Typography>
+                <Typography noWrap={true} letterSpacing={-0.25}>
+                  {channelTitle}
                 </Typography>
               </Box>
             </Grid>
-            <Grid item={true} xs={3} style={{ width: "100%" }}>
+            <Grid item={true} xs={3} style={{ width: "100%", paddingRight: 8 }}>
               <Stack
                 spacing={2}
                 direction="row"
@@ -173,21 +165,22 @@ class PlayerClass extends React.PureComponent<InnerProps, State> {
                 alignItems="center"
                 style={{ justifyContent: "end" }}
               >
-                <VolumeDownRounded htmlColor={lightIconColor} />
                 <Slider
+                  id="customSliderId"
                   aria-label="Volume"
-                  defaultValue={0}
+                  defaultValue={volume * 100}
+                  size="small"
                   className={classes.volumeSlider}
                   onChange={this.handleVolumeOnChange}
                 />
-                <VolumeUpRounded htmlColor={lightIconColor} />
+                <VolumeUpRounded className={classes.volumeIcon} />
               </Stack>
             </Grid>
           </Grid>
         </Widget>
         <div style={{ display: "none" }}>
           <ReactPlayer
-            url={`https://www.youtube.com/watch?v=${snippet.resourceId?.videoId}`}
+            url={`https://www.youtube.com/watch?v=${videoId}`}
             playing={!paused}
             volume={volume}
             onProgress={this.handleOnProgress}
@@ -202,9 +195,24 @@ class PlayerClass extends React.PureComponent<InnerProps, State> {
   }
 }
 
-export const Player = React.memo(() => {
-  const { track } = usePlayerContext();
+export const Player = React.memo<OuterProps>((props) => {
+  const { track, position, paused, duration, volume, setPaused, setDuration, setPosition, setVolume } =
+    usePlayerContext();
   const classes = usePlayerStyles();
 
-  return <PlayerClass track={track} classes={classes} />;
+  return (
+    <PlayerClass
+      track={track}
+      classes={classes}
+      position={position}
+      paused={paused}
+      duration={duration}
+      volume={volume}
+      setPaused={setPaused}
+      setDuration={setDuration}
+      setPosition={setPosition}
+      setVolume={setVolume}
+      {...props}
+    />
+  );
 });

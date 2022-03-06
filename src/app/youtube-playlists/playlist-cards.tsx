@@ -5,7 +5,7 @@ import { WithStyles } from "@mui/styles";
 import { YoutubeTracksStyles, useYoutubeTracksStyles } from "./playlist.styles";
 
 import "./fontFamily.css";
-import { usePlayerContext } from "../../context/player-context";
+import { TrackObject, usePlayerContext } from "../../context/player-context";
 import { parseTitle } from "../../helpers/title-parser";
 import { extractThumbnail } from "../../helpers/thumbnails";
 
@@ -27,8 +27,22 @@ class TracksCardsClass extends React.PureComponent<Props> {
 
     const { setPlayerOpen, setPlayerTrack, track } = this.props;
 
-    setPlayerOpen(true);
-    setPlayerTrack(track);
+    if (track.snippet) {
+      const { snippet } = track;
+
+      if (snippet.videoOwnerChannelTitle && snippet.thumbnails && snippet.title && snippet.resourceId?.videoId) {
+        setPlayerOpen(true);
+
+        const currentTrack: TrackObject = {
+          channelTitle: snippet.videoOwnerChannelTitle,
+          thumbnail: extractThumbnail(snippet.thumbnails)!,
+          title: snippet.title,
+          videoId: snippet.resourceId.videoId
+        };
+
+        setPlayerTrack(currentTrack);
+      }
+    }
   };
 
   public render(): React.ReactNode {

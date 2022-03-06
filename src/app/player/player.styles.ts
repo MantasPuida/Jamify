@@ -5,6 +5,8 @@ export const PlayerStyles = () =>
     slider: {
       color: "#fff",
       height: 4,
+      marginBottom: 16,
+      padding: 0,
       "& .MuiSlider-thumb": {
         width: 8,
         height: 8,
@@ -42,6 +44,9 @@ export const PlayerStyles = () =>
       },
 
       width: 80
+    },
+    volumeIcon: {
+      color: "rgba(255,255,255,0.4)"
     }
   });
 
