@@ -20,13 +20,16 @@ export const DashboardStyles = () =>
       height: "100%"
     },
     mainText: {
+      marginLeft: 45,
+      marginTop: 10,
+      width: 381,
+      fontSize: 56,
+      fontWeight: 700
+    },
+    descriptiveText: {
       marginLeft: 50,
       marginTop: 10,
-      width: 381
-    },
-    descriptiveTest: {
-      marginLeft: 50,
-      marginTop: 10
+      fontSize: 48
     },
     textGrid: {
       zIndex: 2
@@ -41,7 +44,8 @@ export const DashboardStyles = () =>
     typewriter: {
       float: "right",
       paddingLeft: 16,
-      fontFamily: "Poppins, sans-serif"
+      fontFamily: "Poppins, sans-serif",
+      fontWeight: 700
     },
     contentText: {
       paddingTop: 80

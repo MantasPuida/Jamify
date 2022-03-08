@@ -40,7 +40,10 @@ class DashboardClass extends React.PureComponent<Props> {
     googleAuthObject
       ?.signIn()
       .then((value: gapi.auth2.GoogleUser) => {
-        registerYoutubeToken(value.getAuthResponse().access_token);
+        const { access_token: AccessToken } = value.getAuthResponse();
+        registerYoutubeToken(AccessToken);
+        gapi.client.setToken({ access_token: AccessToken });
+
         navigate(AppRoutes.Home);
       })
       .catch(() => {

@@ -8,23 +8,32 @@ import { useSpotifyAuth } from "../../context/spotify-context";
 import { SpotifyConstants } from "../../constants/constants-spotify";
 import { Explore } from "../explore/explore-component";
 import { Search } from "../search/search-component";
-import { Playlist } from "../playlist/playlist-class";
+import { Playlist } from "../spotify-playlist/playlist-class";
+import { Helpers } from "../../utils/helpers";
+import { HeaderComponent } from "../Home/header/header-component";
+import { usePlayerContext } from "../../context/player-context";
+import { Player } from "../player/player-component";
 
 interface Props {
   spotifyApi: SpotifyWebApi;
+  isPlayerOpen: boolean;
 }
 
 function HomeRoutesClass(props: Props) {
-  const { spotifyApi } = props;
+  const { spotifyApi, isPlayerOpen } = props;
 
   return (
-    <Routes>
-      <Route path={AppRoutes.Home} element={<Home spotifyApi={spotifyApi} />} />
-      <Route path={AppRoutes.Explore} element={<Explore />} />
-      <Route path={AppRoutes.Search} element={<Search />} />
-      <Route path={AppRoutes.Playlist} element={<Playlist spotifyApi={spotifyApi} />} />
-      <Route path="*" element={<NotFound />} />;
-    </Routes>
+    <>
+      <HeaderComponent spotifyApi={spotifyApi} />
+      <Routes>
+        <Route path={AppRoutes.Home} element={<Home spotifyApi={spotifyApi} />} />
+        <Route path={AppRoutes.Explore} element={<Explore spotifyApi={spotifyApi} />} />
+        <Route path={AppRoutes.Search} element={<Search spotifyApi={spotifyApi} />} />
+        <Route path={AppRoutes.Playlist} element={<Playlist spotifyApi={spotifyApi} />} />
+        <Route path="*" element={<NotFound />} />;
+      </Routes>
+      {isPlayerOpen && <Player />}
+    </>
   );
 }
 
@@ -32,7 +41,8 @@ function HomeRoutesClass(props: Props) {
 const HomeRoutes = (): JSX.Element => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { spotifyToken } = useSpotifyAuth();
+  const { isOpen } = usePlayerContext();
+  const { spotifyToken, register } = useSpotifyAuth();
 
   const spotifyApi = new SpotifyWebApi({
     accessToken: spotifyToken!,
@@ -41,12 +51,22 @@ const HomeRoutes = (): JSX.Element => {
   });
 
   React.useEffect(() => {
-    if (location.pathname === SpotifyConstants.SPOTIFY_REDIRECT_PATHNAME || location.pathname === AppRoutes.Default) {
+    if (location.pathname === SpotifyConstants.SPOTIFY_REDIRECT_PATHNAME) {
+      const { access_token: accessToken } = Helpers.getTokenFromHash(location.hash);
+
+      if (accessToken) {
+        register(accessToken);
+        navigate(AppRoutes.Home);
+        window.location.reload();
+      }
+    }
+
+    if (location.pathname === AppRoutes.Default) {
       navigate(AppRoutes.Home);
     }
   }, [location.pathname]);
 
-  return <HomeRoutesClass spotifyApi={spotifyApi} />;
+  return <HomeRoutesClass spotifyApi={spotifyApi} isPlayerOpen={isOpen} />;
 };
 
 export default HomeRoutes;

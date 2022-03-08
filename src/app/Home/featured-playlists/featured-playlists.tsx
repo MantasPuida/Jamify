@@ -1,16 +1,19 @@
-/* eslint-disable react/no-array-index-key */
 import * as React from "react";
 import { NavigateFunction, useLocation, useNavigate } from "react-router";
-import Carousel from "react-multi-carousel";
+import { Navigation } from "swiper";
+import { Swiper, SwiperSlide } from "swiper/react";
 import SpotifyWebApi from "spotify-web-api-node";
 import { WithStyles } from "@mui/styles";
-import { Grid, Typography } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
+import Spotify from "mdi-material-ui/Spotify";
 import { FeaturedPlaylistsStyles, useFeaturedPlaylistsStyles } from "./featured.styles";
 import { useSpotifyAuth } from "../../../context/spotify-context";
 import { Notify } from "../../notification/notification-component";
 import { FeaturedCard } from "./featured-card";
 
-import "react-multi-carousel/lib/styles.css";
+import "swiper/css";
+import "swiper/css/navigation";
+import "./styles.css";
 
 interface OuterProps {
   spotifyApi: SpotifyWebApi;
@@ -36,50 +39,46 @@ class FeaturedPlaylistsClass extends React.PureComponent<Props> {
 
     const { message, playlists } = featuredPlaylists;
 
-    const responsive = {
-      superLargeDesktop: {
-        breakpoint: { max: 4000, min: 3000 },
-        items: 5
-      },
-      desktop: {
-        breakpoint: { max: 3000, min: 1024 },
-        items: 4
-      },
-      tablet: {
-        breakpoint: { max: 1024, min: 464 },
-        items: 2
-      },
-      mobile: {
-        breakpoint: { max: 464, min: 0 },
-        items: 1
-      }
-    };
-
     return (
       <Grid container={true} item={true} xs={12} className={classes.featuredPlaylistsGrid}>
-        <Grid container={true}>
+        <Grid container={true} item={true} xs={12}>
           <Grid item={true} xs={12}>
             <Typography fontSize={45} fontWeight={900} fontFamily="Poppins,sans-serif" color="white">
               Featured Playlists
             </Typography>
-            <Typography fontSize={25} fontWeight={400} fontFamily="Poppins,sans-serif" color="white">
+          </Grid>
+          <Grid item={true}>
+            <Typography
+              fontSize={25}
+              fontWeight={400}
+              fontFamily="Poppins,sans-serif"
+              color="white"
+              style={{ float: "left" }}
+            >
               {message ?? "Editor's picks"}
             </Typography>
           </Grid>
-          <Grid item={true} xs={12}>
-            <Carousel
-              responsive={responsive}
-              className={classes.carousel}
-              autoPlay={false}
-              centerMode={true}
-              draggable={false}
-              keyBoardControl={true}
+          <Grid item={true} style={{ paddingLeft: 8, marginTop: 6 }}>
+            <Spotify style={{ color: "#1DB954" }} />
+          </Grid>
+        </Grid>
+        <Grid item={true} xs={12}>
+          <Box>
+            <Swiper
+              slidesPerView={5}
+              className="mySwiper"
+              centeredSlides={false}
+              navigation={true}
+              modules={[Navigation]}
+              style={{ maxWidth: "85%", marginLeft: -20, paddingLeft: 15 }}
             >
               {playlists.items.map((x) => (
-                <FeaturedCard playlist={x} key={x.id} />
+                <SwiperSlide style={{ backgroundColor: "black" }} key={x.id}>
+                  <FeaturedCard playlist={x} />
+                </SwiperSlide>
               ))}
-            </Carousel>
-          </Grid>
+            </Swiper>
+          </Box>
         </Grid>
       </Grid>
     );

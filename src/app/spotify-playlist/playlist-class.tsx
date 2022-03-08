@@ -4,7 +4,6 @@ import { WithStyles } from "@mui/styles";
 import { useLocation } from "react-router";
 import SpotifyWebApi from "spotify-web-api-node";
 import { FeaturedPlaylistState } from "../Home/featured-playlists/featured-card";
-import { HeaderComponent } from "../Home/header/header-component";
 import { HomeLandingPageStyles, useHomeLandingPageStyles } from "../Home/landing-page.styles";
 import { Notify } from "../notification/notification-component";
 import { PlaylistTopComponent } from "./playlist-component";
@@ -30,7 +29,6 @@ class PlaylistClass extends React.PureComponent<Props> {
 
     return (
       <Grid container={true} item={true} xs={12} className={classes.homeGrid}>
-        <HeaderComponent />
         <PlaylistTopComponent playlist={playlist} />
         <TracksComponent playlistTracks={playlistTracks} spotifyApi={spotifyApi} />
       </Grid>

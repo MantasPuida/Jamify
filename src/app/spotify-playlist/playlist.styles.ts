@@ -31,9 +31,11 @@ export const PlaylistStyles = (theme: AppTheme) =>
     },
     buttonText: {
       justifyContent: "left",
+      textAlign: "left",
       color: "transparent",
       padding: 0,
-      textTransform: "none"
+      textTransform: "none",
+      width: "85%"
     },
     hover: {
       "&:hover img#rowTrackImage": {
@@ -85,7 +87,8 @@ export const PlaylistStyles = (theme: AppTheme) =>
       minWidth: 350
     },
     artistTypography: {
-      color: "rgba(255, 255, 255, .7)"
+      color: "rgba(255, 255, 255, .7)",
+      textAlign: "left"
     }
   });
 
