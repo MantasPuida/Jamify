@@ -10,22 +10,30 @@ import { Explore } from "../explore/explore-component";
 import { Search } from "../search/search-component";
 import { Playlist } from "../spotify-playlist/playlist-class";
 import { Helpers } from "../../utils/helpers";
+import { HeaderComponent } from "../Home/header/header-component";
+import { usePlayerContext } from "../../context/player-context";
+import { Player } from "../player/player-component";
 
 interface Props {
   spotifyApi: SpotifyWebApi;
+  isPlayerOpen: boolean;
 }
 
 function HomeRoutesClass(props: Props) {
-  const { spotifyApi } = props;
+  const { spotifyApi, isPlayerOpen } = props;
 
   return (
-    <Routes>
-      <Route path={AppRoutes.Home} element={<Home spotifyApi={spotifyApi} />} />
-      <Route path={AppRoutes.Explore} element={<Explore spotifyApi={spotifyApi} />} />
-      <Route path={AppRoutes.Search} element={<Search spotifyApi={spotifyApi} />} />
-      <Route path={AppRoutes.Playlist} element={<Playlist spotifyApi={spotifyApi} />} />
-      <Route path="*" element={<NotFound />} />;
-    </Routes>
+    <>
+      <HeaderComponent spotifyApi={spotifyApi} />
+      <Routes>
+        <Route path={AppRoutes.Home} element={<Home spotifyApi={spotifyApi} />} />
+        <Route path={AppRoutes.Explore} element={<Explore spotifyApi={spotifyApi} />} />
+        <Route path={AppRoutes.Search} element={<Search spotifyApi={spotifyApi} />} />
+        <Route path={AppRoutes.Playlist} element={<Playlist spotifyApi={spotifyApi} />} />
+        <Route path="*" element={<NotFound />} />;
+      </Routes>
+      {isPlayerOpen && <Player />}
+    </>
   );
 }
 
@@ -33,6 +41,7 @@ function HomeRoutesClass(props: Props) {
 const HomeRoutes = (): JSX.Element => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { isOpen } = usePlayerContext();
   const { spotifyToken, register } = useSpotifyAuth();
 
   const spotifyApi = new SpotifyWebApi({
@@ -57,7 +66,7 @@ const HomeRoutes = (): JSX.Element => {
     }
   }, [location.pathname]);
 
-  return <HomeRoutesClass spotifyApi={spotifyApi} />;
+  return <HomeRoutesClass spotifyApi={spotifyApi} isPlayerOpen={isOpen} />;
 };
 
 export default HomeRoutes;
