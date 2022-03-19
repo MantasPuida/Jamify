@@ -46,7 +46,7 @@ namespace Backend.Controllers
             var user = await _usersRepository.GetUserAsync(userId);
             if (user == null)
             {
-                return NotFound($"Couldn't find a user with id of {userId}");
+                return NotFound($"Couldn't find a playlist with id of {userId}");
             }
 
             var playlist = _mapper.Map<Playlist>(playlistDto);
@@ -63,7 +63,7 @@ namespace Backend.Controllers
             var user = await _usersRepository.GetUserAsync(userId);
             if (user == null)
             {
-                return NotFound($"Couldn't find a user with id of {userId}");
+                return NotFound($"Couldn't find a playlist with id of {userId}");
             }
 
             var oldPlaylist = await _playlistsRepository.GetPlaylistAsync(userId, playlistId);
