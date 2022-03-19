@@ -25,13 +25,13 @@ namespace Backend.Controllers
             return (await _usersRepository.GetUsersAsync()).Select(o => _mapper.Map<UserDto>(o));
         }
 
-        [HttpGet(template: "{Id}")]
-        public async Task<ActionResult<UserDto>> GetUser(Guid id)
+        [HttpGet(template: "{userId}")]
+        public async Task<ActionResult<UserDto>> GetUser(Guid userId)
         {
-            var user = await _usersRepository.GetUserAsync(id);
+            var user = await _usersRepository.GetUserAsync(userId);
             if (user == null)
             {
-                return NotFound($"User with id '{id}' not found.");
+                return NotFound($"User with id '{userId}' not found.");
             }
 
             return Ok(_mapper.Map<UserDto>(user));
@@ -44,16 +44,16 @@ namespace Backend.Controllers
 
             await _usersRepository.InsertUserAsync(user);
 
-            return Created($"/api/users/{user.Id}", _mapper.Map<UserDto>(user));
+            return Created($"/api/users/{user.UserId}", _mapper.Map<UserDto>(user));
         }
 
-        [HttpDelete(template: "{id}")]
-        public async Task<ActionResult<UserDto>> Delete(Guid id)
+        [HttpDelete(template: "{userId}")]
+        public async Task<ActionResult<UserDto>> Delete(Guid userId)
         {
-            var user = await _usersRepository.GetUserAsync(id);
+            var user = await _usersRepository.GetUserAsync(userId);
             if (user == null)
             {
-                return NotFound($"User with id '{id}' not found.");
+                return NotFound($"User with id '{userId}' not found.");
             }
 
             await _usersRepository.DeleteUserAsync(user);

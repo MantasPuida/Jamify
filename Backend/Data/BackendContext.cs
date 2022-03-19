@@ -8,6 +8,7 @@ namespace Backend.Data
         public BackendContext(DbContextOptions<BackendContext> options) : base(options) { }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<Playlist> Playlists { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

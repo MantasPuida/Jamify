@@ -27,7 +27,7 @@ namespace Backend.Data.Repositories
 
         public async Task<User> GetUserAsync(Guid userId)
         {
-            return await _context.Users.FirstOrDefaultAsync(o => o.Id == userId);
+            return await _context.Users.FirstOrDefaultAsync(o => o.UserId == userId);
         }
 
         public async Task InsertUserAsync(User user)
