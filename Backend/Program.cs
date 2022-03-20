@@ -7,6 +7,8 @@ builder.Services.AddDbContext<BackendContext>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddControllers();
 builder.Services.AddTransient<IUsersRepository, UsersRepository>();
+builder.Services.AddTransient<IPlaylistsRepository, PlaylistsRepository>();
+builder.Services.AddTransient<ITracksRepository, TracksRepository>();
 
 var app = builder.Build();
 

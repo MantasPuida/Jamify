@@ -2,5 +2,5 @@
 
 namespace Backend.Data.Dtos.Users
 {
-    public record CreateUserDto([Required] string Name);
+    public record CreateUserDto(string SpotifyUniqueIdentifier, string YoutubeUniqueIdentifier, string DeezerUniqueIdentifier);
 }
