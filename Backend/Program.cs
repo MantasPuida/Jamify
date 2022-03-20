@@ -9,8 +9,14 @@ builder.Services.AddControllers();
 builder.Services.AddTransient<IUsersRepository, UsersRepository>();
 builder.Services.AddTransient<IPlaylistsRepository, PlaylistsRepository>();
 builder.Services.AddTransient<ITracksRepository, TracksRepository>();
+builder.Services.AddCors();
 
 var app = builder.Build();
+
+app.UseCors(cors => cors
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
 
 if (app.Environment.IsDevelopment())
 {

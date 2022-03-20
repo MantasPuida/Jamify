@@ -9,6 +9,8 @@ import { LastTick } from "../../utils/last-tick";
 import { useDeezerAuth } from "../../context/deezer-context";
 import { DeezerConstants } from "../../constants/constants-deezer";
 import { DashboardLandingPage } from "./dashboard-landing-page";
+import { PlaylistApi } from "../../api/api-endpoints";
+import { User } from "../../types/User";
 
 interface OuterProps {
   error: boolean;
@@ -41,6 +43,18 @@ class DashboardClass extends React.PureComponent<Props> {
       ?.signIn()
       .then((value: gapi.auth2.GoogleUser) => {
         const { access_token: AccessToken } = value.getAuthResponse();
+
+        const { UserApiEndpoints } = PlaylistApi;
+
+        UserApiEndpoints()
+          .fetchUsers()
+          .then((user) => {
+            console.log(user);
+            const data = user.data as User;
+
+            console.log(data);
+          });
+
         registerYoutubeToken(AccessToken);
         gapi.client.setToken({ access_token: AccessToken });
 
@@ -62,7 +76,6 @@ class DashboardClass extends React.PureComponent<Props> {
     DZ.login(
       (response) => {
         const { status, authResponse } = response;
-
         if (status === "connected" && authResponse.accessToken) {
           const { accessToken } = authResponse;
           registerDeezerToken(accessToken);
