@@ -45,7 +45,7 @@
     "eject": "react-scripts eject",
     "lint": "eslint .",
     "lint:fix": "eslint --fix",
-    "postinstall": "husky install"
+    "postinstall": "cd .. && husky install"
   },
   "eslintConfig": {
     "extends": [

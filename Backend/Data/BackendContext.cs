@@ -1,5 +1,6 @@
 ﻿using Backend.Data.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Data.SqlClient;
 
 namespace Backend.Data
 {
@@ -9,6 +10,7 @@ namespace Backend.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<Playlist> Playlists { get; set; }
+        public DbSet<Track> Tracks { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

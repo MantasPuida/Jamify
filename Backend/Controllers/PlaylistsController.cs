@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Backend.Controllers
 {
     [ApiController]
-    [Route("api/users/{UserId}/playlists")]
+    [Route("api/users/{userId}/playlists")]
     public class PlaylistsController : ControllerBase
     {
         private readonly IUsersRepository _usersRepository;
@@ -46,7 +46,7 @@ namespace Backend.Controllers
             var user = await _usersRepository.GetUserAsync(userId);
             if (user == null)
             {
-                return NotFound($"Couldn't find a playlist with id of {userId}");
+                return NotFound($"Couldn't find a user with id of {userId}");
             }
 
             var playlist = _mapper.Map<Playlist>(playlistDto);
@@ -54,7 +54,7 @@ namespace Backend.Controllers
 
             await _playlistsRepository.InsertPlaylistAsync(playlist);
 
-            return Created($"/api/topics/{userId}/posts/{playlist.PlaylistId}", _mapper.Map<PlaylistDto>(playlist));
+            return Created($"/api/users/{userId}/playlists/{playlist.PlaylistId}", _mapper.Map<PlaylistDto>(playlist));
         }
 
         [HttpPut("{playlistId}")]

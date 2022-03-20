@@ -47,6 +47,22 @@ namespace Backend.Controllers
             return Created($"/api/users/{user.UserId}", _mapper.Map<UserDto>(user));
         }
 
+        [HttpPut("{userId}")]
+        public async Task<ActionResult<UserDto>> Put(Guid userId, UpdateUserDto userDto)
+        {
+            var user = await _usersRepository.GetUserAsync(userId);
+            if (user == null)
+            {
+                return NotFound($"User with id '{userId}' not found.");
+            }
+
+            _mapper.Map(userDto, user);
+
+            await _usersRepository.UpdateUserAsync(user);
+
+            return Ok(_mapper.Map<UserDto>(user));
+        }
+
         [HttpDelete(template: "{userId}")]
         public async Task<ActionResult<UserDto>> Delete(Guid userId)
         {
