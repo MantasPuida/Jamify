@@ -1,6 +1,6 @@
 export interface User {
-  UserId: string;
-  SpotifyUniqueIdentifier: string;
-  YoutubeUniqueIdentifier: string;
-  DeezerUniqueIdentifier: string;
+  userId: string;
+  spotifyUniqueIdentifier: string;
+  youtubeUniqueIdentifier: string;
+  deezerUniqueIdentifier: string;
 }

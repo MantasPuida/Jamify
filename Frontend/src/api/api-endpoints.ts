@@ -4,7 +4,7 @@ export namespace PlaylistApi {
   const BaseUrl = "http://localhost:5151/api";
   const UsersBaseUrl = `${BaseUrl}/users`;
 
-  interface UserData {
+  export interface UserData {
     DeezerUniqueIdentifier: string;
     SpotifyUniqueIdentifier: string;
     YoutubeUniqueIdentifier: string;

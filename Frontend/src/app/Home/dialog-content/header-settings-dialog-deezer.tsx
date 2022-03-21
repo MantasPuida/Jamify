@@ -69,6 +69,7 @@ class HeaderSettingsDialogDeezerClass extends React.PureComponent<Props, State> 
 
         if (status === "connected" && authResponse.accessToken) {
           const { accessToken } = authResponse;
+
           register(accessToken);
 
           if (handleDialogClose) {
@@ -99,8 +100,7 @@ class HeaderSettingsDialogDeezerClass extends React.PureComponent<Props, State> 
             className={classes.button}
             variant="outlined"
             onClick={this.deezerLogin}
-            endIcon={<Avatar className={classes.avatar} src={deezerIcon} />}
-          >
+            endIcon={<Avatar className={classes.avatar} src={deezerIcon} />}>
             <Typography fontFamily="Poppins, sans-serif">Login via Deezer</Typography>
           </Button>
         </Grid>

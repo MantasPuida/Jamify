@@ -99,8 +99,7 @@ class PlayerClass extends React.PureComponent<Props> {
         container={true}
         item={true}
         xs={12}
-        style={{ width: "100%", bottom: 0, position: "fixed", backgroundColor: "#909090", zIndex: 1, marginTop: 150 }}
-      >
+        style={{ width: "100%", bottom: 0, position: "fixed", backgroundColor: "#909090", zIndex: 1, marginTop: 150 }}>
         <Widget>
           <Grid item={true} xs={12}>
             <Slider
@@ -118,8 +117,7 @@ class PlayerClass extends React.PureComponent<Props> {
             container={true}
             item={true}
             xs={12}
-            style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: -6, width: "100%" }}
-          >
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: -6, width: "100%" }}>
             <Grid item={true} xs={3} style={{ paddingLeft: 8 }}>
               <Grid container={true} item={true} xs={12}>
                 <IconButton aria-label="previous song" style={{ marginTop: -8 }}>
@@ -128,8 +126,7 @@ class PlayerClass extends React.PureComponent<Props> {
                 <IconButton
                   aria-label={paused ? "play" : "pause"}
                   onClick={this.handleOnPlayPause}
-                  style={{ marginTop: -8 }}
-                >
+                  style={{ marginTop: -8 }}>
                   {paused ? (
                     <PlayArrowRounded sx={{ fontSize: "40px" }} htmlColor="#fff" />
                   ) : (
@@ -147,9 +144,8 @@ class PlayerClass extends React.PureComponent<Props> {
             <Grid
               item={true}
               xs={6}
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", marginTop: -8 }}
-            >
-              <img alt="can't win - Chilling Sunday" src={thumbnail} width={88} />
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", marginTop: -8 }}>
+              <img alt="alt" src={thumbnail} width={60} height={60} style={{ objectFit: "scale-down" }} />
               <Box sx={{ ml: 1.5, minWidth: 0, color: "white" }}>
                 <Typography noWrap={true}>{parseTitle(title)}</Typography>
                 <Typography noWrap={true} letterSpacing={-0.25}>
@@ -163,8 +159,7 @@ class PlayerClass extends React.PureComponent<Props> {
                 direction="row"
                 sx={{ mb: 1, px: 1 }}
                 alignItems="center"
-                style={{ justifyContent: "end" }}
-              >
+                style={{ justifyContent: "end" }}>
                 <Slider
                   id="customSliderId"
                   aria-label="Volume"

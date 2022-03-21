@@ -4,6 +4,7 @@ import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { NotFound } from "../errors/not-found-component";
 import { Home } from "../Home/home-components";
 import { AppRoutes } from "./routes";
+import { MeComponent } from "../me/me-class";
 import { useSpotifyAuth } from "../../context/spotify-context";
 import { SpotifyConstants } from "../../constants/constants-spotify";
 import { Explore } from "../explore/explore-component";
@@ -13,6 +14,7 @@ import { Helpers } from "../../utils/helpers";
 import { HeaderComponent } from "../Home/header/header-component";
 import { usePlayerContext } from "../../context/player-context";
 import { Player } from "../player/player-component";
+import { handleOnLogin } from "../../helpers/api-login";
 
 interface Props {
   spotifyApi: SpotifyWebApi;
@@ -28,6 +30,7 @@ function HomeRoutesClass(props: Props) {
       <Routes>
         <Route path={AppRoutes.Home} element={<Home spotifyApi={spotifyApi} />} />
         <Route path={AppRoutes.Explore} element={<Explore spotifyApi={spotifyApi} />} />
+        <Route path={AppRoutes.Me} element={<MeComponent spotifyApi={spotifyApi} />} />
         <Route path={AppRoutes.Search} element={<Search spotifyApi={spotifyApi} />} />
         <Route path={AppRoutes.Playlist} element={<Playlist spotifyApi={spotifyApi} />} />
         <Route path="*" element={<NotFound />} />;
@@ -53,6 +56,14 @@ const HomeRoutes = (): JSX.Element => {
   React.useEffect(() => {
     if (location.pathname === SpotifyConstants.SPOTIFY_REDIRECT_PATHNAME) {
       const { access_token: accessToken } = Helpers.getTokenFromHash(location.hash);
+
+      spotifyApi.getMe().then((me) => {
+        handleOnLogin({
+          DeezerUniqueIdentifier: "",
+          SpotifyUniqueIdentifier: me.body.id,
+          YoutubeUniqueIdentifier: ""
+        });
+      });
 
       if (accessToken) {
         register(accessToken);

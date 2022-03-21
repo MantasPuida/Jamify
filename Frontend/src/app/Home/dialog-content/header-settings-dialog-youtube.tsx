@@ -56,6 +56,7 @@ class HeaderSettingsDialogYouTubeClass extends React.PureComponent<Props, State>
       ?.signIn()
       .then((value: gapi.auth2.GoogleUser) => {
         const { access_token: AccessToken } = value.getAuthResponse();
+
         register(AccessToken);
         gapi.client.setToken({ access_token: AccessToken });
 
@@ -85,8 +86,7 @@ class HeaderSettingsDialogYouTubeClass extends React.PureComponent<Props, State>
             className={classes.button}
             variant="outlined"
             onClick={this.youtubeLogin}
-            endIcon={<Avatar className={classes.avatar} src={youtubeIcon} />}
-          >
+            endIcon={<Avatar className={classes.avatar} src={youtubeIcon} />}>
             <Typography fontFamily="Poppins, sans-serif">Login via Youtube</Typography>
           </Button>
         </Grid>

@@ -1,11 +1,13 @@
 import * as React from "react";
 import { Route, Routes, useLocation, useNavigate } from "react-router";
+import SpotifyWebApi from "spotify-web-api-node";
 import { useSpotifyAuth } from "../../context/spotify-context";
 import { Helpers } from "../../utils/helpers";
 import { NotFound } from "../errors/not-found-component";
 import { Dashboard } from "../dashboard/dashboard-component";
 import { AppRoutes } from "./routes";
 import { SpotifyConstants } from "../../constants/constants-spotify";
+import { handleOnLogin } from "../../helpers/api-login";
 
 interface InnerProps {
   error: boolean;
@@ -42,6 +44,20 @@ const DashboardRoutes = (): JSX.Element => {
 
     if (location.pathname === SpotifyConstants.SPOTIFY_REDIRECT_PATHNAME) {
       const { access_token: accessToken } = Helpers.getTokenFromHash(location.hash);
+
+      const spotifyApi = new SpotifyWebApi({
+        accessToken,
+        clientId: process.env.REACT_APP_SPOTIFY_CLIENT_ID,
+        clientSecret: process.env.REACT_APP_SPOTIFY_CLIENT_SECRET
+      });
+
+      spotifyApi.getMe().then((me) => {
+        handleOnLogin({
+          DeezerUniqueIdentifier: "",
+          SpotifyUniqueIdentifier: me.body.id,
+          YoutubeUniqueIdentifier: ""
+        });
+      });
 
       if (accessToken) {
         registerSpotifyToken(accessToken);
