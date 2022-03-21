@@ -1,11 +1,9 @@
 import { PlaylistApi } from "../api/api-endpoints";
-import { useUserContext } from "../context/user-context";
 import { User } from "../types/User";
 
-export function handleOnLogin(userData: PlaylistApi.UserData) {
+export function handleOnLogin(userData: PlaylistApi.UserData, setUserId: Function) {
   const { UserApiEndpoints } = PlaylistApi;
   const { fetchUsers, postUser, putUser } = UserApiEndpoints();
-  const { setUserId } = useUserContext();
 
   fetchUsers().then((users) => {
     const data = users.data as User[];

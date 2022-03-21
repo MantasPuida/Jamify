@@ -14,7 +14,6 @@ import { Helpers } from "../../utils/helpers";
 import { HeaderComponent } from "../Home/header/header-component";
 import { usePlayerContext } from "../../context/player-context";
 import { Player } from "../player/player-component";
-import { handleOnLogin } from "../../helpers/api-login";
 
 interface Props {
   spotifyApi: SpotifyWebApi;
@@ -56,14 +55,6 @@ const HomeRoutes = (): JSX.Element => {
   React.useEffect(() => {
     if (location.pathname === SpotifyConstants.SPOTIFY_REDIRECT_PATHNAME) {
       const { access_token: accessToken } = Helpers.getTokenFromHash(location.hash);
-
-      spotifyApi.getMe().then((me) => {
-        handleOnLogin({
-          DeezerUniqueIdentifier: "",
-          SpotifyUniqueIdentifier: me.body.id,
-          YoutubeUniqueIdentifier: ""
-        });
-      });
 
       if (accessToken) {
         register(accessToken);

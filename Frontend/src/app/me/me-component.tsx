@@ -8,7 +8,6 @@ import { Navigation } from "swiper";
 import SpotifyWebApi from "spotify-web-api-node";
 import { HomeLandingPageStyles, useHomeLandingPageStyles } from "../Home/landing-page.styles";
 import { PlaylistCard } from "./playlist-component";
-import { extractThumbnail } from "../../helpers/thumbnails";
 
 import "swiper/css";
 import "swiper/css/navigation";
@@ -98,37 +97,19 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
                 {playlistSource === "Spotify" &&
                   spotifyPlaylists?.items.map((playlist) => (
                     <SwiperSlide style={{ backgroundColor: "black" }} key={playlist.id}>
-                      <PlaylistCard
-                        id={playlist.id}
-                        image={playlist.images[0].url}
-                        name={playlist.name}
-                        key={playlist.id}
-                      />
+                      <PlaylistCard spotifyPlaylist={playlist} key={playlist.id} />
                     </SwiperSlide>
                   ))}
                 {playlistSource === "Youtube" &&
                   youtubePlaylists?.items?.map((playlist) => {
-                    if (!playlist.id || !playlist.snippet) {
+                    if (!playlist.id) {
                       // eslint-disable-next-line react/jsx-no-useless-fragment
                       return <></>;
                     }
 
-                    const { snippet } = playlist;
-
-                    if (!snippet.title || !snippet.thumbnails) {
-                      // eslint-disable-next-line react/jsx-no-useless-fragment
-                      return <></>;
-                    }
-
-                    const image = extractThumbnail(snippet.thumbnails);
-
-                    if (!image) {
-                      // eslint-disable-next-line react/jsx-no-useless-fragment
-                      return <></>;
-                    }
                     return (
                       <SwiperSlide style={{ backgroundColor: "black" }} key={playlist.id}>
-                        <PlaylistCard id={playlist.id} image={image} name={snippet.title} key={playlist.id} />;
+                        <PlaylistCard youtubePlaylist={playlist} key={playlist.id} />;
                       </SwiperSlide>
                     );
                   })}

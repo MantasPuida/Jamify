@@ -13,13 +13,15 @@ import {
 } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import { PlaylistStyles, usePlaylistStyles } from "./playlist.styles";
+import { TracksTableContent } from "./table-component";
+import { SourceType } from "./playlist-component";
 
 import "./fontFamily.css";
-import { TracksTableContent } from "./table-component";
 
 interface OuterProps {
-  playlistTracks: SpotifyApi.PlaylistTrackResponse;
+  playlistTracks: SpotifyApi.PlaylistTrackResponse | gapi.client.youtube.PlaylistItemListResponse;
   spotifyApi: SpotifyWebApi;
+  sourceType: SourceType;
 }
 
 interface InnerProps extends WithStyles<typeof PlaylistStyles> {}
@@ -28,7 +30,7 @@ type Props = InnerProps & OuterProps;
 
 class TracksComponentClass extends React.PureComponent<Props> {
   public render(): React.ReactNode {
-    const { playlistTracks, classes } = this.props;
+    const { playlistTracks, classes, sourceType } = this.props;
 
     return (
       <Grid container={true} className={classes.playlistsGrid}>
@@ -53,14 +55,25 @@ class TracksComponentClass extends React.PureComponent<Props> {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {playlistTracks.items.map((row) => {
-                    if (!row || !row.track || !row.track.id || !row.track.album) {
-                      const randomKey = Math.floor(Math.random() * 5000);
-                      return <React.Fragment key={randomKey} />;
-                    }
+                  {sourceType === SourceType.Spotify &&
+                    (playlistTracks as SpotifyApi.PlaylistTrackResponse).items.map((row) => {
+                      if (!row || !row.track || !row.track.id || !row.track.album) {
+                        const randomKey = Math.floor(Math.random() * 5000);
+                        return <React.Fragment key={randomKey} />;
+                      }
 
-                    return <TracksTableContent row={row} key={row.track.id} />;
-                  })}
+                      return <TracksTableContent row={row} key={row.track.id} sourceType={SourceType.Spotify} />;
+                    })}
+
+                  {sourceType === SourceType.Youtube &&
+                    (playlistTracks as gapi.client.youtube.PlaylistItemListResponse).items?.map((row) => {
+                      if (!row || !row.id || !row.snippet || !row.snippet.thumbnails) {
+                        const randomKey = Math.floor(Math.random() * 5000);
+                        return <React.Fragment key={randomKey} />;
+                      }
+
+                      return <TracksTableContent row={row} key={row.id} sourceType={SourceType.Youtube} />;
+                    })}
                 </TableBody>
               </Table>
             </TableContainer>

@@ -18,7 +18,8 @@ interface InnerProps extends WithStyles<typeof FeaturedPlaylistsStyles> {
 }
 
 export interface FeaturedPlaylistState {
-  playlist: SpotifyApi.PlaylistObjectSimplified;
+  youtubePlaylist?: gapi.client.youtube.Playlist;
+  spotifyPlaylist?: SpotifyApi.PlaylistObjectSimplified;
 }
 
 type Props = InnerProps & OuterProps;
@@ -30,7 +31,7 @@ class FeaturedCardClass extends React.PureComponent<Props> {
 
     const { navigate, playlist } = this.props;
 
-    navigate(AppRoutes.Playlist, { state: { playlist } as FeaturedPlaylistState });
+    navigate(AppRoutes.Playlist, { state: { spotifyPlaylist: playlist } as FeaturedPlaylistState });
   };
 
   public render(): React.ReactNode {
