@@ -17,9 +17,98 @@ interface InnerProps extends WithStyles<typeof PlaylistStyles> {
   setOpen: Function;
 }
 
+interface State {
+  trackId: string;
+  trackName: string;
+  imageUrl: string;
+  artistName: string;
+  albumName: string;
+  duration: string;
+}
+
 type Props = InnerProps & OuterProps;
 
-class TracksTableContentClass extends React.PureComponent<Props> {
+class TracksTableContentClass extends React.PureComponent<Props, State> {
+  public state: State = { albumName: "", artistName: "", duration: "", imageUrl: "", trackId: "", trackName: "" };
+
+  constructor(props: Props) {
+    super(props);
+
+    const { sourceType, row } = props;
+
+    if (sourceType === SourceType.Youtube) {
+      this.resolveYoutubeTrack(row as gapi.client.youtube.PlaylistItem);
+    } else if (sourceType === SourceType.Spotify) {
+      this.resolveSpotifyTrack(row as SpotifyApi.PlaylistTrackObject);
+    }
+  }
+
+  private resolveYoutubeTrack = (youtubeRow: gapi.client.youtube.PlaylistItem) => {
+    gapi.client.youtube.videos
+      .list({
+        part: "contentDetails",
+        id: youtubeRow.snippet?.resourceId?.videoId
+      })
+      .then((value) => {
+        if (value.result && value.result.items && value.result.items[0].contentDetails?.duration) {
+          const { duration: songDur } = value.result.items[0].contentDetails;
+
+          const numberPattern = /\d+/g;
+          const durations = songDur.match(numberPattern);
+
+          if (durations && durations.length > 0 && youtubeRow.id && youtubeRow.snippet) {
+            const { snippet } = youtubeRow;
+            const image = extractThumbnail(snippet.thumbnails);
+
+            let formattedDuration = "";
+
+            if (durations[0].length === 1) {
+              formattedDuration = `0${durations[0]}`;
+            } else {
+              // eslint-disable-next-line prefer-destructuring
+              formattedDuration = durations[0];
+            }
+
+            if (durations[1].length === 1) {
+              formattedDuration += `:0${durations[1]}`;
+            } else {
+              formattedDuration += `:${durations[1]}`;
+            }
+
+            if (snippet.title && image) {
+              this.setState({
+                trackId: youtubeRow.id,
+                trackName: snippet.title,
+                imageUrl: image,
+                artistName: snippet.videoOwnerChannelTitle ?? "",
+                albumName: "test",
+                duration: formattedDuration
+              });
+            }
+          }
+        }
+      });
+  };
+
+  private resolveSpotifyTrack = (spotifyRow: SpotifyApi.PlaylistTrackObject) => {
+    const artists = spotifyRow.track.artists.map((artist, index) => {
+      const { length } = spotifyRow.track.artists;
+      if (length > 1 && index < length - 1) {
+        return `${artist.name}, `;
+      }
+      return artist.name;
+    });
+
+    this.state = {
+      trackId: spotifyRow.track.id,
+      trackName: spotifyRow.track.name,
+      imageUrl: spotifyRow.track.album.images[0].url,
+      artistName: artists.join(""),
+      albumName: spotifyRow.track.album.name,
+      duration: this.convertMilliseconds(spotifyRow.track.duration_ms)
+    };
+  };
+
   private handleOnTrackClick: ButtonProps["onClick"] = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -51,25 +140,20 @@ class TracksTableContentClass extends React.PureComponent<Props> {
       const youtubeRow = row as gapi.client.youtube.PlaylistItem;
 
       const imageUrl = extractThumbnail(youtubeRow.snippet?.thumbnails);
-      // console.log(youtubeRow.id);
 
-      gapi.client.youtube.videos
-        .list({
-          part: "snippet",
-          id: youtubeRow.id
-        })
-        .then((value) => console.log(value));
+      if (youtubeRow.snippet) {
+        const { snippet } = youtubeRow;
+        if (imageUrl && snippet?.resourceId?.videoId && snippet.videoOwnerChannelTitle && snippet.title) {
+          const currentTrack: TrackObject = {
+            channelTitle: snippet.videoOwnerChannelTitle,
+            thumbnail: imageUrl,
+            title: snippet.title,
+            videoId: snippet.resourceId?.videoId
+          };
 
-      if (youtubeRow.id && imageUrl) {
-        const currentTrack: TrackObject = {
-          videoId: youtubeRow.id,
-          thumbnail: imageUrl,
-          title: youtubeRow.snippet?.title ?? "",
-          channelTitle: youtubeRow.snippet?.channelTitle ?? ""
-        };
-
-        setOpen(true);
-        setTrack(currentTrack);
+          setOpen(true);
+          setTrack(currentTrack);
+        }
       }
     }
   };
@@ -94,49 +178,12 @@ class TracksTableContentClass extends React.PureComponent<Props> {
   };
 
   public render(): React.ReactNode {
-    const { row, classes, sourceType } = this.props;
+    const { classes, sourceType } = this.props;
+    const { albumName, artistName, duration, imageUrl, trackId, trackName } = this.state;
 
-    let trackId = "";
-    let trackName = "";
-    let imageUrl = "";
-    let artistName = "";
-    let albumName = "";
-    let duration = "";
-
-    if (sourceType === SourceType.Youtube) {
-      const youtubeRow = row as gapi.client.youtube.PlaylistItem;
-
-      trackId = youtubeRow.id ?? "randomId";
-      if (youtubeRow.snippet) {
-        const { snippet } = youtubeRow;
-        const image = extractThumbnail(snippet.thumbnails);
-        if (snippet.title && image) {
-          trackName = snippet.title;
-          imageUrl = image;
-          artistName = snippet.videoOwnerChannelTitle ?? "";
-          albumName = "album name";
-          duration = "00:00";
-        }
-      }
-    }
-
-    if (sourceType === SourceType.Spotify) {
-      const spotifyRow = row as SpotifyApi.PlaylistTrackObject;
-
-      const artists = spotifyRow.track.artists.map((artist, index) => {
-        const { length } = spotifyRow.track.artists;
-        if (length > 1 && index < length - 1) {
-          return `${artist.name}, `;
-        }
-        return artist.name;
-      });
-
-      trackId = spotifyRow.track.id;
-      trackName = spotifyRow.track.name;
-      imageUrl = spotifyRow.track.album.images[0].url;
-      artistName = artists.join("");
-      albumName = spotifyRow.track.album.name;
-      duration = this.convertMilliseconds(spotifyRow.track.duration_ms);
+    if (!albumName || !artistName || !duration || !imageUrl || !trackId || !trackName) {
+      // eslint-disable-next-line react/jsx-no-useless-fragment
+      return <></>;
     }
 
     return (
@@ -166,13 +213,15 @@ class TracksTableContentClass extends React.PureComponent<Props> {
             </Typography>
           </Button>
         </TableCell>
-        <TableCell style={{ minWidth: 500 }}>
-          <Button className={classes.buttonTextHover} variant="text">
-            <Typography fontFamily="Poppins, sans-serif" fontSize={16} className={classes.artistTypography}>
-              {albumName}
-            </Typography>
-          </Button>
-        </TableCell>
+        {sourceType !== SourceType.Youtube && (
+          <TableCell style={{ minWidth: 500 }}>
+            <Button className={classes.buttonTextHover} variant="text">
+              <Typography fontFamily="Poppins, sans-serif" fontSize={16} className={classes.artistTypography}>
+                {albumName}
+              </Typography>
+            </Button>
+          </TableCell>
+        )}
         <TableCell style={{ textAlign: "end" }}>
           <Typography fontFamily="Poppins, sans-serif" fontSize={16} className={classes.artistTypography}>
             {duration}

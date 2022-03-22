@@ -70,7 +70,8 @@ export const Playlist = React.memo<OuterProps>((props) => {
       gapi.client.youtube.playlistItems
         .list({
           part: "snippet",
-          playlistId: youtubePlaylist.id
+          playlistId: youtubePlaylist.id,
+          maxResults: 999
         })
         .then((playlistItems) => {
           setYoutubePlaylistTracks(playlistItems.result);

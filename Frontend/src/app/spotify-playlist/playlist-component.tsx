@@ -1,11 +1,12 @@
 import * as React from "react";
 import Play from "mdi-material-ui/Play";
 import { WithStyles } from "@mui/styles";
+import clsx from "clsx";
 import { Button, Grid, Typography } from "@mui/material";
 import { PlaylistStyles, usePlaylistStyles } from "./playlist.styles";
+import { extractThumbnail } from "../../helpers/thumbnails";
 
 import "./fontFamily.css";
-import { extractThumbnail } from "../../helpers/thumbnails";
 
 export enum SourceType {
   Spotify,
@@ -69,7 +70,11 @@ class PlaylistComponentClass extends React.PureComponent<Props> {
         <Grid item={true} xs={4} style={{ maxWidth: "35%" }}>
           <img src={playlistImage} alt={playlistName} className={classes.playlistImage} />
         </Grid>
-        <Grid container={true} item={true} xs={8} className={classes.playlistGridText}>
+        <Grid
+          container={true}
+          item={true}
+          xs={8}
+          className={clsx({ [classes.optionalGridText]: sourceType === SourceType.Spotify }, classes.playlistGridText)}>
           <Grid item={true}>
             <Typography fontFamily="Poppins, sans-serif" color="white" fontWeight={700} fontSize={45}>
               {playlistName}

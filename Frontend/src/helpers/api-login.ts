@@ -24,15 +24,21 @@ export function handleOnLogin(userData: PlaylistApi.UserData, setUserId: Functio
       );
 
       if (user && user.length > 0) {
-        putUser(
-          {
-            DeezerUniqueIdentifier: user[0].deezerUniqueIdentifier ?? dzId,
-            SpotifyUniqueIdentifier: user[0].spotifyUniqueIdentifier ?? spId,
-            YoutubeUniqueIdentifier: user[0].youtubeUniqueIdentifier ?? ytId
-          },
-          user[0].userId
-        );
-        setUserId(user[0].userId);
+        if (
+          (spId && spId !== user[0].spotifyUniqueIdentifier) ||
+          (dzId && dzId !== user[0].deezerUniqueIdentifier) ||
+          (ytId && ytId !== user[0].youtubeUniqueIdentifier)
+        ) {
+          putUser(
+            {
+              DeezerUniqueIdentifier: user[0].deezerUniqueIdentifier ?? dzId,
+              SpotifyUniqueIdentifier: user[0].spotifyUniqueIdentifier ?? spId,
+              YoutubeUniqueIdentifier: user[0].youtubeUniqueIdentifier ?? ytId
+            },
+            user[0].userId
+          );
+          setUserId(user[0].userId);
+        }
       }
     }
   });

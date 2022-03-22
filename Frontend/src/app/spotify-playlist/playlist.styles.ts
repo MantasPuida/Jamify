@@ -17,7 +17,9 @@ export const PlaylistStyles = (theme: AppTheme) =>
     playlistGridText: {
       paddingLeft: theme.spacing(5),
       flexFlow: "column",
-      justifyContent: "center",
+      justifyContent: "center"
+    },
+    optionalGridText: {
       marginTop: theme.spacing(5)
     },
     buttonTextHover: {

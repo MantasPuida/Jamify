@@ -44,11 +44,15 @@ class TracksComponentClass extends React.PureComponent<Props> {
                       <Typography className={classes.headerTypography}>Track</Typography>
                     </TableCell>
                     <TableCell>
-                      <Typography className={classes.headerTypography}>Artists</Typography>
+                      <Typography className={classes.headerTypography}>
+                        {sourceType === SourceType.Youtube ? "Channel" : "Artists"}
+                      </Typography>
                     </TableCell>
-                    <TableCell>
-                      <Typography className={classes.headerTypography}>Album</Typography>
-                    </TableCell>
+                    {sourceType !== SourceType.Youtube && (
+                      <TableCell>
+                        <Typography className={classes.headerTypography}>Album</Typography>
+                      </TableCell>
+                    )}
                     <TableCell className={classes.playlistLastTableCell}>
                       <Typography className={classes.headerTypography}>Duration</Typography>
                     </TableCell>
@@ -67,7 +71,7 @@ class TracksComponentClass extends React.PureComponent<Props> {
 
                   {sourceType === SourceType.Youtube &&
                     (playlistTracks as gapi.client.youtube.PlaylistItemListResponse).items?.map((row) => {
-                      if (!row || !row.id || !row.snippet || !row.snippet.thumbnails) {
+                      if (!row || !row.id) {
                         const randomKey = Math.floor(Math.random() * 5000);
                         return <React.Fragment key={randomKey} />;
                       }

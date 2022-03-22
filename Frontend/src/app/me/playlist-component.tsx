@@ -61,7 +61,7 @@ class PlaylistCardClass extends React.PureComponent<Props> {
           <Grid item={true}>
             <Button style={{ color: "transparent", paddingLeft: 0 }} onClick={this.handleOnPlaylistClick}>
               <div className="tint-img">
-                <img src={image} alt={name} className={classes.image} height={160} width={160} />
+                <img src={image} alt={name} className={classes.image} />
               </div>
             </Button>
           </Grid>

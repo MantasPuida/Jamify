@@ -27,10 +27,13 @@ type Props = InnerProps & OuterProps;
 interface State {
   spotifyPlaylists?: SpotifyApi.ListOfUsersPlaylistsResponse;
   youtubePlaylists?: gapi.client.youtube.PlaylistListResponse;
+  attempts: number;
 }
 
 class MePlaylistClass extends React.PureComponent<Props, State> {
-  public state: State = {};
+  public state: State = { attempts: 0 };
+
+  private readonly maxAttempts: number = 20;
 
   constructor(props: Props) {
     super(props);
@@ -42,13 +45,31 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
         this.setState({ spotifyPlaylists: playlists.body });
       });
     } else if (playlistSource === "Youtube") {
+      this.fetchYoutubeTracks();
+    }
+  }
+
+  private fetchYoutubeTracks = (): void => {
+    const { attempts } = this.state;
+
+    if (attempts >= this.maxAttempts) {
+      this.setState({ attempts: this.maxAttempts });
+      return;
+    }
+
+    if (!gapi.client || !gapi.client.youtube || !gapi.client.youtube.playlistItems) {
+      setTimeout(() => {
+        this.setState((state) => ({ attempts: state.attempts + 1 }));
+        this.fetchYoutubeTracks();
+      }, 100);
+    } else {
       setTimeout(() => {
         gapi.client.youtube.playlists.list({ part: "snippet", mine: true }).then((playlists) => {
           this.setState({ youtubePlaylists: playlists.result });
         });
-      }, 1000);
+      }, 50);
     }
-  }
+  };
 
   public render(): React.ReactNode {
     const { classes, playlistSource } = this.props;
