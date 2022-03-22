@@ -7,15 +7,27 @@ import { FeaturedPlaylistState } from "../Home/featured-playlists/featured-card"
 import { HomeLandingPageStyles, useHomeLandingPageStyles } from "../Home/landing-page.styles";
 import { Notify } from "../notification/notification-component";
 import { PlaylistTopComponent, SourceType } from "./playlist-component";
+// eslint-disable-next-line import/no-cycle
 import { TracksComponent } from "./tracks-component";
 import { useSpotifyAuth } from "../../context/spotify-context";
+import { PlaylistApi } from "../../api/api-endpoints";
+import { useUserContext } from "../../context/user-context";
+import { PlaylistType } from "../me/me-component";
 
 type PlaylistTracksResponse = SpotifyApi.PlaylistTrackResponse;
 
 interface InnerProps extends WithStyles<typeof HomeLandingPageStyles> {
-  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist;
-  playlistTracks: PlaylistTracksResponse | gapi.client.youtube.PlaylistItemListResponse;
+  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType;
+  playlistTracks: PlaylistTracksResponse | gapi.client.youtube.PlaylistItemListResponse | TrackType[];
   sourceType: SourceType;
+}
+
+export interface TrackType {
+  trackId: string;
+  trackName: string;
+  imageUrl: string;
+  trackDescription: string;
+  trackSource: string;
 }
 
 interface OuterProps {
@@ -42,17 +54,22 @@ export const Playlist = React.memo<OuterProps>((props) => {
   const [youtubePlaylistTracks, setYoutubePlaylistTracks] = React.useState<
     gapi.client.youtube.PlaylistItemListResponse | undefined
   >();
+  const [ownTracks, setOwnTracks] = React.useState<TrackType[] | undefined>();
   const location = useLocation();
+  const { userId } = useUserContext();
   const locationState = location.state as FeaturedPlaylistState;
   const classes = useHomeLandingPageStyles();
   const { logout } = useSpotifyAuth();
 
-  if (!locationState || (!locationState.spotifyPlaylist && !locationState.youtubePlaylist)) {
+  if (
+    !locationState ||
+    (!locationState.spotifyPlaylist && !locationState.youtubePlaylist && !locationState.ownPlaylist)
+  ) {
     // eslint-disable-next-line react/jsx-no-useless-fragment
     return <></>;
   }
 
-  const { spotifyPlaylist, youtubePlaylist } = locationState;
+  const { spotifyPlaylist, youtubePlaylist, ownPlaylist } = locationState;
   const { spotifyApi } = props;
 
   React.useEffect(() => {
@@ -76,8 +93,28 @@ export const Playlist = React.memo<OuterProps>((props) => {
         .then((playlistItems) => {
           setYoutubePlaylistTracks(playlistItems.result);
         });
+    } else if (ownPlaylist && userId) {
+      const { TracksApiEndpoints } = PlaylistApi;
+
+      TracksApiEndpoints()
+        .fetchTracks(userId, ownPlaylist.playlistId)
+        .then((tracks) => {
+          setOwnTracks(tracks.data);
+        });
     }
   }, [location.pathname]);
+
+  if (userId && ownPlaylist && ownTracks) {
+    return (
+      <PlaylistClass
+        playlist={ownPlaylist}
+        playlistTracks={ownTracks}
+        classes={classes}
+        spotifyApi={spotifyApi}
+        sourceType={SourceType.Own}
+      />
+    );
+  }
 
   if (youtubePlaylist && youtubePlaylistTracks) {
     return (

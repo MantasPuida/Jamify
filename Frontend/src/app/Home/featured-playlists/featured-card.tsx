@@ -6,6 +6,8 @@ import { WithStyles } from "@mui/styles";
 import { NavigateFunction, useNavigate } from "react-router";
 import { FeaturedPlaylistsStyles, useFeaturedPlaylistsStyles } from "./featured.styles";
 import { AppRoutes } from "../../routes/routes";
+// eslint-disable-next-line import/no-cycle
+import { PlaylistType } from "../../me/me-component";
 
 import "./carousel-items.css";
 
@@ -20,6 +22,7 @@ interface InnerProps extends WithStyles<typeof FeaturedPlaylistsStyles> {
 export interface FeaturedPlaylistState {
   youtubePlaylist?: gapi.client.youtube.Playlist;
   spotifyPlaylist?: SpotifyApi.PlaylistObjectSimplified;
+  ownPlaylist?: PlaylistType;
 }
 
 type Props = InnerProps & OuterProps;

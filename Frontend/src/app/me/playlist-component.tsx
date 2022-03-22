@@ -1,17 +1,20 @@
+/* eslint-disable import/no-cycle */
 import * as React from "react";
 import { Button, ButtonProps, Grid, Typography } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import { useNavigate, NavigateFunction } from "react-router";
 import { SpotifyPlaylistsStyles, useSpotifyPlaylistsStyles } from "./playlists.styles";
 import { extractThumbnail } from "../../helpers/thumbnails";
+import { PlaylistType } from "./me-component";
 import { AppRoutes } from "../routes/routes";
+import { FeaturedPlaylistState } from "../Home/featured-playlists/featured-card";
 
 import "./carousel-items.css";
-import { FeaturedPlaylistState } from "../Home/featured-playlists/featured-card";
 
 interface OuterProps {
   youtubePlaylist?: gapi.client.youtube.Playlist;
   spotifyPlaylist?: SpotifyApi.PlaylistObjectSimplified;
+  ownPlaylist?: PlaylistType;
 }
 
 interface InnerProps extends WithStyles<typeof SpotifyPlaylistsStyles> {
@@ -25,17 +28,19 @@ class PlaylistCardClass extends React.PureComponent<Props> {
     event.preventDefault();
     event.stopPropagation();
 
-    const { navigate, spotifyPlaylist, youtubePlaylist } = this.props;
+    const { navigate, spotifyPlaylist, youtubePlaylist, ownPlaylist } = this.props;
 
     if (spotifyPlaylist) {
       navigate(AppRoutes.Playlist, { state: { spotifyPlaylist } as FeaturedPlaylistState });
     } else if (youtubePlaylist) {
       navigate(AppRoutes.Playlist, { state: { youtubePlaylist } as FeaturedPlaylistState });
+    } else if (ownPlaylist) {
+      navigate(AppRoutes.Playlist, { state: { ownPlaylist } as FeaturedPlaylistState });
     }
   };
 
   public render(): React.ReactNode {
-    const { classes, spotifyPlaylist, youtubePlaylist } = this.props;
+    const { classes, spotifyPlaylist, youtubePlaylist, ownPlaylist } = this.props;
 
     let id: string = "";
     let name: string = "";
@@ -53,6 +58,10 @@ class PlaylistCardClass extends React.PureComponent<Props> {
         name = snippet.title;
         image = extractThumbnail(snippet.thumbnails);
       }
+    } else if (ownPlaylist) {
+      id = ownPlaylist.playlistId;
+      name = ownPlaylist.playlistName;
+      image = ownPlaylist.playlistImage;
     }
 
     return (

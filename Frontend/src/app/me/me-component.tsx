@@ -12,10 +12,21 @@ import { PlaylistCard } from "./playlist-component";
 import "swiper/css";
 import "swiper/css/navigation";
 import "./styles.css";
+import { useUserContext } from "../../context/user-context";
+import { PlaylistApi } from "../../api/api-endpoints";
 
-type InnerProps = WithStyles<typeof HomeLandingPageStyles>;
+type PlaylistSourceType = "Spotify" | "Youtube" | "Deezer" | "Own";
 
-type PlaylistSourceType = "Spotify" | "Youtube" | "Deezer";
+export interface PlaylistType {
+  playlistId: string;
+  playlistName: string;
+  playlistImage: string;
+  playlistDescription: string;
+}
+
+interface InnerProps extends WithStyles<typeof HomeLandingPageStyles> {
+  userId?: string;
+}
 
 interface OuterProps {
   spotifyApi: SpotifyWebApi;
@@ -27,6 +38,7 @@ type Props = InnerProps & OuterProps;
 interface State {
   spotifyPlaylists?: SpotifyApi.ListOfUsersPlaylistsResponse;
   youtubePlaylists?: gapi.client.youtube.PlaylistListResponse;
+  ownPlaylist?: PlaylistType[];
   attempts: number;
 }
 
@@ -38,7 +50,7 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { spotifyApi, playlistSource } = props;
+    const { spotifyApi, playlistSource, userId } = props;
 
     if (playlistSource === "Spotify") {
       spotifyApi.getUserPlaylists().then((playlists) => {
@@ -46,8 +58,24 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
       });
     } else if (playlistSource === "Youtube") {
       this.fetchYoutubeTracks();
+    } else if (playlistSource === "Own") {
+      if (!userId) {
+        return;
+      }
+
+      this.fetchOwnTracks(userId);
     }
   }
+
+  private fetchOwnTracks = (userId: string): void => {
+    const { PlaylistApiEndpoints } = PlaylistApi;
+    PlaylistApiEndpoints()
+      .fetchPlaylists(userId)
+      // eslint-disable-next-line consistent-return
+      .then((value) => {
+        this.setState({ ownPlaylist: value.data as PlaylistType[] });
+      });
+  };
 
   private fetchYoutubeTracks = (): void => {
     const { attempts } = this.state;
@@ -73,9 +101,13 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
 
   public render(): React.ReactNode {
     const { classes, playlistSource } = this.props;
-    const { spotifyPlaylists, youtubePlaylists } = this.state;
+    const { spotifyPlaylists, youtubePlaylists, ownPlaylist } = this.state;
 
-    if ((playlistSource === "Spotify" && !spotifyPlaylists) || (playlistSource === "Youtube" && !youtubePlaylists)) {
+    if (
+      (playlistSource === "Spotify" && !spotifyPlaylists) ||
+      (playlistSource === "Youtube" && !youtubePlaylists) ||
+      (playlistSource === "Own" && !ownPlaylist)
+    ) {
       // eslint-disable-next-line react/jsx-no-useless-fragment
       return <></>;
     }
@@ -134,6 +166,19 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
                       </SwiperSlide>
                     );
                   })}
+                {playlistSource === "Own" &&
+                  ownPlaylist?.map((playlist) => {
+                    if (!playlist.playlistId) {
+                      // eslint-disable-next-line react/jsx-no-useless-fragment
+                      return <></>;
+                    }
+
+                    return (
+                      <SwiperSlide style={{ backgroundColor: "black" }} key={playlist.playlistId}>
+                        <PlaylistCard ownPlaylist={playlist} key={playlist.playlistId} />;
+                      </SwiperSlide>
+                    );
+                  })}
               </Swiper>
             </Grid>
           </Grid>
@@ -144,7 +189,13 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
 }
 
 export const MePlaylist = React.memo<OuterProps>((props) => {
+  const { userId } = useUserContext();
   const classes = useHomeLandingPageStyles();
 
-  return <MePlaylistClass classes={classes} {...props} />;
+  if (!userId && props.playlistSource === "Own") {
+    // eslint-disable-next-line react/jsx-no-useless-fragment
+    return <></>;
+  }
+
+  return <MePlaylistClass userId={userId} classes={classes} {...props} />;
 });

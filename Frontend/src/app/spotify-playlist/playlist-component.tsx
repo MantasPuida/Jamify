@@ -7,13 +7,15 @@ import { PlaylistStyles, usePlaylistStyles } from "./playlist.styles";
 import { extractThumbnail } from "../../helpers/thumbnails";
 
 import "./fontFamily.css";
+import { PlaylistType } from "../me/me-component";
 
 export enum SourceType {
   Spotify,
-  Youtube
+  Youtube,
+  Own
 }
 interface OuterProps {
-  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist;
+  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType;
   sourceType: SourceType;
 }
 
@@ -63,6 +65,11 @@ class PlaylistComponentClass extends React.PureComponent<Props> {
         playlistImage = thumbnail;
         playlistName = snippet.title ?? "My playlist";
       }
+    } else if (sourceType === SourceType.Own) {
+      const ownPlaylist = playlist as PlaylistType;
+      playlistName = ownPlaylist.playlistName;
+      playlistImage = ownPlaylist.playlistImage;
+      playlistDescription = ownPlaylist.playlistDescription;
     }
 
     return (

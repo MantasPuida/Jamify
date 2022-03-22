@@ -13,13 +13,16 @@ import {
 } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import { PlaylistStyles, usePlaylistStyles } from "./playlist.styles";
+// eslint-disable-next-line import/no-cycle
 import { TracksTableContent } from "./table-component";
 import { SourceType } from "./playlist-component";
+// eslint-disable-next-line import/no-cycle
+import { TrackType } from "./playlist-class";
 
 import "./fontFamily.css";
 
 interface OuterProps {
-  playlistTracks: SpotifyApi.PlaylistTrackResponse | gapi.client.youtube.PlaylistItemListResponse;
+  playlistTracks: SpotifyApi.PlaylistTrackResponse | gapi.client.youtube.PlaylistItemListResponse | TrackType[];
   spotifyApi: SpotifyWebApi;
   sourceType: SourceType;
 }
@@ -77,6 +80,23 @@ class TracksComponentClass extends React.PureComponent<Props> {
                       }
 
                       return <TracksTableContent row={row} key={row.id} sourceType={SourceType.Youtube} />;
+                    })}
+
+                  {sourceType === SourceType.Own &&
+                    (playlistTracks as TrackType[]).map((row) => {
+                      if (!row || !row.trackId) {
+                        const randomKey = Math.floor(Math.random() * 5000);
+                        return <React.Fragment key={randomKey} />;
+                      }
+
+                      return (
+                        <TracksTableContent
+                          row={row}
+                          key={row.trackId}
+                          albumName="random"
+                          sourceType={SourceType.Own}
+                        />
+                      );
                     })}
                 </TableBody>
               </Table>

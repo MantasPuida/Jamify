@@ -16,6 +16,7 @@ class MeComponentClass extends React.PureComponent<Props> {
       <>
         <MePlaylist spotifyApi={spotifyApi} playlistSource="Spotify" />
         <MePlaylist spotifyApi={spotifyApi} playlistSource="Youtube" />
+        <MePlaylist spotifyApi={spotifyApi} playlistSource="Own" />
       </>
     );
   }

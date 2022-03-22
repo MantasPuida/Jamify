@@ -6,10 +6,13 @@ import { TrackObject, usePlayerContext } from "../../context/player-context";
 import { PlaylistStyles, usePlaylistStyles } from "./playlist.styles";
 import { SourceType } from "./playlist-component";
 import { extractThumbnail } from "../../helpers/thumbnails";
+// eslint-disable-next-line import/no-cycle
+import { TrackType } from "./playlist-class";
 
 interface OuterProps {
-  row: SpotifyApi.PlaylistTrackObject | gapi.client.youtube.PlaylistItem;
+  row: SpotifyApi.PlaylistTrackObject | gapi.client.youtube.PlaylistItem | TrackType;
   sourceType: SourceType;
+  albumName?: string;
 }
 
 interface InnerProps extends WithStyles<typeof PlaylistStyles> {
@@ -34,14 +37,35 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { sourceType, row } = props;
+    const { sourceType, row, albumName } = props;
 
     if (sourceType === SourceType.Youtube) {
       this.resolveYoutubeTrack(row as gapi.client.youtube.PlaylistItem);
     } else if (sourceType === SourceType.Spotify) {
       this.resolveSpotifyTrack(row as SpotifyApi.PlaylistTrackObject);
+    } else if (sourceType === SourceType.Own && albumName) {
+      this.resolveOwnTrack(row as TrackType, albumName);
     }
   }
+
+  private resolveOwnTrack = (ownRow: TrackType, albmName: string): void => {
+    gapi.client.youtube.search
+      .list({ part: "snippet", q: ownRow.trackDescription, maxResults: 999 })
+      .then((results) => {
+        const resultData = results.result;
+
+        if (resultData && resultData.items && resultData?.items[0]?.id?.videoId) {
+          this.setState({
+            trackName: ownRow.trackDescription,
+            imageUrl: ownRow.imageUrl,
+            trackId: resultData.items[0].id.videoId,
+            albumName: albmName,
+            duration: "00:00",
+            artistName: "artist"
+          });
+        }
+      });
+  };
 
   private resolveYoutubeTrack = (youtubeRow: gapi.client.youtube.PlaylistItem) => {
     gapi.client.youtube.videos
@@ -155,6 +179,18 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
           setTrack(currentTrack);
         }
       }
+    } else if (sourceType === SourceType.Own) {
+      const { trackId, imageUrl, trackName } = this.state;
+
+      const currentTrack: TrackObject = {
+        videoId: trackId,
+        channelTitle: "title",
+        thumbnail: imageUrl,
+        title: trackName
+      };
+
+      setOpen(true);
+      setTrack(currentTrack);
     }
   };
 
