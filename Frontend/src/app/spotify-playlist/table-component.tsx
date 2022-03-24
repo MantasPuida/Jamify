@@ -1,6 +1,7 @@
 import * as React from "react";
 import Play from "mdi-material-ui/Play";
 import { Button, ButtonProps, TableCell, TableRow, Typography } from "@mui/material";
+import SpotifyWebApi from "spotify-web-api-node";
 import { WithStyles } from "@mui/styles";
 import { TrackObject, usePlayerContext } from "../../context/player-context";
 import { PlaylistStyles, usePlaylistStyles } from "./playlist.styles";
@@ -8,11 +9,15 @@ import { SourceType } from "./playlist-component";
 import { extractThumbnail } from "../../helpers/thumbnails";
 // eslint-disable-next-line import/no-cycle
 import { TrackType } from "./playlist-class";
+import { MoreMenu } from "./more-component";
+import { PlaylistType } from "../me/me-component";
 
 interface OuterProps {
   row: SpotifyApi.PlaylistTrackObject | gapi.client.youtube.PlaylistItem | TrackType;
+  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType;
   sourceType: SourceType;
   albumName?: string;
+  spotifyApi: SpotifyWebApi;
 }
 
 interface InnerProps extends WithStyles<typeof PlaylistStyles> {
@@ -214,7 +219,7 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
   };
 
   public render(): React.ReactNode {
-    const { classes, sourceType } = this.props;
+    const { classes, sourceType, spotifyApi, playlist } = this.props;
     const { albumName, artistName, duration, imageUrl, trackId, trackName } = this.state;
 
     if (!albumName || !artistName || !duration || !imageUrl || !trackId || !trackName) {
@@ -258,7 +263,8 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
             </Button>
           </TableCell>
         )}
-        <TableCell style={{ textAlign: "end" }}>
+        <TableCell>
+          <MoreMenu sourceType={sourceType} spotifyApi={spotifyApi} trackName={trackName} playlist={playlist} />
           <Typography fontFamily="Poppins, sans-serif" fontSize={16} className={classes.artistTypography}>
             {duration}
           </Typography>

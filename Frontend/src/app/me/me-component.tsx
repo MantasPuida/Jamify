@@ -7,6 +7,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper";
 import SpotifyWebApi from "spotify-web-api-node";
 import { HomeLandingPageStyles, useHomeLandingPageStyles } from "../Home/landing-page.styles";
+// eslint-disable-next-line import/no-cycle
 import { PlaylistCard } from "./playlist-component";
 
 import "swiper/css";
@@ -92,7 +93,7 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
       }, 100);
     } else {
       setTimeout(() => {
-        gapi.client.youtube.playlists.list({ part: "snippet", mine: true }).then((playlists) => {
+        gapi.client.youtube.playlists.list({ part: "snippet", mine: true, maxResults: 99 }).then((playlists) => {
           this.setState({ youtubePlaylists: playlists.result });
         });
       }, 50);

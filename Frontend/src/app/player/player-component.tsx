@@ -99,7 +99,7 @@ class PlayerClass extends React.PureComponent<Props> {
         container={true}
         item={true}
         xs={12}
-        style={{ width: "100%", bottom: 0, position: "fixed", backgroundColor: "#909090", zIndex: 1, marginTop: 150 }}>
+        style={{ width: "100%", bottom: 0, position: "fixed", backgroundColor: "#909090", zIndex: 1 }}>
         <Widget>
           <Grid item={true} xs={12}>
             <Slider

@@ -18,6 +18,7 @@ import { TracksTableContent } from "./table-component";
 import { SourceType } from "./playlist-component";
 // eslint-disable-next-line import/no-cycle
 import { TrackType } from "./playlist-class";
+import { PlaylistType } from "../me/me-component";
 
 import "./fontFamily.css";
 
@@ -25,6 +26,7 @@ interface OuterProps {
   playlistTracks: SpotifyApi.PlaylistTrackResponse | gapi.client.youtube.PlaylistItemListResponse | TrackType[];
   spotifyApi: SpotifyWebApi;
   sourceType: SourceType;
+  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType;
 }
 
 interface InnerProps extends WithStyles<typeof PlaylistStyles> {}
@@ -33,7 +35,7 @@ type Props = InnerProps & OuterProps;
 
 class TracksComponentClass extends React.PureComponent<Props> {
   public render(): React.ReactNode {
-    const { playlistTracks, classes, sourceType } = this.props;
+    const { playlistTracks, classes, sourceType, spotifyApi, playlist } = this.props;
 
     return (
       <Grid container={true} className={classes.playlistsGrid}>
@@ -69,7 +71,15 @@ class TracksComponentClass extends React.PureComponent<Props> {
                         return <React.Fragment key={randomKey} />;
                       }
 
-                      return <TracksTableContent row={row} key={row.track.id} sourceType={SourceType.Spotify} />;
+                      return (
+                        <TracksTableContent
+                          row={row}
+                          key={row.track.id}
+                          sourceType={SourceType.Spotify}
+                          spotifyApi={spotifyApi}
+                          playlist={playlist}
+                        />
+                      );
                     })}
 
                   {sourceType === SourceType.Youtube &&
@@ -79,7 +89,15 @@ class TracksComponentClass extends React.PureComponent<Props> {
                         return <React.Fragment key={randomKey} />;
                       }
 
-                      return <TracksTableContent row={row} key={row.id} sourceType={SourceType.Youtube} />;
+                      return (
+                        <TracksTableContent
+                          row={row}
+                          key={row.id}
+                          sourceType={SourceType.Youtube}
+                          spotifyApi={spotifyApi}
+                          playlist={playlist}
+                        />
+                      );
                     })}
 
                   {sourceType === SourceType.Own &&
@@ -95,6 +113,8 @@ class TracksComponentClass extends React.PureComponent<Props> {
                           key={row.trackId}
                           albumName="random"
                           sourceType={SourceType.Own}
+                          spotifyApi={spotifyApi}
+                          playlist={playlist}
                         />
                       );
                     })}

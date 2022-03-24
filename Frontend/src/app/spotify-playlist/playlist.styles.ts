@@ -48,6 +48,10 @@ export const PlaylistStyles = (theme: AppTheme) =>
         display: "block !important"
       },
 
+      "&:hover #DotsSvgIcon": {
+        display: "block !important"
+      },
+
       "& td": {
         border: "0",
         borderBottom: "1px solid rgba(255,255,255,0.1)"
@@ -90,7 +94,12 @@ export const PlaylistStyles = (theme: AppTheme) =>
     },
     artistTypography: {
       color: "rgba(255, 255, 255, .7)",
-      textAlign: "left"
+      textAlign: "right"
+    },
+    artistTypographyIcon: {
+      color: "rgba(255, 255, 255, .7)",
+      textAlign: "left",
+      float: "left"
     }
   });
 
