@@ -54,22 +54,20 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
   }
 
   private resolveOwnTrack = (ownRow: TrackType, albmName: string): void => {
-    gapi.client.youtube.search
-      .list({ part: "snippet", q: ownRow.trackDescription, maxResults: 999 })
-      .then((results) => {
-        const resultData = results.result;
+    gapi.client.youtube.search.list({ part: "snippet", q: ownRow.trackName, maxResults: 999 }).then((results) => {
+      const resultData = results.result;
 
-        if (resultData && resultData.items && resultData?.items[0]?.id?.videoId) {
-          this.setState({
-            trackName: ownRow.trackDescription,
-            imageUrl: ownRow.imageUrl,
-            trackId: resultData.items[0].id.videoId,
-            albumName: albmName,
-            duration: "00:00",
-            artistName: "artist"
-          });
-        }
-      });
+      if (resultData && resultData.items && resultData?.items[0]?.id?.videoId) {
+        this.setState({
+          trackName: ownRow.trackName,
+          imageUrl: ownRow.imageUrl,
+          trackId: resultData.items[0].id.videoId,
+          albumName: albmName,
+          duration: "00:00",
+          artistName: "artist"
+        });
+      }
+    });
   };
 
   private resolveYoutubeTrack = (youtubeRow: gapi.client.youtube.PlaylistItem) => {
@@ -264,7 +262,13 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
           </TableCell>
         )}
         <TableCell>
-          <MoreMenu sourceType={sourceType} spotifyApi={spotifyApi} trackName={trackName} playlist={playlist} />
+          <MoreMenu
+            sourceType={sourceType}
+            spotifyApi={spotifyApi}
+            trackName={trackName}
+            playlist={playlist}
+            imageUrl={imageUrl}
+          />
           <Typography fontFamily="Poppins, sans-serif" fontSize={16} className={classes.artistTypography}>
             {duration}
           </Typography>

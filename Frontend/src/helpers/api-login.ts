@@ -38,8 +38,8 @@ export function handleOnLogin(userData: PlaylistApi.UserData, setUserId: Functio
             },
             userId
           );
-          setUserId(userId);
         }
+        setUserId(userId);
       }
     }
   });

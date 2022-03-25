@@ -12,6 +12,8 @@ export namespace PlaylistApi {
 
   interface PlaylistData {
     PlaylistName: string;
+    PlaylistImage: string;
+    PlaylistDescription: string;
   }
 
   type TrackSourceType = "Spotify" | "Youtube" | "Deezer";

@@ -142,12 +142,12 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
             </Grid>
             <Grid item={true} xs={12}>
               <Swiper
-                slidesPerView={5}
+                slidesPerView={6}
                 className="mySwiper"
                 centeredSlides={false}
                 navigation={true}
                 modules={[Navigation]}
-                style={{ maxWidth: "85%", marginLeft: 4, textAlignLast: "start" }}>
+                style={{ width: "100%", marginLeft: 4, textAlignLast: "start" }}>
                 {playlistSource === "Spotify" &&
                   spotifyPlaylists?.items.map((playlist) => (
                     <SwiperSlide style={{ backgroundColor: "black" }} key={playlist.id}>

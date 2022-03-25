@@ -20,6 +20,8 @@ import { YoutubePlaylistsMap } from "./youtube-playlists-map";
 import { RemoveComponent } from "./remove-component";
 import { SourceType } from "./playlist-component";
 import { PlaylistType } from "../me/me-component";
+import { CreateComponent } from "./create-component";
+import { RemoveComponentYoutube } from "./remove-component-yt";
 
 interface OuterProps {
   isDialogOpen: boolean;
@@ -28,6 +30,7 @@ interface OuterProps {
   trackName: string;
   sourceType: SourceType;
   currentPlaylist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType;
+  imageUrl: string;
 }
 
 interface InnerProps {
@@ -80,8 +83,16 @@ class TrackDialogClass extends React.PureComponent<Props> {
   };
 
   public render(): React.ReactNode {
-    const { handleDialogClose, isDialogOpen, bottomNavVal, trackName, sourceType, spotifyApi, currentPlaylist } =
-      this.props;
+    const {
+      handleDialogClose,
+      isDialogOpen,
+      bottomNavVal,
+      trackName,
+      sourceType,
+      spotifyApi,
+      currentPlaylist,
+      imageUrl
+    } = this.props;
 
     let navVal = "";
 
@@ -103,6 +114,22 @@ class TrackDialogClass extends React.PureComponent<Props> {
               songName={trackName}
               spotifyApi={spotifyApi}
               currentPlaylist={currentPlaylist as SpotifyApi.PlaylistObjectSimplified}
+              handleDialogClose={handleDialogClose}
+            />
+          )}
+          {bottomNavVal === 1 && sourceType === SourceType.Youtube && (
+            <RemoveComponentYoutube
+              songName={trackName}
+              currentPlaylist={currentPlaylist as gapi.client.youtube.Playlist}
+              handleDialogClose={handleDialogClose}
+            />
+          )}
+          {bottomNavVal === 2 && sourceType === SourceType.Spotify && (
+            <CreateComponent
+              songName={trackName}
+              spotifyApi={spotifyApi}
+              currentPlaylist={currentPlaylist as SpotifyApi.PlaylistObjectSimplified}
+              imageUrl={imageUrl}
               handleDialogClose={handleDialogClose}
             />
           )}

@@ -16,6 +16,7 @@ interface OuterProps {
   spotifyApi: SpotifyWebApi;
   trackName: string;
   playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType;
+  imageUrl: string;
 }
 
 type Props = InnerProps & OuterProps;
@@ -40,7 +41,7 @@ class MoreMenuClass extends React.PureComponent<Props> {
   };
 
   public render(): React.ReactNode {
-    const { sourceType, isDialogOpen, spotifyApi, trackName, playlist } = this.props;
+    const { sourceType, isDialogOpen, spotifyApi, trackName, playlist, imageUrl } = this.props;
     const marginStyle = sourceType === SourceType.Spotify ? "0px" : "25%";
     const displayStyle = isDialogOpen ? "block" : "none";
 
@@ -58,6 +59,7 @@ class MoreMenuClass extends React.PureComponent<Props> {
           trackName={trackName}
           sourceType={sourceType}
           currentPlaylist={playlist}
+          imageUrl={imageUrl}
         />
       </>
     );
