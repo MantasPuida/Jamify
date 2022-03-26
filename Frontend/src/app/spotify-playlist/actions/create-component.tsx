@@ -2,8 +2,8 @@ import * as React from "react";
 import SpotifyWebApi from "spotify-web-api-node";
 import { Grid, TextField, TextFieldProps, Button, ButtonProps, Typography } from "@mui/material";
 import PencilPlus from "mdi-material-ui/PencilPlus";
-import { PlaylistApi } from "../../api/api-endpoints";
-import { useUserContext } from "../../context/user-context";
+import { PlaylistApi } from "../../../api/api-endpoints";
+import { useUserContext } from "../../../context/user-context";
 
 interface State {
   playlistName: string;

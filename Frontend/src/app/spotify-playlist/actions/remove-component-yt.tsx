@@ -1,14 +1,12 @@
 import * as React from "react";
 import { Button, Grid, Typography, ButtonProps } from "@mui/material";
 import Delete from "mdi-material-ui/Delete";
-import SpotifyWebApi from "spotify-web-api-node";
 import { NavigateFunction, useNavigate } from "react-router";
-import { AppRoutes } from "../routes/routes";
+import { AppRoutes } from "../../routes/routes";
 
 interface OuterProps {
   songName: string;
-  spotifyApi: SpotifyWebApi;
-  currentPlaylist: SpotifyApi.PlaylistObjectSimplified;
+  currentPlaylist: gapi.client.youtube.Playlist;
   handleDialogClose: React.MouseEventHandler<HTMLButtonElement> | undefined;
 }
 
@@ -18,31 +16,36 @@ interface InnerProps {
 
 type Props = InnerProps & OuterProps;
 
-class RemoveComponentClass extends React.PureComponent<Props> {
+class RemoveComponentYoutubeClass extends React.PureComponent<Props> {
   private handleSongDelete: ButtonProps["onClick"] = (event) => {
     event.preventDefault();
     event.stopPropagation();
 
-    const { spotifyApi, currentPlaylist, songName, handleDialogClose, navigate } = this.props;
+    const { currentPlaylist, songName, handleDialogClose, navigate } = this.props;
 
-    spotifyApi.getPlaylistTracks(currentPlaylist.id).then((tracksData) => {
-      const tracks = tracksData.body;
-      const track = tracks.items.filter((item) => item.track.name.includes(songName));
+    gapi.client.youtube.playlistItems
+      .list({
+        part: "snippet",
+        playlistId: currentPlaylist.id,
+        maxResults: 99
+      })
+      .then((itemsData) => {
+        const items = itemsData.result;
 
-      if (track && track.length > 0)
-        spotifyApi
-          .removeTracksFromPlaylist(currentPlaylist.id, [
-            {
-              uri: track[0].track.uri
-            }
-          ])
+        const currentTrack = items.items?.filter((value) => value.snippet?.title?.includes(songName));
+        if (!currentTrack || !currentTrack[0].id || !handleDialogClose) {
+          return;
+        }
+
+        gapi.client.youtube.playlistItems
+          .delete({
+            id: currentTrack[0].id
+          })
           .then(() => {
-            if (handleDialogClose) {
-              handleDialogClose(event);
-              navigate(AppRoutes.Me);
-            }
+            handleDialogClose(event);
+            navigate(AppRoutes.Me);
           });
-    });
+      });
   };
 
   public render(): React.ReactNode {
@@ -67,8 +70,8 @@ class RemoveComponentClass extends React.PureComponent<Props> {
   }
 }
 
-export const RemoveComponent = React.memo<OuterProps>((props) => {
+export const RemoveComponentYoutube = React.memo<OuterProps>((props) => {
   const navigate = useNavigate();
 
-  return <RemoveComponentClass navigate={navigate} {...props} />;
+  return <RemoveComponentYoutubeClass navigate={navigate} {...props} />;
 });

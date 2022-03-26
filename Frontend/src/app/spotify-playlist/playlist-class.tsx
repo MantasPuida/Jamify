@@ -20,6 +20,7 @@ interface InnerProps extends WithStyles<typeof HomeLandingPageStyles> {
   playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType;
   playlistTracks: PlaylistTracksResponse | gapi.client.youtube.PlaylistItemListResponse | TrackType[];
   sourceType: SourceType;
+  myOwn?: boolean;
 }
 
 export interface TrackType {
@@ -38,7 +39,7 @@ type Props = InnerProps & OuterProps;
 
 class PlaylistClass extends React.PureComponent<Props> {
   public render(): React.ReactNode {
-    const { classes, playlist, playlistTracks, spotifyApi, sourceType } = this.props;
+    const { classes, playlist, playlistTracks, spotifyApi, sourceType, myOwn } = this.props;
 
     return (
       <Grid container={true} item={true} xs={12} className={classes.homeGrid}>
@@ -48,6 +49,7 @@ class PlaylistClass extends React.PureComponent<Props> {
           playlistTracks={playlistTracks}
           spotifyApi={spotifyApi}
           sourceType={sourceType}
+          myOwn={myOwn}
         />
       </Grid>
     );
@@ -74,7 +76,7 @@ export const Playlist = React.memo<OuterProps>((props) => {
     return <></>;
   }
 
-  const { spotifyPlaylist, youtubePlaylist, ownPlaylist } = locationState;
+  const { spotifyPlaylist, youtubePlaylist, ownPlaylist, myOwn } = locationState;
   const { spotifyApi } = props;
 
   React.useEffect(() => {
@@ -117,6 +119,7 @@ export const Playlist = React.memo<OuterProps>((props) => {
         classes={classes}
         spotifyApi={spotifyApi}
         sourceType={SourceType.Own}
+        myOwn={myOwn}
       />
     );
   }
@@ -129,6 +132,7 @@ export const Playlist = React.memo<OuterProps>((props) => {
         classes={classes}
         spotifyApi={spotifyApi}
         sourceType={SourceType.Youtube}
+        myOwn={myOwn}
       />
     );
   }
@@ -141,6 +145,7 @@ export const Playlist = React.memo<OuterProps>((props) => {
         classes={classes}
         spotifyApi={spotifyApi}
         sourceType={SourceType.Spotify}
+        myOwn={myOwn}
       />
     );
   }
@@ -157,6 +162,7 @@ export const Playlist = React.memo<OuterProps>((props) => {
       classes={classes}
       spotifyApi={spotifyApi}
       sourceType={SourceType.Spotify}
+      myOwn={myOwn}
     />
   );
 });

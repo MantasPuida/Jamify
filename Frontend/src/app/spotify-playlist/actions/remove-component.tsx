@@ -1,12 +1,14 @@
 import * as React from "react";
 import { Button, Grid, Typography, ButtonProps } from "@mui/material";
 import Delete from "mdi-material-ui/Delete";
+import SpotifyWebApi from "spotify-web-api-node";
 import { NavigateFunction, useNavigate } from "react-router";
-import { AppRoutes } from "../routes/routes";
+import { AppRoutes } from "../../routes/routes";
 
 interface OuterProps {
   songName: string;
-  currentPlaylist: gapi.client.youtube.Playlist;
+  spotifyApi: SpotifyWebApi;
+  currentPlaylist: SpotifyApi.PlaylistObjectSimplified;
   handleDialogClose: React.MouseEventHandler<HTMLButtonElement> | undefined;
 }
 
@@ -16,36 +18,31 @@ interface InnerProps {
 
 type Props = InnerProps & OuterProps;
 
-class RemoveComponentYoutubeClass extends React.PureComponent<Props> {
+class RemoveComponentClass extends React.PureComponent<Props> {
   private handleSongDelete: ButtonProps["onClick"] = (event) => {
     event.preventDefault();
     event.stopPropagation();
 
-    const { currentPlaylist, songName, handleDialogClose, navigate } = this.props;
+    const { spotifyApi, currentPlaylist, songName, handleDialogClose, navigate } = this.props;
 
-    gapi.client.youtube.playlistItems
-      .list({
-        part: "snippet",
-        playlistId: currentPlaylist.id,
-        maxResults: 99
-      })
-      .then((itemsData) => {
-        const items = itemsData.result;
+    spotifyApi.getPlaylistTracks(currentPlaylist.id).then((tracksData) => {
+      const tracks = tracksData.body;
+      const track = tracks.items.filter((item) => item.track.name.includes(songName));
 
-        const currentTrack = items.items?.filter((value) => value.snippet?.title?.includes(songName));
-        if (!currentTrack || !currentTrack[0].id || !handleDialogClose) {
-          return;
-        }
-
-        gapi.client.youtube.playlistItems
-          .delete({
-            id: currentTrack[0].id
-          })
+      if (track && track.length > 0)
+        spotifyApi
+          .removeTracksFromPlaylist(currentPlaylist.id, [
+            {
+              uri: track[0].track.uri
+            }
+          ])
           .then(() => {
-            handleDialogClose(event);
-            navigate(AppRoutes.Me);
+            if (handleDialogClose) {
+              handleDialogClose(event);
+              navigate(AppRoutes.Me);
+            }
           });
-      });
+    });
   };
 
   public render(): React.ReactNode {
@@ -70,8 +67,8 @@ class RemoveComponentYoutubeClass extends React.PureComponent<Props> {
   }
 }
 
-export const RemoveComponentYoutube = React.memo<OuterProps>((props) => {
+export const RemoveComponent = React.memo<OuterProps>((props) => {
   const navigate = useNavigate();
 
-  return <RemoveComponentYoutubeClass navigate={navigate} {...props} />;
+  return <RemoveComponentClass navigate={navigate} {...props} />;
 });

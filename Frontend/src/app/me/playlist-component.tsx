@@ -31,11 +31,11 @@ class PlaylistCardClass extends React.PureComponent<Props> {
     const { navigate, spotifyPlaylist, youtubePlaylist, ownPlaylist } = this.props;
 
     if (spotifyPlaylist) {
-      navigate(AppRoutes.Playlist, { state: { spotifyPlaylist } as FeaturedPlaylistState });
+      navigate(AppRoutes.Playlist, { state: { spotifyPlaylist, myOwn: true } as FeaturedPlaylistState });
     } else if (youtubePlaylist) {
-      navigate(AppRoutes.Playlist, { state: { youtubePlaylist } as FeaturedPlaylistState });
+      navigate(AppRoutes.Playlist, { state: { youtubePlaylist, myOwn: true } as FeaturedPlaylistState });
     } else if (ownPlaylist) {
-      navigate(AppRoutes.Playlist, { state: { ownPlaylist } as FeaturedPlaylistState });
+      navigate(AppRoutes.Playlist, { state: { ownPlaylist, myOwn: true } as FeaturedPlaylistState });
     }
   };
 

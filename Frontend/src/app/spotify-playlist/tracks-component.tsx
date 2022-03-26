@@ -27,6 +27,7 @@ interface OuterProps {
   spotifyApi: SpotifyWebApi;
   sourceType: SourceType;
   playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType;
+  myOwn?: boolean;
 }
 
 interface InnerProps extends WithStyles<typeof PlaylistStyles> {}
@@ -35,7 +36,7 @@ type Props = InnerProps & OuterProps;
 
 class TracksComponentClass extends React.PureComponent<Props> {
   public render(): React.ReactNode {
-    const { playlistTracks, classes, sourceType, spotifyApi, playlist } = this.props;
+    const { playlistTracks, classes, sourceType, spotifyApi, playlist, myOwn } = this.props;
 
     return (
       <Grid container={true} className={classes.playlistsGrid}>
@@ -78,6 +79,7 @@ class TracksComponentClass extends React.PureComponent<Props> {
                           sourceType={SourceType.Spotify}
                           spotifyApi={spotifyApi}
                           playlist={playlist}
+                          myOwn={myOwn}
                         />
                       );
                     })}
@@ -96,6 +98,7 @@ class TracksComponentClass extends React.PureComponent<Props> {
                           sourceType={SourceType.Youtube}
                           spotifyApi={spotifyApi}
                           playlist={playlist}
+                          myOwn={myOwn}
                         />
                       );
                     })}
@@ -115,6 +118,7 @@ class TracksComponentClass extends React.PureComponent<Props> {
                           sourceType={SourceType.Own}
                           spotifyApi={spotifyApi}
                           playlist={playlist}
+                          myOwn={myOwn}
                         />
                       );
                     })}

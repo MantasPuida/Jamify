@@ -17,11 +17,18 @@ import PencilOutline from "mdi-material-ui/PencilOutline";
 import SpotifyWebApi from "spotify-web-api-node";
 import { SpotifyPlaylistsMap } from "./spotify-playlists-map";
 import { YoutubePlaylistsMap } from "./youtube-playlists-map";
-import { RemoveComponent } from "./remove-component";
+import { RemoveComponent } from "./actions/remove-component";
 import { SourceType } from "./playlist-component";
-import { PlaylistType } from "../me/me-component";
-import { CreateComponent } from "./create-component";
-import { RemoveComponentYoutube } from "./remove-component-yt";
+import { CreateComponent } from "./actions/create-component";
+import { RemoveComponentYoutube } from "./actions/remove-component-yt";
+import { RemoveComponentOwn } from "./actions/remove-component-own";
+
+interface PlaylistType {
+  playlistId: string;
+  playlistName: string;
+  playlistImage: string;
+  playlistDescription: string;
+}
 
 interface OuterProps {
   isDialogOpen: boolean;
@@ -121,6 +128,13 @@ class TrackDialogClass extends React.PureComponent<Props> {
             <RemoveComponentYoutube
               songName={trackName}
               currentPlaylist={currentPlaylist as gapi.client.youtube.Playlist}
+              handleDialogClose={handleDialogClose}
+            />
+          )}
+          {bottomNavVal === 1 && sourceType === SourceType.Own && (
+            <RemoveComponentOwn
+              songName={trackName}
+              currentPlaylist={currentPlaylist as PlaylistType}
               handleDialogClose={handleDialogClose}
             />
           )}

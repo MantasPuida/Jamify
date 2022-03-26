@@ -23,6 +23,7 @@ export interface FeaturedPlaylistState {
   youtubePlaylist?: gapi.client.youtube.Playlist;
   spotifyPlaylist?: SpotifyApi.PlaylistObjectSimplified;
   ownPlaylist?: PlaylistType;
+  myOwn?: boolean;
 }
 
 type Props = InnerProps & OuterProps;
