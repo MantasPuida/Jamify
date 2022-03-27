@@ -3,14 +3,12 @@ import Play from "mdi-material-ui/Play";
 import { Button, ButtonProps, TableCell, TableRow, Typography } from "@mui/material";
 import SpotifyWebApi from "spotify-web-api-node";
 import { WithStyles } from "@mui/styles";
-import { BrowserView, MobileView } from "react-device-detect";
 import { TrackObject, usePlayerContext } from "../../context/player-context";
 import { PlaylistStyles, usePlaylistStyles } from "./playlist.styles";
 import { SourceType } from "./playlist-component";
 import { extractThumbnail } from "../../helpers/thumbnails";
 // eslint-disable-next-line import/no-cycle
 import { TrackType } from "./playlist-class";
-import { MoreMenu } from "./more-component";
 import { PlaylistType } from "../me/me-component";
 import { TrackActionComponent } from "./track-actions-component";
 
@@ -265,25 +263,14 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
           </TableCell>
         )}
         <TableCell>
-          <MobileView>
-            <MoreMenu
-              sourceType={sourceType}
-              spotifyApi={spotifyApi}
-              trackName={trackName}
-              playlist={playlist}
-              imageUrl={imageUrl}
-            />
-          </MobileView>
-          <BrowserView>
-            <TrackActionComponent
-              sourceType={sourceType}
-              spotifyApi={spotifyApi}
-              trackName={trackName}
-              playlist={playlist}
-              imageUrl={imageUrl}
-              myOwn={myOwn}
-            />
-          </BrowserView>
+          <TrackActionComponent
+            sourceType={sourceType}
+            spotifyApi={spotifyApi}
+            trackName={trackName}
+            playlist={playlist}
+            imageUrl={imageUrl}
+            myOwn={myOwn}
+          />
           <Typography fontFamily="Poppins, sans-serif" fontSize={16} className={classes.artistTypography}>
             {duration}
           </Typography>

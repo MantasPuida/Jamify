@@ -141,7 +141,7 @@ class TrackActionComponentClass extends React.PureComponent<Props, State> {
 
   public render(): React.ReactNode {
     const { isMine } = this.state;
-    const { dialogOpen, setDialogOpen, spotifyApi } = this.props;
+    const { dialogOpen, setDialogOpen, spotifyApi, imageUrl, trackName, userId, playlist, sourceType } = this.props;
 
     return (
       <>
@@ -155,7 +155,16 @@ class TrackActionComponentClass extends React.PureComponent<Props, State> {
           )}
         </IconButton>
         {dialogOpen && (
-          <PlaylistsDialogComponent dialogOpen={dialogOpen} setDialogOpen={setDialogOpen} spotifyApi={spotifyApi} />
+          <PlaylistsDialogComponent
+            dialogOpen={dialogOpen}
+            setDialogOpen={setDialogOpen}
+            spotifyApi={spotifyApi}
+            imageUrl={imageUrl}
+            trackName={trackName}
+            userId={userId}
+            currentPlaylist={playlist}
+            sourceType={sourceType}
+          />
         )}
       </>
     );
