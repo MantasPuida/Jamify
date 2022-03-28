@@ -38,6 +38,7 @@ interface OuterProps {
   userId?: string;
   sourceType: SourceType;
   currentPlaylist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType;
+  artists?: string;
 }
 
 interface InnerProps {
@@ -130,7 +131,8 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
       trackName,
       spotifyApi,
       currentPlaylist,
-      sourceType
+      sourceType,
+      artists
     } = this.props;
     const { isClicked } = this.state;
 
@@ -146,6 +148,7 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
             trackName={trackName}
             currentPlaylist={currentPlaylist}
             sourceType={sourceType}
+            artists={artists}
           />
         </DialogContent>
         <DialogActions>

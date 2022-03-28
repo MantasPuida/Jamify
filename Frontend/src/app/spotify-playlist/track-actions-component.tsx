@@ -30,6 +30,7 @@ interface OuterProps {
   trackName: string;
   playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType;
   imageUrl: string;
+  artists?: string;
 }
 
 interface InnerProps {
@@ -141,7 +142,8 @@ class TrackActionComponentClass extends React.PureComponent<Props, State> {
 
   public render(): React.ReactNode {
     const { isMine } = this.state;
-    const { dialogOpen, setDialogOpen, spotifyApi, imageUrl, trackName, userId, playlist, sourceType } = this.props;
+    const { dialogOpen, setDialogOpen, spotifyApi, imageUrl, trackName, userId, playlist, sourceType, artists } =
+      this.props;
 
     return (
       <>
@@ -164,6 +166,7 @@ class TrackActionComponentClass extends React.PureComponent<Props, State> {
             userId={userId}
             currentPlaylist={playlist}
             sourceType={sourceType}
+            artists={artists}
           />
         )}
       </>

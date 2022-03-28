@@ -24,18 +24,47 @@ interface InnerProps extends WithStyles<typeof SettingsStyles> {
 interface State {
   loading: boolean;
   googleUser?: gapi.auth2.BasicProfile;
+  playlists?: number;
+  playlistTracks?: number;
 }
 
 type Props = InnerProps & OuterProps;
 
 class HeaderSettingsDialogYouTubeClass extends React.PureComponent<Props, State> {
-  public state: State = { loading: true };
+  public state: State;
 
   constructor(props: Props) {
     super(props);
 
+    this.state = { loading: true };
+
     this.fetchUserData(props.googleAuthObject);
+    this.fetchStats();
   }
+
+  private fetchStats = (): void => {
+    gapi.client.youtube.playlists.list({ part: "contentDetails", mine: true }).then((playlistsData) => {
+      const playlist = playlistsData.result;
+
+      const tracks = playlist.items?.map((value) => {
+        let count = 0;
+
+        if (value.contentDetails?.itemCount) {
+          count += value.contentDetails.itemCount;
+        }
+
+        return count;
+      });
+
+      if (!tracks || tracks.length === 0) {
+        return;
+      }
+
+      const count = tracks.reduce((partial, num) => partial + num, 0);
+
+      this.setState({ playlists: playlist.pageInfo?.totalResults, playlistTracks: count });
+    });
+  };
 
   private fetchUserData = (googleAuthObject: gapi.auth2.GoogleAuthBase | undefined): void => {
     const googleUserObject = googleAuthObject?.currentUser.get().getBasicProfile();
@@ -73,7 +102,7 @@ class HeaderSettingsDialogYouTubeClass extends React.PureComponent<Props, State>
 
   public render(): React.ReactNode {
     const { isYoutubeConnected, classes } = this.props;
-    const { googleUser, loading } = this.state;
+    const { googleUser, loading, playlistTracks, playlists } = this.state;
 
     if (loading) {
       return <CircularProgress style={{ marginTop: "13%", marginLeft: "45%", color: "black" }} />;
@@ -97,18 +126,35 @@ class HeaderSettingsDialogYouTubeClass extends React.PureComponent<Props, State>
     const name = googleUser.getName();
     const email = googleUser.getEmail();
 
+    // eslint-disable-next-line react/jsx-no-useless-fragment
+    const statsJsx: JSX.Element[] = [<></>];
+
+    if (playlists && playlists > 0) {
+      statsJsx.push(<Typography fontFamily="Poppins,sans-serif">Playlists: {playlists}</Typography>);
+    }
+
+    if (playlistTracks && playlistTracks > 0) {
+      statsJsx.push(<Typography fontFamily="Poppins,sans-serif">Tracks: {playlistTracks}</Typography>);
+    }
+
     return (
       <Grid container={true}>
         <Grid item={true} xs={4} style={{ maxWidth: "32%" }}>
           <img src={imageUrl} alt="me" style={{ maxWidth: 160, borderRadius: 5, width: "100%" }} />
         </Grid>
         <Grid container={true} item={true} xs={8} style={{ flexDirection: "column" }}>
-          <Grid item={true} xs={4} style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16, paddingTop: 16 }}>
+          <Grid item={true} xs={4} style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16 }}>
             <Typography fontFamily="Poppins,sans-serif">{name}</Typography>
           </Grid>
-          <Grid item={true} xs={4} style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16, paddingTop: 16 }}>
+          <Grid item={true} xs={4} style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16 }}>
             <Typography fontFamily="Poppins,sans-serif">{email}</Typography>
           </Grid>
+          <br />
+          {statsJsx.map(async (jsx) => (
+            <Grid item={true} xs={4} style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16 }}>
+              {jsx}
+            </Grid>
+          ))}
         </Grid>
       </Grid>
     );

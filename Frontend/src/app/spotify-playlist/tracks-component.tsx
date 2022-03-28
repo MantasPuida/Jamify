@@ -51,7 +51,7 @@ class TracksComponentClass extends React.PureComponent<Props> {
                     </TableCell>
                     <TableCell>
                       <Typography className={classes.headerTypography}>
-                        {sourceType === SourceType.Youtube ? "Channel" : "Artists"}
+                        {sourceType === SourceType.Youtube ? "Channel" : "Artist"}
                       </Typography>
                     </TableCell>
                     {sourceType !== SourceType.Youtube && (

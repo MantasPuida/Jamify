@@ -15,6 +15,7 @@ interface OuterProps {
   imageUrl: string;
   sourceType: SourceType;
   currentPlaylist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType;
+  artists?: string;
 }
 
 interface State {
@@ -29,7 +30,7 @@ class YoutubePlaylistCheckboxClass extends React.PureComponent<OuterProps, State
     event.stopPropagation();
     const isChecked = event.currentTarget.checked;
 
-    const { trackName, playlist, currentPlaylist, sourceType } = this.props;
+    const { trackName, playlist, currentPlaylist, sourceType, artists } = this.props;
 
     if (sourceType === SourceType.Youtube) {
       const currPlaylist = currentPlaylist as gapi.client.youtube.Playlist;
@@ -89,55 +90,49 @@ class YoutubePlaylistCheckboxClass extends React.PureComponent<OuterProps, State
           }
         });
     } else {
-      gapi.client.youtube.search
-        .list({ part: ["snippet", "id"], q: trackName, maxResults: 99, type: "video" })
-        .then((tracksData) => {
-          const { items } = tracksData.result;
+      let query = trackName;
+      if (artists) {
+        query += ` ${artists}`;
+      }
 
-          const resolvedItem = items?.filter((value) => value.id?.channelId !== undefined);
-          console.log(items);
-          console.log(resolvedItem);
+      gapi.client.youtube.search.list({ part: "snippet", q: query, maxResults: 1 }).then((tracksData) => {
+        const { items } = tracksData.result;
 
-          if (resolvedItem && resolvedItem.length > 0 && resolvedItem[0].id?.channelId) {
-            gapi.client.youtube.playlists.list({ part: "snippet", channelId: resolvedItem[0].id?.channelId });
+        const resolvedItem = items?.filter((value) => value.id?.videoId !== undefined);
+
+        if (resolvedItem && resolvedItem.length > 0 && resolvedItem[0].id?.videoId) {
+          if (isChecked) {
+            gapi.client.youtube.playlistItems.insert({
+              part: "snippet",
+              resource: {
+                snippet: {
+                  playlistId: playlist.id,
+                  resourceId: {
+                    videoId: resolvedItem[0].id.videoId,
+                    channelId: resolvedItem[0].id.channelId ?? resolvedItem[0].snippet?.channelId,
+                    kind: resolvedItem[0].id.kind,
+                    playlistId: resolvedItem[0].id.playlistId
+                  }
+                }
+              }
+            });
+          } else if (!isChecked) {
+            gapi.client.youtube.playlistItems
+              .list({ part: "snippet", playlistId: playlist.id, maxResults: 999 })
+              .then((valueData) => {
+                const playlistItemsDelete = valueData.result;
+
+                const playlistTrack = playlistItemsDelete.items?.filter((value) =>
+                  value.snippet?.title?.includes(trackName)
+                );
+
+                if (playlistTrack && playlistTrack.length > 0 && playlistTrack[0].id) {
+                  gapi.client.youtube.playlistItems.delete({ id: playlistTrack[0].id });
+                }
+              });
           }
-
-          //workaround reikia resource ido kuris gaunamas is playlist item
-
-          // if (resolvedItem && resolvedItem.length > 0 && resolvedItem[0].id?.playlistId) {
-          //   gapi.client.youtube.playlistItems
-          //     .list({ part: "snippet", playlistId: resolvedItem[0].id.playlistId })
-          //     .then((itemsData) => {
-          //       const { items: playlistItems } = itemsData.result;
-
-          //       if (isChecked && playlistItems && playlistItems.length > 0) {
-          //         gapi.client.youtube.playlistItems.insert({
-          //           part: "snippet",
-          //           resource: {
-          //             ...playlistItems[0],
-          //             snippet: {
-          //               playlistId: playlist.id
-          //             }
-          //           }
-          //         });
-          //       } else if (!isChecked) {
-          //         gapi.client.youtube.playlistItems
-          //           .list({ part: "snippet", playlistId: playlist.id, maxResults: 999 })
-          //           .then((valueData) => {
-          //             const playlistItemsDelete = valueData.result;
-
-          //             const playlistTrack = playlistItemsDelete.items?.filter((value) =>
-          //               value.snippet?.title?.includes(trackName)
-          //             );
-
-          //             if (playlistTrack && playlistTrack.length > 0 && playlistTrack[0].id) {
-          //               gapi.client.youtube.playlistItems.delete({ id: playlistTrack[0].id });
-          //             }
-          //           });
-          //       }
-          //     });
-          // }
-        });
+        }
+      });
     }
   };
 

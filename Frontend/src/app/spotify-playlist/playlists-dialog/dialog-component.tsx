@@ -23,6 +23,7 @@ interface OuterProps {
   spotifyApi: SpotifyWebApi;
   sourceType: SourceType;
   currentPlaylist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType;
+  artists?: string;
 }
 
 interface State {
@@ -40,21 +41,32 @@ class DialogContentDialogClass extends React.PureComponent<OuterProps, State> {
   };
 
   public render(): React.ReactNode {
-    const { spotifyPlaylists, youtubePlaylists, trackName, imageUrl, spotifyApi, currentPlaylist, sourceType } =
-      this.props;
+    const {
+      spotifyPlaylists,
+      youtubePlaylists,
+      trackName,
+      imageUrl,
+      spotifyApi,
+      currentPlaylist,
+      sourceType,
+      artists
+    } = this.props;
     const { expanded } = this.state;
 
     return (
       <>
-        <Accordion expanded={expanded === "spotify"} onChange={this.handleChange("spotify")} style={{ minWidth: 250 }}>
-          <AccordionSummary expandIcon={<ChevronDown />} aria-controls="spotifybh-content" id="spotifybh-header">
-            <Typography style={{ float: "left", flexShrink: 0, width: "80%" }}>Spotify Playlist</Typography>
-            <Spotify style={{ paddingLeft: 8, color: "#1DB954" }} />
-          </AccordionSummary>
-          <AccordionDetails>
-            <FormGroup>
-              {spotifyPlaylists &&
-                spotifyPlaylists.items.map((playlist) => (
+        {spotifyPlaylists && (
+          <Accordion
+            expanded={expanded === "spotify"}
+            onChange={this.handleChange("spotify")}
+            style={{ minWidth: 250 }}>
+            <AccordionSummary expandIcon={<ChevronDown />} aria-controls="spotifybh-content" id="spotifybh-header">
+              <Typography style={{ float: "left", flexShrink: 0, width: "80%" }}>Spotify Playlist</Typography>
+              <Spotify style={{ paddingLeft: 8, color: "#1DB954" }} />
+            </AccordionSummary>
+            <AccordionDetails style={{ maxHeight: 260, overflow: "auto" }}>
+              <FormGroup>
+                {spotifyPlaylists.items.map((playlist) => (
                   <SpotifyPlaylistCheckbox
                     playlist={playlist}
                     trackName={trackName}
@@ -65,18 +77,19 @@ class DialogContentDialogClass extends React.PureComponent<OuterProps, State> {
                     key={playlist.id}
                   />
                 ))}
-            </FormGroup>
-          </AccordionDetails>
-        </Accordion>
-        <Accordion expanded={expanded === "youtube"} onChange={this.handleChange("youtube")}>
-          <AccordionSummary expandIcon={<ChevronDown />} aria-controls="youtubebh-content" id="youtubebh-header">
-            <Typography style={{ float: "left", flexShrink: 0, width: "80%" }}>Youtube Playlist</Typography>
-            <PlayCircleOutline style={{ paddingLeft: 8, color: "#FF0000" }} />
-          </AccordionSummary>
-          <AccordionDetails style={{ maxHeight: 260, overflow: "hidden", overflowY: "scroll" }}>
-            <FormGroup>
-              {youtubePlaylists &&
-                youtubePlaylists.items?.map((playlist) => (
+              </FormGroup>
+            </AccordionDetails>
+          </Accordion>
+        )}
+        {youtubePlaylists && (
+          <Accordion expanded={expanded === "youtube"} onChange={this.handleChange("youtube")}>
+            <AccordionSummary expandIcon={<ChevronDown />} aria-controls="youtubebh-content" id="youtubebh-header">
+              <Typography style={{ float: "left", flexShrink: 0, width: "80%" }}>Youtube Playlist</Typography>
+              <PlayCircleOutline style={{ paddingLeft: 8, color: "#FF0000" }} />
+            </AccordionSummary>
+            <AccordionDetails style={{ maxHeight: 260, overflow: "auto" }}>
+              <FormGroup>
+                {youtubePlaylists.items?.map((playlist) => (
                   <YoutubePlaylistCheckbox
                     playlist={playlist}
                     trackName={trackName}
@@ -84,11 +97,13 @@ class DialogContentDialogClass extends React.PureComponent<OuterProps, State> {
                     currentPlaylist={currentPlaylist}
                     sourceType={sourceType}
                     key={playlist.id}
+                    artists={artists}
                   />
                 ))}
-            </FormGroup>
-          </AccordionDetails>
-        </Accordion>
+              </FormGroup>
+            </AccordionDetails>
+          </Accordion>
+        )}
       </>
     );
   }

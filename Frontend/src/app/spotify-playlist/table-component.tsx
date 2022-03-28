@@ -270,6 +270,7 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
             playlist={playlist}
             imageUrl={imageUrl}
             myOwn={myOwn}
+            artists={artistName}
           />
           <Typography fontFamily="Poppins, sans-serif" fontSize={16} className={classes.artistTypography}>
             {duration}
