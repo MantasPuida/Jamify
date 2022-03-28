@@ -17,7 +17,9 @@ export const PlaylistStyles = (theme: AppTheme) =>
     playlistGridText: {
       paddingLeft: theme.spacing(5),
       flexFlow: "column",
-      justifyContent: "center",
+      justifyContent: "center"
+    },
+    optionalGridText: {
       marginTop: theme.spacing(5)
     },
     buttonTextHover: {
@@ -43,6 +45,10 @@ export const PlaylistStyles = (theme: AppTheme) =>
       },
 
       "&:hover #playSvgIcon": {
+        display: "block !important"
+      },
+
+      "&:hover #DotsSvgIcon": {
         display: "block !important"
       },
 
@@ -88,7 +94,12 @@ export const PlaylistStyles = (theme: AppTheme) =>
     },
     artistTypography: {
       color: "rgba(255, 255, 255, .7)",
-      textAlign: "left"
+      textAlign: "right"
+    },
+    artistTypographyIcon: {
+      color: "rgba(255, 255, 255, .7)",
+      textAlign: "left",
+      float: "left"
     }
   });
 

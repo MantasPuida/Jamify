@@ -33,6 +33,15 @@ class HeaderComponentClass extends React.PureComponent<Props> {
     navigate(AppRoutes.Explore);
   };
 
+  private handleOnMeClick: ButtonProps["onClick"] = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const { navigate } = this.props;
+
+    navigate(AppRoutes.Me);
+  };
+
   private handleOnSearchClick: ButtonProps["onClick"] = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -76,8 +85,7 @@ class HeaderComponentClass extends React.PureComponent<Props> {
             <Button
               variant="text"
               className={clsx({ [classes.textColor]: pathname === AppRoutes.Home }, classes.buttons)}
-              onClick={this.handleOnHomeClick}
-            >
+              onClick={this.handleOnHomeClick}>
               <Typography fontSize={28} fontFamily="Poppins,sans-serif">
                 Home
               </Typography>
@@ -87,10 +95,19 @@ class HeaderComponentClass extends React.PureComponent<Props> {
             <Button
               variant="text"
               className={clsx({ [classes.textColor]: pathname === AppRoutes.Explore }, classes.buttons)}
-              onClick={this.handleOnExploreClick}
-            >
+              onClick={this.handleOnExploreClick}>
               <Typography fontSize={28} fontFamily="Poppins,sans-serif">
                 Explore
+              </Typography>
+            </Button>
+          </Grid>
+          <Grid item={true} className={classes.textSpacing}>
+            <Button
+              variant="text"
+              className={clsx({ [classes.textColor]: pathname === AppRoutes.Me }, classes.buttons)}
+              onClick={this.handleOnMeClick}>
+              <Typography fontSize={28} fontFamily="Poppins,sans-serif">
+                Me
               </Typography>
             </Button>
           </Grid>
@@ -100,8 +117,7 @@ class HeaderComponentClass extends React.PureComponent<Props> {
               className={clsx({ [classes.textColor]: pathname === AppRoutes.Search }, classes.buttons)}
               classes={{ iconSizeMedium: classes.iconInText }}
               onClick={this.handleOnSearchClick}
-              startIcon={<Magnify />}
-            >
+              startIcon={<Magnify />}>
               <Typography fontSize={28} fontFamily="Poppins,sans-serif">
                 Search
               </Typography>

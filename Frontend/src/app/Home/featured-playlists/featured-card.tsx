@@ -6,6 +6,8 @@ import { WithStyles } from "@mui/styles";
 import { NavigateFunction, useNavigate } from "react-router";
 import { FeaturedPlaylistsStyles, useFeaturedPlaylistsStyles } from "./featured.styles";
 import { AppRoutes } from "../../routes/routes";
+// eslint-disable-next-line import/no-cycle
+import { PlaylistType } from "../../me/me-component";
 
 import "./carousel-items.css";
 
@@ -18,7 +20,10 @@ interface InnerProps extends WithStyles<typeof FeaturedPlaylistsStyles> {
 }
 
 export interface FeaturedPlaylistState {
-  playlist: SpotifyApi.PlaylistObjectSimplified;
+  youtubePlaylist?: gapi.client.youtube.Playlist;
+  spotifyPlaylist?: SpotifyApi.PlaylistObjectSimplified;
+  ownPlaylist?: PlaylistType;
+  myOwn?: boolean;
 }
 
 type Props = InnerProps & OuterProps;
@@ -30,7 +35,7 @@ class FeaturedCardClass extends React.PureComponent<Props> {
 
     const { navigate, playlist } = this.props;
 
-    navigate(AppRoutes.Playlist, { state: { playlist } as FeaturedPlaylistState });
+    navigate(AppRoutes.Playlist, { state: { spotifyPlaylist: playlist } as FeaturedPlaylistState });
   };
 
   public render(): React.ReactNode {

@@ -4,6 +4,7 @@ import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { NotFound } from "../errors/not-found-component";
 import { Home } from "../Home/home-components";
 import { AppRoutes } from "./routes";
+import { MeComponent } from "../me/me-class";
 import { useSpotifyAuth } from "../../context/spotify-context";
 import { SpotifyConstants } from "../../constants/constants-spotify";
 import { Explore } from "../explore/explore-component";
@@ -22,18 +23,23 @@ interface Props {
 function HomeRoutesClass(props: Props) {
   const { spotifyApi, isPlayerOpen } = props;
 
+  const paddingStyle = isPlayerOpen ? 50 : 0;
+
   return (
-    <>
+    <div style={{ width: "100vw", height: "100vh", backgroundColor: "black", overflowX: "hidden" }}>
       <HeaderComponent spotifyApi={spotifyApi} />
-      <Routes>
-        <Route path={AppRoutes.Home} element={<Home spotifyApi={spotifyApi} />} />
-        <Route path={AppRoutes.Explore} element={<Explore spotifyApi={spotifyApi} />} />
-        <Route path={AppRoutes.Search} element={<Search spotifyApi={spotifyApi} />} />
-        <Route path={AppRoutes.Playlist} element={<Playlist spotifyApi={spotifyApi} />} />
-        <Route path="*" element={<NotFound />} />;
-      </Routes>
+      <div style={{ paddingBottom: paddingStyle }}>
+        <Routes>
+          <Route path={AppRoutes.Home} element={<Home spotifyApi={spotifyApi} />} />
+          <Route path={AppRoutes.Explore} element={<Explore spotifyApi={spotifyApi} />} />
+          <Route path={AppRoutes.Me} element={<MeComponent spotifyApi={spotifyApi} />} />
+          <Route path={AppRoutes.Search} element={<Search spotifyApi={spotifyApi} />} />
+          <Route path={AppRoutes.Playlist} element={<Playlist spotifyApi={spotifyApi} />} />
+          <Route path="*" element={<NotFound />} />;
+        </Routes>
+      </div>
       {isPlayerOpen && <Player />}
-    </>
+    </div>
   );
 }
 

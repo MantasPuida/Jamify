@@ -6,15 +6,29 @@ import SpotifyWebApi from "spotify-web-api-node";
 import { FeaturedPlaylistState } from "../Home/featured-playlists/featured-card";
 import { HomeLandingPageStyles, useHomeLandingPageStyles } from "../Home/landing-page.styles";
 import { Notify } from "../notification/notification-component";
-import { PlaylistTopComponent } from "./playlist-component";
+import { PlaylistTopComponent, SourceType } from "./playlist-component";
+// eslint-disable-next-line import/no-cycle
 import { TracksComponent } from "./tracks-component";
 import { useSpotifyAuth } from "../../context/spotify-context";
+import { PlaylistApi } from "../../api/api-endpoints";
+import { useUserContext } from "../../context/user-context";
+import { PlaylistType } from "../me/me-component";
 
 type PlaylistTracksResponse = SpotifyApi.PlaylistTrackResponse;
 
 interface InnerProps extends WithStyles<typeof HomeLandingPageStyles> {
-  playlist: SpotifyApi.PlaylistObjectSimplified;
-  playlistTracks: PlaylistTracksResponse;
+  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType;
+  playlistTracks: PlaylistTracksResponse | gapi.client.youtube.PlaylistItemListResponse | TrackType[];
+  sourceType: SourceType;
+  myOwn?: boolean;
+}
+
+export interface TrackType {
+  trackId: string;
+  trackName: string;
+  imageUrl: string;
+  trackDescription: string;
+  trackSource: string;
 }
 
 interface OuterProps {
@@ -25,12 +39,18 @@ type Props = InnerProps & OuterProps;
 
 class PlaylistClass extends React.PureComponent<Props> {
   public render(): React.ReactNode {
-    const { classes, playlist, playlistTracks, spotifyApi } = this.props;
+    const { classes, playlist, playlistTracks, spotifyApi, sourceType, myOwn } = this.props;
 
     return (
       <Grid container={true} item={true} xs={12} className={classes.homeGrid}>
-        <PlaylistTopComponent playlist={playlist} />
-        <TracksComponent playlistTracks={playlistTracks} spotifyApi={spotifyApi} />
+        <PlaylistTopComponent playlist={playlist} sourceType={sourceType} />
+        <TracksComponent
+          playlist={playlist}
+          playlistTracks={playlistTracks}
+          spotifyApi={spotifyApi}
+          sourceType={sourceType}
+          myOwn={myOwn}
+        />
       </Grid>
     );
   }
@@ -38,37 +58,111 @@ class PlaylistClass extends React.PureComponent<Props> {
 
 export const Playlist = React.memo<OuterProps>((props) => {
   const [playlistTracks, setTracks] = React.useState<PlaylistTracksResponse | undefined>();
+  const [youtubePlaylistTracks, setYoutubePlaylistTracks] = React.useState<
+    gapi.client.youtube.PlaylistItemListResponse | undefined
+  >();
+  const [ownTracks, setOwnTracks] = React.useState<TrackType[] | undefined>();
   const location = useLocation();
+  const { userId } = useUserContext();
   const locationState = location.state as FeaturedPlaylistState;
   const classes = useHomeLandingPageStyles();
   const { logout } = useSpotifyAuth();
 
-  if (!locationState || !locationState.playlist) {
+  if (
+    !locationState ||
+    (!locationState.spotifyPlaylist && !locationState.youtubePlaylist && !locationState.ownPlaylist)
+  ) {
     // eslint-disable-next-line react/jsx-no-useless-fragment
     return <></>;
   }
 
-  const { playlist } = locationState;
+  const { spotifyPlaylist, youtubePlaylist, ownPlaylist, myOwn } = locationState;
   const { spotifyApi } = props;
 
   React.useEffect(() => {
-    spotifyApi
-      .getPlaylistTracks(playlist.id)
-      .then((value) => {
-        setTracks(value.body);
-      })
-      .catch(() => {
-        logout();
-        Notify("Unable to synchronize with Spotify", "error");
-      });
+    if (spotifyPlaylist) {
+      spotifyApi
+        .getPlaylistTracks(spotifyPlaylist.id)
+        .then((value) => {
+          setTracks(value.body);
+        })
+        .catch(() => {
+          logout();
+          Notify("Unable to synchronize with Spotify", "error");
+        });
+    } else if (youtubePlaylist) {
+      gapi.client.youtube.playlistItems
+        .list({
+          part: "snippet",
+          playlistId: youtubePlaylist.id,
+          maxResults: 999
+        })
+        .then((playlistItems) => {
+          setYoutubePlaylistTracks(playlistItems.result);
+        });
+    } else if (ownPlaylist && userId) {
+      const { TracksApiEndpoints } = PlaylistApi;
+
+      TracksApiEndpoints()
+        .fetchTracks(userId, ownPlaylist.playlistId)
+        .then((tracks) => {
+          setOwnTracks(tracks.data);
+        });
+    }
   }, [location.pathname]);
 
-  if (!playlistTracks) {
+  if (userId && ownPlaylist && ownTracks) {
+    return (
+      <PlaylistClass
+        playlist={ownPlaylist}
+        playlistTracks={ownTracks}
+        classes={classes}
+        spotifyApi={spotifyApi}
+        sourceType={SourceType.Own}
+        myOwn={myOwn}
+      />
+    );
+  }
+
+  if (youtubePlaylist && youtubePlaylistTracks) {
+    return (
+      <PlaylistClass
+        playlist={youtubePlaylist}
+        playlistTracks={youtubePlaylistTracks}
+        classes={classes}
+        spotifyApi={spotifyApi}
+        sourceType={SourceType.Youtube}
+        myOwn={myOwn}
+      />
+    );
+  }
+
+  if (spotifyPlaylist && playlistTracks) {
+    return (
+      <PlaylistClass
+        playlist={spotifyPlaylist}
+        playlistTracks={playlistTracks}
+        classes={classes}
+        spotifyApi={spotifyApi}
+        sourceType={SourceType.Spotify}
+        myOwn={myOwn}
+      />
+    );
+  }
+
+  if (!playlistTracks || !spotifyPlaylist) {
     // eslint-disable-next-line react/jsx-no-useless-fragment
     return <></>;
   }
 
   return (
-    <PlaylistClass playlist={playlist} playlistTracks={playlistTracks} classes={classes} spotifyApi={spotifyApi} />
+    <PlaylistClass
+      playlist={spotifyPlaylist}
+      playlistTracks={playlistTracks}
+      classes={classes}
+      spotifyApi={spotifyApi}
+      sourceType={SourceType.Spotify}
+      myOwn={myOwn}
+    />
   );
 });

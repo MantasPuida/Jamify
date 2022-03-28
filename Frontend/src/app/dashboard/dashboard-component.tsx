@@ -41,6 +41,7 @@ class DashboardClass extends React.PureComponent<Props> {
       ?.signIn()
       .then((value: gapi.auth2.GoogleUser) => {
         const { access_token: AccessToken } = value.getAuthResponse();
+
         registerYoutubeToken(AccessToken);
         gapi.client.setToken({ access_token: AccessToken });
 
@@ -62,9 +63,9 @@ class DashboardClass extends React.PureComponent<Props> {
     DZ.login(
       (response) => {
         const { status, authResponse } = response;
-
         if (status === "connected" && authResponse.accessToken) {
           const { accessToken } = authResponse;
+
           registerDeezerToken(accessToken);
           navigate(AppRoutes.Home);
         } else {

@@ -53,8 +53,7 @@ class FeaturedPlaylistsClass extends React.PureComponent<Props> {
               fontWeight={400}
               fontFamily="Poppins,sans-serif"
               color="white"
-              style={{ float: "left" }}
-            >
+              style={{ float: "left" }}>
               {message ?? "Editor's picks"}
             </Typography>
           </Grid>
@@ -70,8 +69,7 @@ class FeaturedPlaylistsClass extends React.PureComponent<Props> {
               centeredSlides={false}
               navigation={true}
               modules={[Navigation]}
-              style={{ maxWidth: "85%", marginLeft: -20, paddingLeft: 15 }}
-            >
+              style={{ maxWidth: "85%", marginLeft: -20, paddingLeft: 15 }}>
               {playlists.items.map((x) => (
                 <SwiperSlide style={{ backgroundColor: "black" }} key={x.id}>
                   <FeaturedCard playlist={x} />
