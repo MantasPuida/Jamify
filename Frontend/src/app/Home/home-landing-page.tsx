@@ -8,6 +8,7 @@ import { YoutubePlaylists } from "../youtube-playlists/playlist-component";
 import { useYoutubeAuth } from "../../context/youtube-context";
 import { useDeezerAuth } from "../../context/deezer-context";
 import { useSpotifyAuth } from "../../context/spotify-context";
+import { DeezerArtists } from "./deezer-artists/deezer-artists";
 
 interface OuterProps {
   spotifyApi: SpotifyWebApi;
@@ -23,12 +24,13 @@ type Props = InnerProps & OuterProps;
 
 class HomeLandingPageClass extends React.PureComponent<Props> {
   public render(): React.ReactNode {
-    const { classes, spotifyApi, spotifyToken, youtubeToken } = this.props;
+    const { classes, spotifyApi, spotifyToken, youtubeToken, deezerToken } = this.props;
 
     return (
       <Grid container={true} item={true} xs={12} className={classes.homeGrid}>
         {spotifyToken && <FeaturedPlaylists spotifyApi={spotifyApi} />}
         {youtubeToken && <YoutubePlaylists />}
+        {deezerToken && <DeezerArtists />}
       </Grid>
     );
   }

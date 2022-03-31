@@ -11,10 +11,11 @@ import { extractThumbnail } from "../../helpers/thumbnails";
 import { TrackType } from "./playlist-class";
 import { PlaylistType } from "../me/me-component";
 import { TrackActionComponent } from "./track-actions-component";
+import { Album, ArtistAlbumsData } from "../../types/deezer.types";
 
 interface OuterProps {
-  row: SpotifyApi.PlaylistTrackObject | gapi.client.youtube.PlaylistItem | TrackType;
-  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType;
+  row: SpotifyApi.PlaylistTrackObject | gapi.client.youtube.PlaylistItem | TrackType | ArtistAlbumsData;
+  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType | Album;
   sourceType: SourceType;
   albumName?: string;
   spotifyApi: SpotifyWebApi;
@@ -51,8 +52,39 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
       this.resolveSpotifyTrack(row as SpotifyApi.PlaylistTrackObject);
     } else if (sourceType === SourceType.Own && albumName) {
       this.resolveOwnTrack(row as TrackType, albumName);
+    } else if (sourceType === SourceType.Deezer) {
+      this.resolveDeezerTrack(row as ArtistAlbumsData);
     }
   }
+
+  private resolveDeezerTrack = (row: ArtistAlbumsData) => {
+    const { artist, title, duration } = row;
+    const { playlist } = this.props;
+    const resolvedDuration = this.resolveDuration(duration);
+    const deezerPlaylist = playlist as Album;
+
+    gapi.client.youtube.search.list({ part: "snippet", q: `${artist} ${title}` }).then((response) => {
+      const { items } = response.result;
+
+      if (items && items.length > 0 && items[0].id?.videoId) {
+        this.setState({
+          albumName: deezerPlaylist.title,
+          artistName: artist.name,
+          duration: resolvedDuration,
+          imageUrl: deezerPlaylist.cover_xl,
+          trackId: items[0].id.videoId,
+          trackName: title
+        });
+      }
+    });
+  };
+
+  private resolveDuration = (duration: number) => {
+    const minutes = Math.floor(duration / 60);
+    const seconds = duration % 60;
+
+    return `${minutes > 10 ? minutes : `0${minutes}`}:${seconds < 10 ? `0${seconds}` : seconds}`;
+  };
 
   private resolveOwnTrack = (ownRow: TrackType, albmName: string): void => {
     gapi.client.youtube.search.list({ part: "snippet", q: ownRow.trackName, maxResults: 999 }).then((results) => {

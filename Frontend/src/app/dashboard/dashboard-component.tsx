@@ -21,6 +21,7 @@ interface InnerProps {
   registerDeezerToken: Function;
   navigate: NavigateFunction;
   location: Location;
+  setDeezerUserId: Function;
 }
 
 type Props = InnerProps & OuterProps;
@@ -58,15 +59,16 @@ class DashboardClass extends React.PureComponent<Props> {
   };
 
   private handleLoginDeezer: ButtonProps["onClick"] = () => {
-    const { registerDeezerToken, navigate } = this.props;
+    const { registerDeezerToken, navigate, setDeezerUserId } = this.props;
 
     DZ.login(
       (response) => {
-        const { status, authResponse } = response;
+        const { status, authResponse, userID } = response;
         if (status === "connected" && authResponse.accessToken) {
           const { accessToken } = authResponse;
 
           registerDeezerToken(accessToken);
+          setDeezerUserId(userID);
           navigate(AppRoutes.Home);
         } else {
           this.handleNotify();
@@ -95,13 +97,14 @@ class DashboardClass extends React.PureComponent<Props> {
 
 export const Dashboard = React.memo<OuterProps>((props) => {
   const { googleAuthObject, register: RegisterYoutubeToken } = useYoutubeAuth();
-  const { register: RegisterDeezerToken } = useDeezerAuth();
+  const { register: RegisterDeezerToken, setDeezerUserId } = useDeezerAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   return (
     <DashboardClass
       googleAuthObject={googleAuthObject}
+      setDeezerUserId={setDeezerUserId}
       registerDeezerToken={RegisterDeezerToken}
       registerYoutubeToken={RegisterYoutubeToken}
       navigate={navigate}

@@ -3,10 +3,13 @@ import ChevronDown from "mdi-material-ui/ChevronDown";
 import Spotify from "mdi-material-ui/Spotify";
 import PlayCircleOutline from "mdi-material-ui/PlayCircleOutline";
 import SpotifyWebApi from "spotify-web-api-node";
-import { Accordion, AccordionSummary, AccordionDetails, Typography, FormGroup } from "@mui/material";
+import { Accordion, AccordionSummary, AccordionDetails, Typography, FormGroup, Avatar, Grid } from "@mui/material";
 import { SpotifyPlaylistCheckbox } from "./spotify-playlist-checkbox";
 import { YoutubePlaylistCheckbox } from "./youtube-playlist-checkbox";
 import { SourceType } from "../playlist-component";
+import { Album, TrackListData, PlaylistsResponseMe } from "../../../types/deezer.types";
+import { DeezerPlaylistCheckbox } from "./deezer-playlist-checkbox";
+import DeezerLogo from "../../../assets/svg/deezer-logo.svg";
 
 interface PlaylistType {
   playlistId: string;
@@ -18,12 +21,14 @@ interface PlaylistType {
 interface OuterProps {
   spotifyPlaylists?: SpotifyApi.ListOfUsersPlaylistsResponse;
   youtubePlaylists?: gapi.client.youtube.PlaylistListResponse;
+  deezerPlaylists?: PlaylistsResponseMe;
   trackName: string;
   imageUrl: string;
   spotifyApi: SpotifyWebApi;
   sourceType: SourceType;
-  currentPlaylist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType;
+  currentPlaylist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType | Album;
   artists?: string;
+  deezerTrack?: TrackListData;
 }
 
 interface State {
@@ -49,7 +54,9 @@ class DialogContentDialogClass extends React.PureComponent<OuterProps, State> {
       spotifyApi,
       currentPlaylist,
       sourceType,
-      artists
+      artists,
+      deezerPlaylists,
+      deezerTrack
     } = this.props;
     const { expanded } = this.state;
 
@@ -61,8 +68,14 @@ class DialogContentDialogClass extends React.PureComponent<OuterProps, State> {
             onChange={this.handleChange("spotify")}
             style={{ minWidth: 250 }}>
             <AccordionSummary expandIcon={<ChevronDown />} aria-controls="spotifybh-content" id="spotifybh-header">
-              <Typography style={{ float: "left", flexShrink: 0, width: "80%" }}>Spotify Playlist</Typography>
-              <Spotify style={{ paddingLeft: 8, color: "#1DB954" }} />
+              <Grid container={true}>
+                <Grid item={true} xs={10}>
+                  <Typography style={{ float: "left", flexShrink: 0, width: "80%" }}>Spotify Playlist</Typography>
+                </Grid>
+                <Grid item={true} xs={2}>
+                  <Spotify style={{ paddingLeft: 8, color: "#1DB954" }} />
+                </Grid>
+              </Grid>
             </AccordionSummary>
             <AccordionDetails style={{ maxHeight: 260, overflow: "auto" }}>
               <FormGroup>
@@ -98,6 +111,39 @@ class DialogContentDialogClass extends React.PureComponent<OuterProps, State> {
                     sourceType={sourceType}
                     key={playlist.id}
                     artists={artists}
+                  />
+                ))}
+              </FormGroup>
+            </AccordionDetails>
+          </Accordion>
+        )}
+        {deezerPlaylists && (
+          <Accordion expanded={expanded === "deezer"} onChange={this.handleChange("deezer")}>
+            <AccordionSummary expandIcon={<ChevronDown />} aria-controls="deezerbh-content" id="deezerbh-header">
+              <Grid container={true}>
+                <Grid item={true} xs={10}>
+                  <Typography style={{ float: "left", flexShrink: 0, width: "80%" }}>Deezer Playlist</Typography>
+                </Grid>
+                <Grid item={true} xs={2}>
+                  <Avatar
+                    src={DeezerLogo}
+                    style={{ width: "20px", height: "20px", marginLeft: 8, border: "1px solid black" }}
+                  />
+                </Grid>
+              </Grid>
+            </AccordionSummary>
+            <AccordionDetails style={{ maxHeight: 260, overflow: "auto" }}>
+              <FormGroup>
+                {deezerPlaylists.data.map((playlist) => (
+                  <DeezerPlaylistCheckbox
+                    playlist={playlist}
+                    trackName={trackName}
+                    imageUrl={imageUrl}
+                    currentPlaylist={currentPlaylist}
+                    sourceType={sourceType}
+                    deezerTrack={deezerTrack}
+                    artists={artists}
+                    key={playlist.id}
                   />
                 ))}
               </FormGroup>

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useLocation } from "react-router";
 import SpotifyWebApi from "spotify-web-api-node";
 import { useDeezerAuth } from "../../context/deezer-context";
 import { useSpotifyAuth } from "../../context/spotify-context";
@@ -21,48 +22,49 @@ class HomeClass extends React.PureComponent<Props> {
 
 export const Home = React.memo<Props>((props) => {
   const { spotifyToken } = useSpotifyAuth();
-  const { deezerToken } = useDeezerAuth();
+  const { deezerToken, deezerUserId } = useDeezerAuth();
   const { youtubeToken, googleAuthObject } = useYoutubeAuth();
   const { setUserId } = useUserContext();
+  const location = useLocation();
 
-  if (youtubeToken && googleAuthObject) {
-    handleOnLogin(
-      {
-        DeezerUniqueIdentifier: "",
-        SpotifyUniqueIdentifier: "",
-        YoutubeUniqueIdentifier: googleAuthObject.currentUser.get().getId()
-      },
-      setUserId
-    );
-  }
-
-  if (deezerToken) {
-    DZ.getLoginStatus((status) => {
+  React.useEffect(() => {
+    if (youtubeToken && googleAuthObject) {
       handleOnLogin(
         {
-          DeezerUniqueIdentifier: status.authResponse.userID,
+          DeezerUniqueIdentifier: "",
+          SpotifyUniqueIdentifier: "",
+          YoutubeUniqueIdentifier: googleAuthObject.currentUser.get().getId()
+        },
+        setUserId
+      );
+    }
+
+    const { spotifyApi } = props;
+
+    if (spotifyToken) {
+      spotifyApi.getMe().then((me) => {
+        handleOnLogin(
+          {
+            DeezerUniqueIdentifier: "",
+            SpotifyUniqueIdentifier: me.body.id,
+            YoutubeUniqueIdentifier: ""
+          },
+          setUserId
+        );
+      });
+    }
+
+    if (deezerToken && deezerUserId) {
+      handleOnLogin(
+        {
+          DeezerUniqueIdentifier: deezerUserId,
           SpotifyUniqueIdentifier: "",
           YoutubeUniqueIdentifier: ""
         },
         setUserId
       );
-    });
-  }
-
-  const { spotifyApi } = props;
-
-  if (spotifyToken) {
-    spotifyApi.getMe().then((me) => {
-      handleOnLogin(
-        {
-          DeezerUniqueIdentifier: "",
-          SpotifyUniqueIdentifier: me.body.id,
-          YoutubeUniqueIdentifier: ""
-        },
-        setUserId
-      );
-    });
-  }
+    }
+  }, [location]);
 
   return <HomeClass {...props} />;
 });

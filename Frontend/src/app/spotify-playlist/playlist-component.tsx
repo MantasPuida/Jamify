@@ -5,17 +5,19 @@ import clsx from "clsx";
 import { Button, Grid, Typography } from "@mui/material";
 import { PlaylistStyles, usePlaylistStyles } from "./playlist.styles";
 import { extractThumbnail } from "../../helpers/thumbnails";
+import { PlaylistType } from "../me/me-component";
+import { Album } from "../../types/deezer.types";
 
 import "./fontFamily.css";
-import { PlaylistType } from "../me/me-component";
 
 export enum SourceType {
   Spotify,
   Youtube,
-  Own
+  Own,
+  Deezer
 }
 interface OuterProps {
-  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType;
+  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType | Album;
   sourceType: SourceType;
 }
 
@@ -70,6 +72,11 @@ class PlaylistComponentClass extends React.PureComponent<Props> {
       playlistName = ownPlaylist.playlistName;
       playlistImage = ownPlaylist.playlistImage;
       playlistDescription = ownPlaylist.playlistDescription;
+    } else if (sourceType === SourceType.Deezer) {
+      const deezerPlaylist = playlist as Album;
+      playlistImage = deezerPlaylist.cover_xl;
+      playlistName = deezerPlaylist.title;
+      playlistDescription = "";
     }
 
     return (

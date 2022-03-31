@@ -16,6 +16,7 @@ export function handleOnLogin(userData: PlaylistApi.UserData, setUserId: Functio
       });
     } else {
       const { DeezerUniqueIdentifier: dzId, SpotifyUniqueIdentifier: spId, YoutubeUniqueIdentifier: ytId } = userData;
+
       const user = data.filter(
         (item) =>
           item.youtubeUniqueIdentifier === ytId ||
@@ -25,6 +26,7 @@ export function handleOnLogin(userData: PlaylistApi.UserData, setUserId: Functio
 
       if (user && user.length > 0) {
         const { deezerUniqueIdentifier, spotifyUniqueIdentifier, youtubeUniqueIdentifier, userId } = user[0];
+
         if (
           (spId && spId !== spotifyUniqueIdentifier) ||
           (dzId && dzId !== deezerUniqueIdentifier) ||

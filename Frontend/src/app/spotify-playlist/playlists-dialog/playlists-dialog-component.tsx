@@ -21,6 +21,8 @@ import { useYoutubeAuth } from "../../../context/youtube-context";
 import { DialogContentDialog } from "./dialog-component";
 import { PlaylistApi } from "../../../api/api-endpoints";
 import { SourceType } from "../playlist-component";
+import { Album, PlaylistsResponseMe, TrackListData } from "../../../types/deezer.types";
+import { useDeezerAuth } from "../../../context/deezer-context";
 
 interface PlaylistType {
   playlistId: string;
@@ -37,12 +39,14 @@ interface OuterProps {
   trackName: string;
   userId?: string;
   sourceType: SourceType;
-  currentPlaylist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType;
+  currentPlaylist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType | Album;
   artists?: string;
+  deezerTrack?: TrackListData;
 }
 
 interface InnerProps {
   fullScreen: boolean;
+  deezerPlaylists?: PlaylistsResponseMe;
   spotifyPlaylists?: SpotifyApi.ListOfUsersPlaylistsResponse;
   youtubePlaylists?: gapi.client.youtube.PlaylistListResponse;
 }
@@ -132,7 +136,9 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
       spotifyApi,
       currentPlaylist,
       sourceType,
-      artists
+      artists,
+      deezerTrack,
+      deezerPlaylists
     } = this.props;
     const { isClicked } = this.state;
 
@@ -149,6 +155,8 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
             currentPlaylist={currentPlaylist}
             sourceType={sourceType}
             artists={artists}
+            deezerTrack={deezerTrack}
+            deezerPlaylists={deezerPlaylists}
           />
         </DialogContent>
         <DialogActions>
@@ -182,12 +190,14 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
 export const PlaylistsDialogComponent = React.memo<OuterProps>((props) => {
   const [spotifyPlaylists, setSpotifyPlaylists] = React.useState<SpotifyApi.ListOfUsersPlaylistsResponse>();
   const [youtubePlaylists, setYoutubePlaylists] = React.useState<gapi.client.youtube.PlaylistListResponse>();
+  const [deezerPlaylists, setDeezerPlaylists] = React.useState<PlaylistsResponseMe>();
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const location = useLocation();
   const { spotifyApi } = props;
   const { spotifyToken } = useSpotifyAuth();
   const { youtubeToken } = useYoutubeAuth();
+  const { deezerToken } = useDeezerAuth();
 
   React.useEffect(() => {
     if (spotifyToken) {
@@ -199,12 +209,19 @@ export const PlaylistsDialogComponent = React.memo<OuterProps>((props) => {
         .list({ part: "snippet", mine: true, maxResults: 99 })
         .then((data) => setYoutubePlaylists(data.result));
     }
+
+    if (deezerToken) {
+      DZ.api(`user/me/playlists?access_token=${deezerToken}`, (response) => {
+        setDeezerPlaylists(response);
+      });
+    }
   }, [location]);
 
   return (
     <PlaylistsDialogComponentClass
       spotifyPlaylists={spotifyPlaylists}
       youtubePlaylists={youtubePlaylists}
+      deezerPlaylists={deezerPlaylists}
       fullScreen={fullScreen}
       {...props}
     />

@@ -37,33 +37,41 @@ class HeaderSettingsDialogSpotifyClass extends React.PureComponent<Props, State>
   constructor(props: Props) {
     super(props);
 
-    this.state = { loading: true };
+    const { isSpotifyConnected } = props;
 
-    this.fetchUserData(props.spotifyApi);
-    this.fetchStats(props.spotifyApi);
+    if (isSpotifyConnected) {
+      this.state = { loading: true };
+      this.fetchUserData(props.spotifyApi);
+      this.fetchStats(props.spotifyApi);
+    } else {
+      this.state = { loading: false };
+    }
   }
 
   private fetchStats = (spotifyApi: SpotifyWebApi): void => {
-    this.setState({ loading: true });
-
-    spotifyApi.getMe().then((me) =>
-      spotifyApi.getFollowedArtists().then((artists) =>
-        spotifyApi.getMyTopArtists().then((topArtists) =>
-          spotifyApi.getMySavedAlbums().then((mySavedAlbums) =>
-            spotifyApi.getMySavedTracks().then((mySavedTracks) =>
-              this.setState({
-                followers: me.body.followers?.total,
-                followedArtists: artists.body.artists.total,
-                topArtist: topArtists.body.items[0].name,
-                savedAlbums: mySavedAlbums.body.total,
-                savedTracks: mySavedTracks.body.total,
-                loading: false
-              })
+    spotifyApi
+      .getMe()
+      .then((me) =>
+        spotifyApi.getFollowedArtists().then((artists) =>
+          spotifyApi.getMyTopArtists().then((topArtists) =>
+            spotifyApi.getMySavedAlbums().then((mySavedAlbums) =>
+              spotifyApi.getMySavedTracks().then((mySavedTracks) =>
+                this.setState({
+                  followers: me.body.followers?.total,
+                  followedArtists: artists.body.artists.total,
+                  topArtist: topArtists.body.items[0].name,
+                  savedAlbums: mySavedAlbums.body.total,
+                  savedTracks: mySavedTracks.body.total,
+                  loading: false
+                })
+              )
             )
           )
         )
       )
-    );
+      .catch(() => {
+        this.setState({ loading: false });
+      });
   };
 
   private fetchUserData = (spotifyApi: SpotifyWebApi): void => {
@@ -73,6 +81,7 @@ class HeaderSettingsDialogSpotifyClass extends React.PureComponent<Props, State>
         this.setState({ spotifyProfile: callback.body });
       })
       .catch((err) => {
+        this.setState({ loading: false });
         // eslint-disable-next-line no-console
         console.error(err);
       });
@@ -144,7 +153,7 @@ class HeaderSettingsDialogSpotifyClass extends React.PureComponent<Props, State>
     }
 
     return (
-      <Grid container={true}>
+      <Grid container={true} style={{ overflow: "hidden" }}>
         <Grid item={true} xs={4} style={{ maxWidth: "32%" }}>
           <img src={images[0].url} alt="me" style={{ maxWidth: 160, borderRadius: 5 }} />
         </Grid>
@@ -157,7 +166,11 @@ class HeaderSettingsDialogSpotifyClass extends React.PureComponent<Props, State>
           </Grid>
           <br />
           {statsJsx.map((jsx) => (
-            <Grid item={true} xs={12} style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16 }}>
+            <Grid
+              item={true}
+              xs={12}
+              style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16 }}
+              key={Math.random() * 50}>
               {jsx}
             </Grid>
           ))}

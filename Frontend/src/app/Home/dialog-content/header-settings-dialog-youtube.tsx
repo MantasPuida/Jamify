@@ -31,48 +31,50 @@ interface State {
 type Props = InnerProps & OuterProps;
 
 class HeaderSettingsDialogYouTubeClass extends React.PureComponent<Props, State> {
-  public state: State;
+  public state: State = { loading: true };
 
-  constructor(props: Props) {
-    super(props);
+  componentDidMount() {
+    const { isYoutubeConnected, googleAuthObject } = this.props;
 
-    this.state = { loading: true };
-
-    this.fetchUserData(props.googleAuthObject);
-    this.fetchStats();
+    if (isYoutubeConnected) {
+      this.fetchUserData(googleAuthObject);
+      this.fetchStats();
+    }
   }
 
   private fetchStats = (): void => {
-    gapi.client.youtube.playlists.list({ part: "contentDetails", mine: true }).then((playlistsData) => {
-      const playlist = playlistsData.result;
+    gapi.client.youtube.playlists
+      .list({ part: "contentDetails", mine: true })
+      .then((playlistsData) => {
+        const playlist = playlistsData.result;
 
-      const tracks = playlist.items?.map((value) => {
-        let count = 0;
+        const tracks = playlist.items?.map((value) => {
+          let count = 0;
 
-        if (value.contentDetails?.itemCount) {
-          count += value.contentDetails.itemCount;
+          if (value.contentDetails?.itemCount) {
+            count += value.contentDetails.itemCount;
+          }
+
+          return count;
+        });
+
+        if (!tracks || tracks.length === 0) {
+          return;
         }
 
-        return count;
+        const count = tracks.reduce((partial, num) => partial + num, 0);
+
+        this.setState({ playlists: playlist.pageInfo?.totalResults, playlistTracks: count, loading: false });
+      })
+      .catch(() => {
+        this.setState({ loading: false });
       });
-
-      if (!tracks || tracks.length === 0) {
-        return;
-      }
-
-      const count = tracks.reduce((partial, num) => partial + num, 0);
-
-      this.setState({ playlists: playlist.pageInfo?.totalResults, playlistTracks: count });
-    });
   };
 
   private fetchUserData = (googleAuthObject: gapi.auth2.GoogleAuthBase | undefined): void => {
     const googleUserObject = googleAuthObject?.currentUser.get().getBasicProfile();
 
-    this.state = {
-      googleUser: googleUserObject,
-      loading: false
-    };
+    this.setState({ googleUser: googleUserObject });
   };
 
   private youtubeLogin: ButtonProps["onClick"] = (event) => {
@@ -138,7 +140,7 @@ class HeaderSettingsDialogYouTubeClass extends React.PureComponent<Props, State>
     }
 
     return (
-      <Grid container={true}>
+      <Grid container={true} style={{ overflow: "hidden" }}>
         <Grid item={true} xs={4} style={{ maxWidth: "32%" }}>
           <img src={imageUrl} alt="me" style={{ maxWidth: 160, borderRadius: 5, width: "100%" }} />
         </Grid>
@@ -150,8 +152,12 @@ class HeaderSettingsDialogYouTubeClass extends React.PureComponent<Props, State>
             <Typography fontFamily="Poppins,sans-serif">{email}</Typography>
           </Grid>
           <br />
-          {statsJsx.map(async (jsx) => (
-            <Grid item={true} xs={4} style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16 }}>
+          {statsJsx.map((jsx) => (
+            <Grid
+              item={true}
+              xs={4}
+              style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16 }}
+              key={Math.random() * 50}>
               {jsx}
             </Grid>
           ))}

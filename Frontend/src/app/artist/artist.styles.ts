@@ -1,8 +1,31 @@
 import { createStyles, makeStyles } from "@mui/styles";
 import { AppTheme } from "../../shared/app-theme";
 
-export const PlaylistStyles = (theme: AppTheme) =>
+export const ArtistStyles = (theme: AppTheme) =>
   createStyles({
+    artistGrid: {
+      backgroundColor: "black",
+      padding: "64px 0 24px 0",
+      margin: "0 150px",
+      display: "block"
+    },
+    artistImage: {
+      maxWidth: "40%",
+      float: "left",
+      borderRadius: "50%"
+    },
+    artistGridText: {
+      paddingLeft: theme.spacing(5),
+      flexFlow: "column",
+      justifyContent: "center"
+    },
+    artistPaperStyles: {
+      width: "100%",
+      overflow: "hidden",
+      backgroundColor: "black",
+      paddingTop: 16
+    },
+
     playlistsGrid: {
       backgroundColor: "black",
       padding: "64px 0 24px 0",
@@ -90,18 +113,31 @@ export const PlaylistStyles = (theme: AppTheme) =>
     },
     artistTableCell: {
       maxWidth: 500,
-      minWidth: 350
+      minWidth: 350,
+      textAlignLast: "end"
     },
     artistTypography: {
       color: "rgba(255, 255, 255, .7)",
       textAlign: "right",
-      float: "right"
+      float: "right",
+      paddingLeft: 16
     },
     artistTypographyIcon: {
       color: "rgba(255, 255, 255, .7)",
       textAlign: "left",
       float: "left"
+    },
+    typography: {
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      maxWidth: "225px",
+      WebkitLineClamp: 3,
+      display: "block",
+      "&:hover": {
+        textDecoration: "solid underline rgba(255, 255, 255, .7) 1px"
+      }
     }
   });
 
-export const usePlaylistStyles = makeStyles(PlaylistStyles);
+export const useArtistStyles = makeStyles(ArtistStyles);

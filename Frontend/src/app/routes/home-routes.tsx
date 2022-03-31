@@ -14,6 +14,7 @@ import { Helpers } from "../../utils/helpers";
 import { HeaderComponent } from "../Home/header/header-component";
 import { usePlayerContext } from "../../context/player-context";
 import { Player } from "../player/player-component";
+import { Artist } from "../artist/artist-component";
 
 interface Props {
   spotifyApi: SpotifyWebApi;
@@ -35,6 +36,7 @@ function HomeRoutesClass(props: Props) {
           <Route path={AppRoutes.Me} element={<MeComponent spotifyApi={spotifyApi} />} />
           <Route path={AppRoutes.Search} element={<Search spotifyApi={spotifyApi} />} />
           <Route path={AppRoutes.Playlist} element={<Playlist spotifyApi={spotifyApi} />} />
+          <Route path={AppRoutes.Artist} element={<Artist spotifyApi={spotifyApi} />} />
           <Route path="*" element={<NotFound />} />;
         </Routes>
       </div>

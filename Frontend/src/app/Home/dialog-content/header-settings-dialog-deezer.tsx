@@ -20,6 +20,7 @@ interface InnerProps extends WithStyles<typeof SettingsStyles> {
   navigate: NavigateFunction;
   register: Function;
   deezerToken: string | null;
+  setDeezerUserId: Function;
 }
 
 interface ProfileData {
@@ -61,16 +62,17 @@ class HeaderSettingsDialogDeezerClass extends React.PureComponent<Props, State> 
     event.preventDefault();
     event.stopPropagation();
 
-    const { register, navigate, handleDialogClose } = this.props;
+    const { register, navigate, handleDialogClose, setDeezerUserId } = this.props;
 
     DZ.login(
       (response) => {
-        const { status, authResponse } = response;
+        const { status, authResponse, userID } = response;
 
         if (status === "connected" && authResponse.accessToken) {
           const { accessToken } = authResponse;
 
           register(accessToken);
+          setDeezerUserId(userID);
 
           if (handleDialogClose) {
             handleDialogClose(event);
@@ -128,13 +130,14 @@ class HeaderSettingsDialogDeezerClass extends React.PureComponent<Props, State> 
 }
 
 export const HeaderSettingsDialogDeezer = React.memo<OuterProps>((props) => {
-  const { register, deezerToken } = useDeezerAuth();
+  const { register, deezerToken, setDeezerUserId } = useDeezerAuth();
   const navigate = useNavigate();
   const classes = useSettingsStyles();
 
   return (
     <HeaderSettingsDialogDeezerClass
       {...props}
+      setDeezerUserId={setDeezerUserId}
       deezerToken={deezerToken}
       register={register}
       navigate={navigate}

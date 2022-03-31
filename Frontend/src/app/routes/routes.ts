@@ -5,5 +5,6 @@ export enum AppRoutes {
   Explore = "/explore",
   Search = "/search",
   Playlist = "/playlist",
-  Me = "/me"
+  Me = "/me",
+  Artist = "/artist"
 }

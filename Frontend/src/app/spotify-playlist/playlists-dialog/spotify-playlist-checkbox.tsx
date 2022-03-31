@@ -2,6 +2,7 @@ import * as React from "react";
 import { Checkbox, CheckboxProps, CircularProgress, FormControlLabel, Grid } from "@mui/material";
 import SpotifyWebApi from "spotify-web-api-node";
 import { SourceType } from "../playlist-component";
+import { Album } from "../../../types/deezer.types";
 
 interface PlaylistType {
   playlistId: string;
@@ -16,7 +17,7 @@ interface OuterProps {
   imageUrl: string;
   spotifyApi: SpotifyWebApi;
   sourceType: SourceType;
-  currentPlaylist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType;
+  currentPlaylist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType | Album;
 }
 
 interface State {

@@ -13,12 +13,17 @@ import { useSpotifyAuth } from "../../context/spotify-context";
 import { PlaylistApi } from "../../api/api-endpoints";
 import { useUserContext } from "../../context/user-context";
 import { PlaylistType } from "../me/me-component";
+import { ArtistAlbumsResponse, Album } from "../../types/deezer.types";
 
 type PlaylistTracksResponse = SpotifyApi.PlaylistTrackResponse;
 
 interface InnerProps extends WithStyles<typeof HomeLandingPageStyles> {
-  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType;
-  playlistTracks: PlaylistTracksResponse | gapi.client.youtube.PlaylistItemListResponse | TrackType[];
+  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType | Album;
+  playlistTracks:
+    | PlaylistTracksResponse
+    | gapi.client.youtube.PlaylistItemListResponse
+    | TrackType[]
+    | ArtistAlbumsResponse;
   sourceType: SourceType;
   myOwn?: boolean;
 }
@@ -61,6 +66,7 @@ export const Playlist = React.memo<OuterProps>((props) => {
   const [youtubePlaylistTracks, setYoutubePlaylistTracks] = React.useState<
     gapi.client.youtube.PlaylistItemListResponse | undefined
   >();
+  const [deezerPlaylistTracks, setDeezerPlaylistTracks] = React.useState<ArtistAlbumsResponse>();
   const [ownTracks, setOwnTracks] = React.useState<TrackType[] | undefined>();
   const location = useLocation();
   const { userId } = useUserContext();
@@ -70,13 +76,16 @@ export const Playlist = React.memo<OuterProps>((props) => {
 
   if (
     !locationState ||
-    (!locationState.spotifyPlaylist && !locationState.youtubePlaylist && !locationState.ownPlaylist)
+    (!locationState.spotifyPlaylist &&
+      !locationState.youtubePlaylist &&
+      !locationState.ownPlaylist &&
+      !locationState.deezerAlbum)
   ) {
     // eslint-disable-next-line react/jsx-no-useless-fragment
     return <></>;
   }
 
-  const { spotifyPlaylist, youtubePlaylist, ownPlaylist, myOwn } = locationState;
+  const { spotifyPlaylist, youtubePlaylist, ownPlaylist, myOwn, deezerAlbum } = locationState;
   const { spotifyApi } = props;
 
   React.useEffect(() => {
@@ -108,8 +117,25 @@ export const Playlist = React.memo<OuterProps>((props) => {
         .then((tracks) => {
           setOwnTracks(tracks.data);
         });
+    } else if (deezerAlbum) {
+      DZ.api(`album/${deezerAlbum.id}/tracks&limit=100`, (response) => {
+        setDeezerPlaylistTracks(response);
+      });
     }
   }, [location.pathname]);
+
+  if (deezerPlaylistTracks && deezerAlbum) {
+    return (
+      <PlaylistClass
+        playlist={deezerAlbum}
+        playlistTracks={deezerPlaylistTracks}
+        classes={classes}
+        spotifyApi={spotifyApi}
+        sourceType={SourceType.Deezer}
+        myOwn={myOwn}
+      />
+    );
+  }
 
   if (userId && ownPlaylist && ownTracks) {
     return (

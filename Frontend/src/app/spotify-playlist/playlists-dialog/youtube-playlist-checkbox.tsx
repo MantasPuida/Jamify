@@ -1,6 +1,7 @@
 import { Checkbox, CheckboxProps, FormControlLabel, Grid } from "@mui/material";
 import * as React from "react";
 import { SourceType } from "../playlist-component";
+import { Album } from "../../../types/deezer.types";
 
 interface PlaylistType {
   playlistId: string;
@@ -14,7 +15,7 @@ interface OuterProps {
   trackName: string;
   imageUrl: string;
   sourceType: SourceType;
-  currentPlaylist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType;
+  currentPlaylist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType | Album;
   artists?: string;
 }
 

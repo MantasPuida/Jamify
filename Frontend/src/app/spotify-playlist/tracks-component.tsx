@@ -19,14 +19,19 @@ import { SourceType } from "./playlist-component";
 // eslint-disable-next-line import/no-cycle
 import { TrackType } from "./playlist-class";
 import { PlaylistType } from "../me/me-component";
+import { Album, ArtistAlbumsResponse } from "../../types/deezer.types";
 
 import "./fontFamily.css";
 
 interface OuterProps {
-  playlistTracks: SpotifyApi.PlaylistTrackResponse | gapi.client.youtube.PlaylistItemListResponse | TrackType[];
+  playlistTracks:
+    | SpotifyApi.PlaylistTrackResponse
+    | gapi.client.youtube.PlaylistItemListResponse
+    | TrackType[]
+    | ArtistAlbumsResponse;
+  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType | Album;
   spotifyApi: SpotifyWebApi;
   sourceType: SourceType;
-  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType;
   myOwn?: boolean;
 }
 
@@ -116,6 +121,26 @@ class TracksComponentClass extends React.PureComponent<Props> {
                           key={row.trackId}
                           albumName="random"
                           sourceType={SourceType.Own}
+                          spotifyApi={spotifyApi}
+                          playlist={playlist}
+                          myOwn={myOwn}
+                        />
+                      );
+                    })}
+
+                  {sourceType === SourceType.Deezer &&
+                    (playlistTracks as ArtistAlbumsResponse).data.map((row) => {
+                      if (!row || !row.id) {
+                        const randomKey = Math.floor(Math.random() * 5000);
+                        return <React.Fragment key={randomKey} />;
+                      }
+
+                      return (
+                        <TracksTableContent
+                          row={row}
+                          key={row.id}
+                          albumName="random"
+                          sourceType={SourceType.Deezer}
                           spotifyApi={spotifyApi}
                           playlist={playlist}
                           myOwn={myOwn}
