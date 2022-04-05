@@ -21,7 +21,7 @@ import { useYoutubeAuth } from "../../../context/youtube-context";
 import { DialogContentDialog } from "./dialog-component";
 import { PlaylistApi } from "../../../api/api-endpoints";
 import { SourceType } from "../playlist-component";
-import { Album, PlaylistsResponseMe, TrackListData } from "../../../types/deezer.types";
+import { Album, PlaylistsResponseMe, TrackListData, PlaylistsResponse } from "../../../types/deezer.types";
 import { useDeezerAuth } from "../../../context/deezer-context";
 
 interface PlaylistType {
@@ -31,6 +31,8 @@ interface PlaylistType {
   playlistDescription: string;
 }
 
+type DeezerPlaylistType = Album | PlaylistsResponse;
+
 interface OuterProps {
   dialogOpen: boolean;
   setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -39,7 +41,11 @@ interface OuterProps {
   trackName: string;
   userId?: string;
   sourceType: SourceType;
-  currentPlaylist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType | Album;
+  currentPlaylist:
+    | SpotifyApi.PlaylistObjectSimplified
+    | gapi.client.youtube.Playlist
+    | PlaylistType
+    | DeezerPlaylistType;
   artists?: string;
   deezerTrack?: TrackListData;
 }

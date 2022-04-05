@@ -19,17 +19,27 @@ import { SourceType } from "./playlist-component";
 // eslint-disable-next-line import/no-cycle
 import { TrackType } from "./playlist-class";
 import { PlaylistType } from "../me/me-component";
-import { Album, ArtistAlbumsResponse } from "../../types/deezer.types";
+import {
+  Album,
+  ArtistAlbumsData,
+  ArtistAlbumsResponse,
+  PlaylistsResponse,
+  PlaylistTracksData,
+  PlaylistTracksResponse
+} from "../../types/deezer.types";
 
 import "./fontFamily.css";
 
+type DeezerPlaylistType = Album | PlaylistsResponse;
+type DeezerPlaylistTrackType = ArtistAlbumsResponse | PlaylistTracksResponse;
+
 interface OuterProps {
+  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType | DeezerPlaylistType;
   playlistTracks:
     | SpotifyApi.PlaylistTrackResponse
     | gapi.client.youtube.PlaylistItemListResponse
     | TrackType[]
-    | ArtistAlbumsResponse;
-  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType | Album;
+    | DeezerPlaylistTrackType;
   spotifyApi: SpotifyWebApi;
   sourceType: SourceType;
   myOwn?: boolean;
@@ -129,16 +139,34 @@ class TracksComponentClass extends React.PureComponent<Props> {
                     })}
 
                   {sourceType === SourceType.Deezer &&
-                    (playlistTracks as ArtistAlbumsResponse).data.map((row) => {
+                    (playlistTracks as DeezerPlaylistTrackType).data.map((row) => {
                       if (!row || !row.id) {
                         const randomKey = Math.floor(Math.random() * 5000);
                         return <React.Fragment key={randomKey} />;
                       }
 
+                      if (row.type === "album") {
+                        const currentRow = row as ArtistAlbumsData;
+
+                        return (
+                          <TracksTableContent
+                            row={currentRow}
+                            key={currentRow.id}
+                            albumName="random"
+                            sourceType={SourceType.Deezer}
+                            spotifyApi={spotifyApi}
+                            playlist={playlist}
+                            myOwn={myOwn}
+                          />
+                        );
+                      }
+
+                      const currentRow = row as PlaylistTracksData;
+
                       return (
                         <TracksTableContent
-                          row={row}
-                          key={row.id}
+                          row={currentRow}
+                          key={currentRow.id}
                           albumName="random"
                           sourceType={SourceType.Deezer}
                           spotifyApi={spotifyApi}

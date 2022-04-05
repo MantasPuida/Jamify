@@ -8,7 +8,7 @@ import { FeaturedPlaylistsStyles, useFeaturedPlaylistsStyles } from "./featured.
 import { AppRoutes } from "../../routes/routes";
 // eslint-disable-next-line import/no-cycle
 import { PlaylistType } from "../../me/me-component";
-import { Album } from "../../../types/deezer.types";
+import { Album, PlaylistsResponse } from "../../../types/deezer.types";
 
 import "./carousel-items.css";
 
@@ -23,7 +23,7 @@ interface InnerProps extends WithStyles<typeof FeaturedPlaylistsStyles> {
 export interface FeaturedPlaylistState {
   youtubePlaylist?: gapi.client.youtube.Playlist;
   spotifyPlaylist?: SpotifyApi.PlaylistObjectSimplified;
-  deezerAlbum?: Album;
+  deezerAlbum?: Album | PlaylistsResponse;
   ownPlaylist?: PlaylistType;
   myOwn?: boolean;
 }

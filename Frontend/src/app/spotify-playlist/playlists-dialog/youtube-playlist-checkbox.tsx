@@ -1,7 +1,8 @@
 import { Checkbox, CheckboxProps, FormControlLabel, Grid } from "@mui/material";
 import * as React from "react";
 import { SourceType } from "../playlist-component";
-import { Album } from "../../../types/deezer.types";
+import { Album, PlaylistsResponse } from "../../../types/deezer.types";
+import { Notify } from "../../notification/notification-component";
 
 interface PlaylistType {
   playlistId: string;
@@ -10,12 +11,18 @@ interface PlaylistType {
   playlistDescription: string;
 }
 
+type DeezerPlaylistType = Album | PlaylistsResponse;
+
 interface OuterProps {
   playlist: gapi.client.youtube.Playlist;
   trackName: string;
   imageUrl: string;
   sourceType: SourceType;
-  currentPlaylist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType | Album;
+  currentPlaylist:
+    | SpotifyApi.PlaylistObjectSimplified
+    | gapi.client.youtube.Playlist
+    | PlaylistType
+    | DeezerPlaylistType;
   artists?: string;
 }
 
@@ -64,15 +71,22 @@ class YoutubePlaylistCheckboxClass extends React.PureComponent<OuterProps, State
 
           if (myTrack) {
             if (isChecked) {
-              gapi.client.youtube.playlistItems.insert({
-                part: "snippet",
-                resource: {
-                  ...myTrack[0],
-                  snippet: {
-                    playlistId: playlist.id
+              gapi.client.youtube.playlistItems
+                .insert({
+                  part: "snippet",
+                  resource: {
+                    ...myTrack[0],
+                    snippet: {
+                      playlistId: playlist.id
+                    }
                   }
-                }
-              });
+                })
+                .then(() => {
+                  Notify("Track has been added.", "success");
+                })
+                .catch((err) => {
+                  Notify(err, "error");
+                });
             } else if (!isChecked) {
               if (myTrack[0].id) {
                 gapi.client.youtube.playlistItems
@@ -85,6 +99,12 @@ class YoutubePlaylistCheckboxClass extends React.PureComponent<OuterProps, State
                     if (track && track.length > 0 && track[0].id) {
                       gapi.client.youtube.playlistItems.delete({ id: track[0].id });
                     }
+                  })
+                  .then(() => {
+                    Notify("Track has been removed", "success");
+                  })
+                  .catch((err) => {
+                    Notify(err, "error");
                   });
               }
             }
@@ -103,20 +123,27 @@ class YoutubePlaylistCheckboxClass extends React.PureComponent<OuterProps, State
 
         if (resolvedItem && resolvedItem.length > 0 && resolvedItem[0].id?.videoId) {
           if (isChecked) {
-            gapi.client.youtube.playlistItems.insert({
-              part: "snippet",
-              resource: {
-                snippet: {
-                  playlistId: playlist.id,
-                  resourceId: {
-                    videoId: resolvedItem[0].id.videoId,
-                    channelId: resolvedItem[0].id.channelId ?? resolvedItem[0].snippet?.channelId,
-                    kind: resolvedItem[0].id.kind,
-                    playlistId: resolvedItem[0].id.playlistId
+            gapi.client.youtube.playlistItems
+              .insert({
+                part: "snippet",
+                resource: {
+                  snippet: {
+                    playlistId: playlist.id,
+                    resourceId: {
+                      videoId: resolvedItem[0].id.videoId,
+                      channelId: resolvedItem[0].id.channelId ?? resolvedItem[0].snippet?.channelId,
+                      kind: resolvedItem[0].id.kind,
+                      playlistId: resolvedItem[0].id.playlistId
+                    }
                   }
                 }
-              }
-            });
+              })
+              .then(() => {
+                Notify("Track has been added.", "success");
+              })
+              .catch((err) => {
+                Notify(err, "error");
+              });
           } else if (!isChecked) {
             gapi.client.youtube.playlistItems
               .list({ part: "snippet", playlistId: playlist.id, maxResults: 999 })
@@ -130,6 +157,12 @@ class YoutubePlaylistCheckboxClass extends React.PureComponent<OuterProps, State
                 if (playlistTrack && playlistTrack.length > 0 && playlistTrack[0].id) {
                   gapi.client.youtube.playlistItems.delete({ id: playlistTrack[0].id });
                 }
+              })
+              .then(() => {
+                Notify("Track has been removed", "success");
+              })
+              .catch((err) => {
+                Notify(err, "error");
               });
           }
         }

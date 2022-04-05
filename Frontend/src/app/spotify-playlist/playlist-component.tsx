@@ -6,7 +6,7 @@ import { Button, Grid, Typography } from "@mui/material";
 import { PlaylistStyles, usePlaylistStyles } from "./playlist.styles";
 import { extractThumbnail } from "../../helpers/thumbnails";
 import { PlaylistType } from "../me/me-component";
-import { Album } from "../../types/deezer.types";
+import { Album, PlaylistsResponse } from "../../types/deezer.types";
 
 import "./fontFamily.css";
 
@@ -16,8 +16,11 @@ export enum SourceType {
   Own,
   Deezer
 }
+
+type DeezerPlaylistType = Album | PlaylistsResponse;
+
 interface OuterProps {
-  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType | Album;
+  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType | DeezerPlaylistType;
   sourceType: SourceType;
 }
 
@@ -73,10 +76,18 @@ class PlaylistComponentClass extends React.PureComponent<Props> {
       playlistImage = ownPlaylist.playlistImage;
       playlistDescription = ownPlaylist.playlistDescription;
     } else if (sourceType === SourceType.Deezer) {
-      const deezerPlaylist = playlist as Album;
-      playlistImage = deezerPlaylist.cover_xl;
-      playlistName = deezerPlaylist.title;
-      playlistDescription = "";
+      const deezerPlaylist = playlist as DeezerPlaylistType;
+      if (deezerPlaylist.type === "playlist") {
+        const customPlaylist = deezerPlaylist as PlaylistsResponse;
+        playlistImage = customPlaylist.picture_xl;
+        playlistName = customPlaylist.title;
+        playlistDescription = "";
+      } else {
+        const customPlaylist = deezerPlaylist as Album;
+        playlistImage = customPlaylist.cover_xl;
+        playlistName = customPlaylist.title;
+        playlistDescription = "";
+      }
     }
 
     return (

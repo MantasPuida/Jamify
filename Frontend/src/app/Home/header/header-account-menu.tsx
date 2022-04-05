@@ -109,8 +109,7 @@ class AccountMenuClass extends React.PureComponent<Props> {
           className={classes.headerMenuIconButton}
           aria-controls={isMenuOpen ? "account-menu" : undefined}
           aria-haspopup="true"
-          aria-expanded={isMenuOpen ? "true" : undefined}
-        >
+          aria-expanded={isMenuOpen ? "true" : undefined}>
           <AccountCircleOutline className={classes.headerMenuIcon} />
         </IconButton>
         <Menu
@@ -119,14 +118,13 @@ class AccountMenuClass extends React.PureComponent<Props> {
           onClose={this.handleClose}
           onClick={this.handleClose}
           transformOrigin={{ horizontal: "right", vertical: "top" }}
-          anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-        >
+          anchorOrigin={{ horizontal: "right", vertical: "bottom" }}>
           <MenuItem onClick={this.handleDialogOpen}>
             <ListItemIcon>
               <Cog fontSize="small" className={classes.listItemIcon} />
             </ListItemIcon>
             <Typography fontFamily="Poppins,sans-serif" fontSize={24} color="black">
-              Settings
+              Profile
             </Typography>
           </MenuItem>
           <MenuItem onClick={this.handleOnLogout}>

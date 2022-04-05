@@ -86,11 +86,13 @@ class DashboardClass extends React.PureComponent<Props> {
     }
 
     return (
-      <DashboardLandingPage
-        spotifyLogin={this.handleLoginSpotify}
-        youtubeLogin={this.handleLoginYoutube}
-        deezerLogin={this.handleLoginDeezer}
-      />
+      <div style={{ overflow: "hidden" }}>
+        <DashboardLandingPage
+          spotifyLogin={this.handleLoginSpotify}
+          youtubeLogin={this.handleLoginYoutube}
+          deezerLogin={this.handleLoginDeezer}
+        />
+      </div>
     );
   }
 }

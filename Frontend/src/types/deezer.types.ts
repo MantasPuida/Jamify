@@ -94,17 +94,19 @@ export interface Albums {
 }
 
 export interface Album {
-  artist: Artist;
   cover: string;
   cover_big: string;
   cover_medium: string;
   cover_small: string;
   cover_xl: string;
   explicit_lyrics: boolean;
+  fans: number;
+  genre_id: number;
   id: number;
   link: string;
-  position: number;
+  md5_image: string;
   record_type: string;
+  release_date: Date;
   title: string;
   tracklist: string;
   type: string;
@@ -193,5 +195,80 @@ export interface ArtistAlbumsData {
   title_short: string;
   title_version: string;
   track_position: number;
+  type: string;
+}
+
+export interface ArtistAlbumsResponse {
+  data: ArtistAlbumsData[];
+  total: number;
+}
+
+export interface ArtistAlbumsData {
+  cover: string;
+  cover_big: string;
+  cover_medium: string;
+  cover_small: string;
+  cover_xl: string;
+  explicit_lyrics: boolean;
+  fans: number;
+  genre_id: number;
+  id: number;
+  link: string;
+  md5_image: string;
+  record_type: string;
+  release_date: Date;
+  title: string;
+  tracklist: string;
+  type: string;
+}
+
+export interface PlaylistTracksResponse {
+  data: PlaylistTracksData[];
+  total: number;
+}
+
+export interface PlaylistTracksData {
+  album: AlbumResponseData;
+  artist: ArtistResponseData;
+  duration: number;
+  explicit_content_cover: number;
+  explicit_content_lyrics: number;
+  explicit_lyrics: boolean;
+  id: number;
+  link: string;
+  md5_image: string;
+  preview: string;
+  rank: number;
+  readable: boolean;
+  time_add: number;
+  title: string;
+  title_short: string;
+  title_version: string;
+  type: string;
+}
+
+export interface AlbumResponseData {
+  cover: string;
+  cover_big: string;
+  cover_medium: string;
+  cover_small: string;
+  cover_xl: string;
+  id: number;
+  md5_image: string;
+  title: string;
+  tracklist: string;
+  type: string;
+}
+
+export interface ArtistResponseData {
+  id: number;
+  link: string;
+  name: string;
+  picture: string;
+  picture_big: string;
+  picture_medium: string;
+  picture_small: string;
+  picture_xl: string;
+  tracklist: string;
   type: string;
 }

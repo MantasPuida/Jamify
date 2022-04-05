@@ -134,10 +134,10 @@ export const ArtistContent = React.memo<OuterProps>((props) => {
       setTrackList(response as TrackListResponse);
     });
 
-    DZ.api(`search/album?q=${chartArtist.name}&limit=50`, (response) => {
-      setAlbumList(response);
+    DZ.api(`artist/${chartArtist.id}/albums&limit=50`, (response) => {
+      setAlbumList(response as Albums);
     });
-  }, [location]);
+  }, [location.pathname]);
 
   return <ArtistContentClass albumList={albumList} trackList={trackList} classes={classes} {...props} />;
 });

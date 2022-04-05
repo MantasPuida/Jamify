@@ -13,17 +13,18 @@ import { useSpotifyAuth } from "../../context/spotify-context";
 import { PlaylistApi } from "../../api/api-endpoints";
 import { useUserContext } from "../../context/user-context";
 import { PlaylistType } from "../me/me-component";
-import { ArtistAlbumsResponse, Album } from "../../types/deezer.types";
+import { ArtistAlbumsResponse, Album, PlaylistsResponse, PlaylistTracksResponse } from "../../types/deezer.types";
 
-type PlaylistTracksResponse = SpotifyApi.PlaylistTrackResponse;
-
+type SpotifyPlaylistTracksResponse = SpotifyApi.PlaylistTrackResponse;
+type DeezerPlaylistType = Album | PlaylistsResponse;
 interface InnerProps extends WithStyles<typeof HomeLandingPageStyles> {
-  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType | Album;
+  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType | DeezerPlaylistType;
   playlistTracks:
-    | PlaylistTracksResponse
+    | SpotifyPlaylistTracksResponse
     | gapi.client.youtube.PlaylistItemListResponse
     | TrackType[]
-    | ArtistAlbumsResponse;
+    | ArtistAlbumsResponse
+    | PlaylistTracksResponse;
   sourceType: SourceType;
   myOwn?: boolean;
 }
@@ -62,11 +63,12 @@ class PlaylistClass extends React.PureComponent<Props> {
 }
 
 export const Playlist = React.memo<OuterProps>((props) => {
-  const [playlistTracks, setTracks] = React.useState<PlaylistTracksResponse | undefined>();
+  const [playlistTracks, setTracks] = React.useState<SpotifyPlaylistTracksResponse | undefined>();
   const [youtubePlaylistTracks, setYoutubePlaylistTracks] = React.useState<
     gapi.client.youtube.PlaylistItemListResponse | undefined
   >();
-  const [deezerPlaylistTracks, setDeezerPlaylistTracks] = React.useState<ArtistAlbumsResponse>();
+  const [deezerAlbumTracks, setDeezerAlbumTracks] = React.useState<ArtistAlbumsResponse>();
+  const [deezerPlaylistTracks, setDeezerPlaylistTracks] = React.useState<PlaylistTracksResponse>();
   const [ownTracks, setOwnTracks] = React.useState<TrackType[] | undefined>();
   const location = useLocation();
   const { userId } = useUserContext();
@@ -104,7 +106,7 @@ export const Playlist = React.memo<OuterProps>((props) => {
         .list({
           part: "snippet",
           playlistId: youtubePlaylist.id,
-          maxResults: 999
+          maxResults: 99
         })
         .then((playlistItems) => {
           setYoutubePlaylistTracks(playlistItems.result);
@@ -118,11 +120,32 @@ export const Playlist = React.memo<OuterProps>((props) => {
           setOwnTracks(tracks.data);
         });
     } else if (deezerAlbum) {
-      DZ.api(`album/${deezerAlbum.id}/tracks&limit=100`, (response) => {
-        setDeezerPlaylistTracks(response);
-      });
+      const album = deezerAlbum as Album;
+      if (deezerAlbum.type === "album") {
+        DZ.api(`album/${album.id}/tracks`, (response) => {
+          setDeezerAlbumTracks(response);
+        });
+      } else if (deezerAlbum.type === "playlist") {
+        const playlistAlbum = deezerAlbum as PlaylistsResponse;
+        DZ.api(`playlist/${playlistAlbum.id}/tracks`, (response) => {
+          setDeezerPlaylistTracks(response);
+        });
+      }
     }
   }, [location.pathname]);
+
+  if (deezerAlbumTracks && deezerAlbum) {
+    return (
+      <PlaylistClass
+        playlist={deezerAlbum}
+        playlistTracks={deezerAlbumTracks}
+        classes={classes}
+        spotifyApi={spotifyApi}
+        sourceType={SourceType.Deezer}
+        myOwn={myOwn}
+      />
+    );
+  }
 
   if (deezerPlaylistTracks && deezerAlbum) {
     return (

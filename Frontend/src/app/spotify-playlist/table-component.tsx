@@ -11,11 +11,19 @@ import { extractThumbnail } from "../../helpers/thumbnails";
 import { TrackType } from "./playlist-class";
 import { PlaylistType } from "../me/me-component";
 import { TrackActionComponent } from "./track-actions-component";
-import { Album, ArtistAlbumsData } from "../../types/deezer.types";
+import { Album, ArtistAlbumsData, PlaylistsResponse, PlaylistTracksData } from "../../types/deezer.types";
+
+type DeezerPlaylistType = Album | PlaylistsResponse;
+type DeezerPlaylistTrackType = ArtistAlbumsData | PlaylistTracksData;
 
 interface OuterProps {
-  row: SpotifyApi.PlaylistTrackObject | gapi.client.youtube.PlaylistItem | TrackType | ArtistAlbumsData;
-  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType | Album;
+  row:
+    | SpotifyApi.PlaylistTrackObject
+    | gapi.client.youtube.PlaylistItem
+    | TrackType
+    | ArtistAlbumsData
+    | DeezerPlaylistTrackType;
+  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType | DeezerPlaylistType;
   sourceType: SourceType;
   albumName?: string;
   spotifyApi: SpotifyWebApi;
@@ -53,30 +61,55 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
     } else if (sourceType === SourceType.Own && albumName) {
       this.resolveOwnTrack(row as TrackType, albumName);
     } else if (sourceType === SourceType.Deezer) {
-      this.resolveDeezerTrack(row as ArtistAlbumsData);
+      this.resolveDeezerTrack(row as DeezerPlaylistTrackType);
     }
   }
 
-  private resolveDeezerTrack = (row: ArtistAlbumsData) => {
-    const { artist, title, duration } = row;
+  private resolveDeezerTrack = (row: DeezerPlaylistTrackType) => {
     const { playlist } = this.props;
-    const resolvedDuration = this.resolveDuration(duration);
-    const deezerPlaylist = playlist as Album;
+    const deezerPlaylist = playlist as DeezerPlaylistType;
 
-    gapi.client.youtube.search.list({ part: "snippet", q: `${artist} ${title}` }).then((response) => {
-      const { items } = response.result;
+    if (deezerPlaylist.type === "album") {
+      const currentPlaylist = deezerPlaylist as Album;
+      const { artist, title, duration, cover_xl: coverXl } = row as ArtistAlbumsData;
+      const resolvedDuration = this.resolveDuration(duration);
+      gapi.client.youtube.search.list({ part: "snippet", q: `${artist} ${title}` }).then((response) => {
+        const { items } = response.result;
 
-      if (items && items.length > 0 && items[0].id?.videoId) {
-        this.setState({
-          albumName: deezerPlaylist.title,
-          artistName: artist.name,
-          duration: resolvedDuration,
-          imageUrl: deezerPlaylist.cover_xl,
-          trackId: items[0].id.videoId,
-          trackName: title
-        });
-      }
-    });
+        if (items && items.length > 0 && items[0].id?.videoId) {
+          this.setState({
+            albumName: currentPlaylist.title,
+            artistName: artist.name,
+            duration: resolvedDuration,
+            imageUrl: coverXl,
+            trackId: items[0].id.videoId,
+            trackName: title
+          });
+        }
+      });
+    } else if (deezerPlaylist.type === "playlist") {
+      const currentPlaylist = deezerPlaylist as PlaylistsResponse;
+      const { artist, title, duration } = row as PlaylistTracksData;
+      const resolvedDuration = this.resolveDuration(duration);
+      gapi.client.youtube.search.list({ part: "snippet", q: `${artist} ${title}` }).then((response) => {
+        const { items } = response.result;
+
+        if (items && items.length > 0 && items[0].id?.videoId) {
+          const imgUrl = extractThumbnail(items[0].snippet?.thumbnails);
+
+          if (imgUrl) {
+            this.setState({
+              albumName: currentPlaylist.title,
+              artistName: artist.name,
+              duration: resolvedDuration,
+              imageUrl: imgUrl,
+              trackId: items[0].id.videoId,
+              trackName: title
+            });
+          }
+        }
+      });
+    }
   };
 
   private resolveDuration = (duration: number) => {

@@ -69,11 +69,10 @@ class SettingsDialogClass extends React.PureComponent<Props> {
         open={isDialogOpen}
         onClose={handleDialogClose}
         aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
+        aria-describedby="alert-dialog-description">
         <DialogTitle id="alert-dialog-title">
           <Typography fontFamily="Poppins,sans-serif" style={{ color: "black" }} fontSize={24}>
-            {value} Settings
+            {value} Profile
           </Typography>
         </DialogTitle>
         <DialogContent style={{ minWidth: 500, minHeight: 200 }}>

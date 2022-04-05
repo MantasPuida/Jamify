@@ -21,12 +21,13 @@ type Props = OuterProps & InnerProps;
 
 class MeComponentClass extends React.PureComponent<Props> {
   public render(): React.ReactNode {
-    const { spotifyApi, userId, spotifyToken, youtubeToken } = this.props;
+    const { spotifyApi, userId, spotifyToken, youtubeToken, deezerToken } = this.props;
 
     return (
       <>
         {spotifyToken && <MePlaylist spotifyApi={spotifyApi} playlistSource="Spotify" />}
         {youtubeToken && <MePlaylist spotifyApi={spotifyApi} playlistSource="Youtube" />}
+        {deezerToken && <MePlaylist spotifyApi={spotifyApi} playlistSource="Deezer" />}
         {userId && <MePlaylist spotifyApi={spotifyApi} playlistSource="Own" />}
       </>
     );

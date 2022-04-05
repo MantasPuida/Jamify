@@ -2,7 +2,8 @@ import * as React from "react";
 import { Checkbox, CheckboxProps, CircularProgress, FormControlLabel, Grid } from "@mui/material";
 import SpotifyWebApi from "spotify-web-api-node";
 import { SourceType } from "../playlist-component";
-import { Album } from "../../../types/deezer.types";
+import { Album, PlaylistsResponse } from "../../../types/deezer.types";
+import { Notify } from "../../notification/notification-component";
 
 interface PlaylistType {
   playlistId: string;
@@ -11,13 +12,19 @@ interface PlaylistType {
   playlistDescription: string;
 }
 
+type DeezerPlaylistType = Album | PlaylistsResponse;
+
 interface OuterProps {
   playlist: SpotifyApi.PlaylistObjectSimplified;
   trackName: string;
   imageUrl: string;
   spotifyApi: SpotifyWebApi;
   sourceType: SourceType;
-  currentPlaylist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType | Album;
+  currentPlaylist:
+    | SpotifyApi.PlaylistObjectSimplified
+    | gapi.client.youtube.Playlist
+    | PlaylistType
+    | DeezerPlaylistType;
 }
 
 interface State {
@@ -45,29 +52,57 @@ class SpotifyPlaylistCheckboxClass extends React.PureComponent<OuterProps> {
         const foundTrack = tracks.items.filter((value) => value.track.name.includes(trackName));
         if (foundTrack && foundTrack.length > 0) {
           if (isChecked) {
-            spotifyApi.addTracksToPlaylist(playlist.id, [foundTrack[0].track.uri]);
+            spotifyApi
+              .addTracksToPlaylist(playlist.id, [foundTrack[0].track.uri])
+              .then(() => {
+                Notify("Track has been added", "success");
+              })
+              .catch((err) => {
+                Notify(err, "error");
+              });
           } else if (!isChecked) {
-            spotifyApi.removeTracksFromPlaylist(playlist.id, [
-              {
-                uri: foundTrack[0].track.uri
-              }
-            ]);
+            spotifyApi
+              .removeTracksFromPlaylist(playlist.id, [
+                {
+                  uri: foundTrack[0].track.uri
+                }
+              ])
+              .then(() => {
+                Notify("Track has been removed", "success");
+              })
+              .catch((err) => {
+                Notify(err, "error");
+              });
           }
         }
       });
     } else {
-      spotifyApi.searchTracks(trackName, { limit: 1 }).then((tracksData) => {
+      spotifyApi.searchTracks(trackName).then((tracksData) => {
         const { tracks } = tracksData.body;
 
         if (tracks && tracks.items.length > 0) {
           if (isChecked) {
-            spotifyApi.addTracksToPlaylist(playlist.id, [tracks.items[0].uri]);
+            spotifyApi
+              .addTracksToPlaylist(playlist.id, [tracks.items[0].uri])
+              .then(() => {
+                Notify("Track has been added", "success");
+              })
+              .catch((err) => {
+                Notify(err, "error");
+              });
           } else if (!isChecked) {
-            spotifyApi.removeTracksFromPlaylist(playlist.id, [
-              {
-                uri: tracks.items[0].uri
-              }
-            ]);
+            spotifyApi
+              .removeTracksFromPlaylist(playlist.id, [
+                {
+                  uri: tracks.items[0].uri
+                }
+              ])
+              .then(() => {
+                Notify("Track has been removed", "success");
+              })
+              .catch((err) => {
+                Notify(err, "error");
+              });
           }
         }
       });

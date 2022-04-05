@@ -40,6 +40,8 @@ class HeaderSettingsDialogYouTubeClass extends React.PureComponent<Props, State>
       this.fetchUserData(googleAuthObject);
       this.fetchStats();
     }
+
+    this.setState({ loading: false });
   }
 
   private fetchStats = (): void => {

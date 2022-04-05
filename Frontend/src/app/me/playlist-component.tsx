@@ -8,12 +8,14 @@ import { extractThumbnail } from "../../helpers/thumbnails";
 import { PlaylistType } from "./me-component";
 import { AppRoutes } from "../routes/routes";
 import { FeaturedPlaylistState } from "../Home/featured-playlists/featured-card";
+import { PlaylistsResponse } from "../../types/deezer.types";
 
 import "./carousel-items.css";
 
 interface OuterProps {
   youtubePlaylist?: gapi.client.youtube.Playlist;
   spotifyPlaylist?: SpotifyApi.PlaylistObjectSimplified;
+  deezerPlaylist?: PlaylistsResponse;
   ownPlaylist?: PlaylistType;
 }
 
@@ -28,7 +30,7 @@ class PlaylistCardClass extends React.PureComponent<Props> {
     event.preventDefault();
     event.stopPropagation();
 
-    const { navigate, spotifyPlaylist, youtubePlaylist, ownPlaylist } = this.props;
+    const { navigate, spotifyPlaylist, youtubePlaylist, ownPlaylist, deezerPlaylist: deezerAlbum } = this.props;
 
     if (spotifyPlaylist) {
       navigate(AppRoutes.Playlist, { state: { spotifyPlaylist, myOwn: true } as FeaturedPlaylistState });
@@ -36,11 +38,13 @@ class PlaylistCardClass extends React.PureComponent<Props> {
       navigate(AppRoutes.Playlist, { state: { youtubePlaylist, myOwn: true } as FeaturedPlaylistState });
     } else if (ownPlaylist) {
       navigate(AppRoutes.Playlist, { state: { ownPlaylist, myOwn: true } as FeaturedPlaylistState });
+    } else if (deezerAlbum) {
+      navigate(AppRoutes.Playlist, { state: { deezerAlbum, myOwn: true } as FeaturedPlaylistState });
     }
   };
 
   public render(): React.ReactNode {
-    const { classes, spotifyPlaylist, youtubePlaylist, ownPlaylist } = this.props;
+    const { classes, spotifyPlaylist, youtubePlaylist, ownPlaylist, deezerPlaylist } = this.props;
 
     let id: string = "";
     let name: string = "";
@@ -62,6 +66,10 @@ class PlaylistCardClass extends React.PureComponent<Props> {
       id = ownPlaylist.playlistId;
       name = ownPlaylist.playlistName;
       image = ownPlaylist.playlistImage;
+    } else if (deezerPlaylist) {
+      id = deezerPlaylist.id.toString();
+      name = deezerPlaylist.title;
+      image = deezerPlaylist.picture_xl;
     }
 
     return (

@@ -10,12 +10,23 @@ import { FeaturedPlaylistState } from "../Home/featured-playlists/featured-card"
 import "./fontFamily.css";
 import "./image-tint.css";
 
+interface Artist {
+  id: number;
+  name: string;
+  picture: string;
+  picture_small: string;
+  picture_medium: string;
+  picture_big: string;
+  picture_xl: string;
+}
+
 interface OuterProps {
   album: Album;
 }
 
 interface InnerProps extends WithStyles<typeof ArtistStyles> {
   navigate: NavigateFunction;
+  artist?: Artist;
 }
 
 type Props = InnerProps & OuterProps;
@@ -31,7 +42,7 @@ class ArtistAlbumsClass extends React.PureComponent<Props> {
   };
 
   public render(): React.ReactNode {
-    const { album, classes } = this.props;
+    const { album, classes, artist } = this.props;
 
     return (
       <Grid item={true} xs={2} style={{ paddingBottom: 24 }}>
@@ -55,7 +66,7 @@ class ArtistAlbumsClass extends React.PureComponent<Props> {
               onClick={this.handleOnClick}
               style={{ padding: 0, textTransform: "none", justifyContent: "start", color: "transparent" }}>
               <Typography className={classes.typography} fontFamily="sans-serif" color="white">
-                by {album.artist.name}
+                by {artist?.name}
               </Typography>
             </Button>
           </Grid>
@@ -66,8 +77,16 @@ class ArtistAlbumsClass extends React.PureComponent<Props> {
 }
 
 export const ArtistAlbums = React.memo<OuterProps>((props) => {
+  const [artist, setArtist] = React.useState<Artist>();
   const classes = useArtistStyles();
   const navigate = useNavigate();
+  const { album } = props;
 
-  return <ArtistAlbumsClass classes={classes} navigate={navigate} {...props} />;
+  DZ.api(`album/${album.id}`, (response) => {
+    if (response.artist) {
+      setArtist(response.artist);
+    }
+  });
+
+  return <ArtistAlbumsClass artist={artist} classes={classes} navigate={navigate} {...props} />;
 });

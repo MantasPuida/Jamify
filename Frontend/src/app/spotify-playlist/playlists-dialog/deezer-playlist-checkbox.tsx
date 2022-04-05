@@ -12,12 +12,18 @@ interface PlaylistType {
   playlistDescription: string;
 }
 
+type DeezerPlaylistType = Album | PlaylistsResponse;
+
 interface OuterProps {
   playlist: PlaylistsResponse;
   trackName: string;
   imageUrl: string;
   sourceType: SourceType;
-  currentPlaylist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType | Album;
+  currentPlaylist:
+    | SpotifyApi.PlaylistObjectSimplified
+    | gapi.client.youtube.Playlist
+    | PlaylistType
+    | DeezerPlaylistType;
   deezerTrack?: TrackListData;
   artists?: string;
 }
@@ -85,14 +91,20 @@ class DeezerPlaylistCheckboxClass extends React.PureComponent<Props> {
 
       DZ.api(`search?q=${trackName} - ${artistsQ}?strict=on`, (responseData) => {
         const response = responseData as Tracks;
-        const relevantTrack = response.data.filter((track) => track.type === "track")[0];
+        let relevantTrack = response.data.filter(
+          (track) => track.type === "track" && track.title.toLowerCase() === trackName.toLowerCase()
+        );
+
+        if (relevantTrack.length === 0) {
+          relevantTrack = response.data.filter((track) => track.type === "track");
+        }
 
         if (isChecked) {
           DZ.api(
             `playlist/${playlist.id}/tracks?access_token=${deezerToken}`,
             "POST",
             {
-              songs: [relevantTrack.id]
+              songs: [relevantTrack[0].id]
             },
             (callback) => {
               if (callback.error) {
@@ -107,7 +119,7 @@ class DeezerPlaylistCheckboxClass extends React.PureComponent<Props> {
             `playlist/${playlist.id}/tracks?access_token=${deezerToken}`,
             "DELETE",
             {
-              songs: [relevantTrack.id]
+              songs: [relevantTrack[0].id]
             },
             (callback) => {
               if (callback.error) {
