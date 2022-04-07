@@ -49,7 +49,7 @@ class PlaylistClass extends React.PureComponent<Props> {
 
     return (
       <Grid container={true} item={true} xs={12} className={classes.homeGrid}>
-        <PlaylistTopComponent playlist={playlist} sourceType={sourceType} />
+        <PlaylistTopComponent playlist={playlist} sourceType={sourceType} spotifyApi={spotifyApi} myOwn={myOwn} />
         <TracksComponent
           playlist={playlist}
           playlistTracks={playlistTracks}

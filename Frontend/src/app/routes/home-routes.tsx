@@ -15,20 +15,24 @@ import { HeaderComponent } from "../Home/header/header-component";
 import { usePlayerContext } from "../../context/player-context";
 import { Player } from "../player/player-component";
 import { Artist } from "../artist/artist-component";
+import { useAppContext } from "../../context/app-context";
+import { BackdropLoader } from "../loader/loader-backdrop";
 
 interface Props {
   spotifyApi: SpotifyWebApi;
   isPlayerOpen: boolean;
+  loading: boolean;
 }
 
 function HomeRoutesClass(props: Props) {
-  const { spotifyApi, isPlayerOpen } = props;
+  const { spotifyApi, isPlayerOpen, loading } = props;
 
   const paddingStyle = isPlayerOpen ? 50 : 0;
 
   return (
     <div style={{ width: "100vw", height: "100vh", backgroundColor: "black", overflowX: "hidden" }}>
       <HeaderComponent spotifyApi={spotifyApi} />
+      {loading && <BackdropLoader />}
       <div style={{ paddingBottom: paddingStyle }}>
         <Routes>
           <Route path={AppRoutes.Home} element={<Home spotifyApi={spotifyApi} />} />
@@ -51,6 +55,11 @@ const HomeRoutes = (): JSX.Element => {
   const navigate = useNavigate();
   const { isOpen } = usePlayerContext();
   const { spotifyToken, register } = useSpotifyAuth();
+  const { loading, setLoading } = useAppContext();
+
+  React.useEffect(() => {
+    setLoading(true);
+  }, [location.pathname]);
 
   const spotifyApi = new SpotifyWebApi({
     accessToken: spotifyToken!,
@@ -74,7 +83,7 @@ const HomeRoutes = (): JSX.Element => {
     }
   }, [location.pathname]);
 
-  return <HomeRoutesClass spotifyApi={spotifyApi} isPlayerOpen={isOpen} />;
+  return <HomeRoutesClass spotifyApi={spotifyApi} loading={loading} isPlayerOpen={isOpen} />;
 };
 
 export default HomeRoutes;

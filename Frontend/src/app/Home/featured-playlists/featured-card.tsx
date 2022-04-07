@@ -11,13 +11,16 @@ import { PlaylistType } from "../../me/me-component";
 import { Album, PlaylistsResponse } from "../../../types/deezer.types";
 
 import "./carousel-items.css";
+import { useAppContext } from "../../../context/app-context";
 
 interface OuterProps {
   playlist: SpotifyApi.PlaylistObjectSimplified;
+  shouldSetLoading: boolean;
 }
 
 interface InnerProps extends WithStyles<typeof FeaturedPlaylistsStyles> {
   navigate: NavigateFunction;
+  setLoading: Function;
 }
 
 export interface FeaturedPlaylistState {
@@ -31,6 +34,14 @@ export interface FeaturedPlaylistState {
 type Props = InnerProps & OuterProps;
 
 class FeaturedCardClass extends React.PureComponent<Props> {
+  componentDidMount() {
+    const { setLoading, shouldSetLoading } = this.props;
+
+    if (shouldSetLoading) {
+      setLoading(false);
+    }
+  }
+
   private handleOnCardClick: React.MouseEventHandler = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -74,6 +85,7 @@ class FeaturedCardClass extends React.PureComponent<Props> {
 export const FeaturedCard = React.memo<OuterProps>((props) => {
   const navigate = useNavigate();
   const classes = useFeaturedPlaylistsStyles();
+  const { setLoading } = useAppContext();
 
-  return <FeaturedCardClass {...props} navigate={navigate} classes={classes} />;
+  return <FeaturedCardClass {...props} setLoading={setLoading} navigate={navigate} classes={classes} />;
 });

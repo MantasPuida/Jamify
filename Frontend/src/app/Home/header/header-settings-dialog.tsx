@@ -10,6 +10,7 @@ import {
   DialogTitle,
   Typography
 } from "@mui/material";
+import { useLocation } from "react-router";
 import Spotify from "mdi-material-ui/Spotify";
 import PlayCircleOutline from "mdi-material-ui/PlayCircleOutline";
 import SpotifyWebApi from "spotify-web-api-node";
@@ -21,9 +22,12 @@ import { HeaderSettingsDialogSpotify } from "../dialog-content/header-settings-d
 import { HeaderSettingsDialogYouTube } from "../dialog-content/header-settings-dialog-youtube";
 import { HeaderSettingsDialogDeezer } from "../dialog-content/header-settings-dialog-deezer";
 import { HeaderSettingsStyles, useHeaderSettingsStyles } from "./header-settings.styles";
+import { DeezerIcon } from "./deezer-icon-svg";
+// import { PlaylistApi } from "../../../api/api-endpoints";
+import { useUserContext } from "../../../context/user-context";
+// import { PlaylistType } from "../../me/me-component";
 
 import "./fontFamily.css";
-import { DeezerIcon } from "./deezer-icon-svg";
 
 interface OuterProps {
   handleDialogClose: ButtonProps["onClick"];
@@ -39,6 +43,9 @@ interface InnerProps extends WithStyles<typeof HeaderSettingsStyles> {
   isDeezerConnected: boolean;
   isSpotifyConnected: boolean;
   isYoutubeConnected: boolean;
+  youtubePlaylistCount: number;
+  spotifyPlaylistCount: number;
+  deezerPlaylistCount: number;
 }
 
 type Props = InnerProps & OuterProps;
@@ -61,7 +68,10 @@ class SettingsDialogClass extends React.PureComponent<Props> {
       isSpotifyConnected,
       isYoutubeConnected,
       isDeezerConnected,
-      spotifyApi
+      spotifyApi,
+      youtubePlaylistCount,
+      deezerPlaylistCount,
+      spotifyPlaylistCount
     } = this.props;
 
     return (
@@ -81,16 +91,22 @@ class SettingsDialogClass extends React.PureComponent<Props> {
               isSpotifyConnected={isSpotifyConnected}
               handleDialogClose={handleDialogClose}
               spotifyApi={spotifyApi}
+              playlistCount={youtubePlaylistCount}
             />
           )}
           {(value as BottomNavigationValues) === "YouTube" && (
             <HeaderSettingsDialogYouTube
               isYoutubeConnected={isYoutubeConnected}
               handleDialogClose={handleDialogClose}
+              playlistCount={spotifyPlaylistCount}
             />
           )}
           {(value as BottomNavigationValues) === "Deezer" && (
-            <HeaderSettingsDialogDeezer isDeezerConnected={isDeezerConnected} handleDialogClose={handleDialogClose} />
+            <HeaderSettingsDialogDeezer
+              isDeezerConnected={isDeezerConnected}
+              handleDialogClose={handleDialogClose}
+              playlistCount={deezerPlaylistCount}
+            />
           )}
         </DialogContent>
         <DialogActions>
@@ -106,15 +122,68 @@ class SettingsDialogClass extends React.PureComponent<Props> {
 }
 
 export const SettingsDialog = React.memo<OuterProps>((props) => {
+  const [deezerPlaylistCount, setDeezerPlaylistCount] = React.useState<number>(0);
+  const [youtubePlaylistCount, setYoutubePlaylistCount] = React.useState<number>(0);
+  const [spotifyPlaylistCount, setSpotifyPlaylistCount] = React.useState<number>(0);
   const [value, setValue] = React.useState<BottomNavigationValues>("Spotify");
   const classes = useHeaderSettingsStyles();
   const { deezerToken } = useDeezerAuth();
   const { youtubeToken } = useYoutubeAuth();
   const { spotifyToken } = useSpotifyAuth();
+  const { userId } = useUserContext();
+  const location = useLocation();
+
+  const { spotifyApi } = props;
 
   let isYoutubeConnected: boolean = false;
   let isDeezerConnected: boolean = false;
   let isSpotifyConnected: boolean = false;
+
+  React.useEffect(() => {
+    if (deezerToken) {
+      DZ.api(`user/me/playlists?access_token=${deezerToken}`, (response) => {
+        setDeezerPlaylistCount(response.total);
+      });
+    }
+
+    if (youtubeToken && (!gapi || !gapi.client || !gapi.client.youtube || !gapi.client.youtube.playlists)) {
+      setTimeout(() => {
+        gapi.client.youtube.playlists
+          .list({
+            part: "snippet",
+            mine: true
+          })
+          .then((response) => {
+            const { pageInfo } = response.result;
+            if (pageInfo && pageInfo.totalResults) {
+              setYoutubePlaylistCount(pageInfo.totalResults);
+            }
+          });
+      }, 1000);
+    } else if (youtubeToken && gapi && gapi.client && gapi.client.youtube && gapi.client.youtube.playlists) {
+      gapi.client.youtube.playlists
+        .list({
+          part: "snippet",
+          mine: true
+        })
+        .then((response) => {
+          const { pageInfo } = response.result;
+          if (pageInfo && pageInfo.totalResults) {
+            setYoutubePlaylistCount(pageInfo.totalResults);
+          }
+        });
+    }
+
+    if (spotifyToken) {
+      spotifyApi.getUserPlaylists().then((response) => {
+        setSpotifyPlaylistCount(response.body.total);
+      });
+    }
+
+    if (userId) {
+      // const { PlaylistApiEndpoints } = PlaylistApi;
+    }
+  }, [location.pathname]);
 
   if (deezerToken) {
     isDeezerConnected = true;
@@ -135,6 +204,9 @@ export const SettingsDialog = React.memo<OuterProps>((props) => {
       isDeezerConnected={isDeezerConnected}
       isYoutubeConnected={isYoutubeConnected}
       isSpotifyConnected={isSpotifyConnected}
+      deezerPlaylistCount={deezerPlaylistCount}
+      youtubePlaylistCount={youtubePlaylistCount}
+      spotifyPlaylistCount={spotifyPlaylistCount}
       classes={classes}
       {...props}
     />

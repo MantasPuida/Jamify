@@ -9,6 +9,7 @@ import { useUserContext } from "../../context/user-context";
 import { PlaylistsDialogComponent } from "./playlists-dialog/playlists-dialog-component";
 import { Album, TrackListData, PlaylistsResponse } from "../../types/deezer.types";
 import { useDeezerAuth } from "../../context/deezer-context";
+import { useAppContext } from "../../context/app-context";
 
 interface PlaylistType {
   playlistId: string;
@@ -43,6 +44,7 @@ interface InnerProps {
   setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
   dialogOpen: boolean;
   deezerToken: string | null;
+  setLoading: Function;
 }
 
 type Props = OuterProps & InnerProps;
@@ -68,11 +70,12 @@ class TrackActionComponentClass extends React.PureComponent<Props, State> {
     event.preventDefault();
     event.stopPropagation();
 
-    const { spotifyApi, playlist, trackName, sourceType, userId, deezerTrack, deezerToken } = this.props;
+    const { spotifyApi, playlist, trackName, sourceType, userId, deezerTrack, deezerToken, setLoading } = this.props;
     const { TracksApiEndpoints } = PlaylistApi;
     const { isMine } = this.state;
 
     if (isMine) {
+      setLoading(true);
       if (sourceType === SourceType.Youtube) {
         const youtubePlaylist = playlist as gapi.client.youtube.Playlist;
 
@@ -176,6 +179,8 @@ class TrackActionComponentClass extends React.PureComponent<Props, State> {
           }
         }
       }
+
+      setLoading(false);
     } else {
       const { setDialogOpen } = this.props;
 
@@ -230,6 +235,7 @@ export const TrackActionComponent = React.memo<OuterProps>((props) => {
   const { userId } = useUserContext();
   const { deezerToken } = useDeezerAuth();
   const [dialogOpen, setDialogOpen] = React.useState(false);
+  const { setLoading } = useAppContext();
 
   return (
     <TrackActionComponentClass
@@ -237,6 +243,7 @@ export const TrackActionComponent = React.memo<OuterProps>((props) => {
       dialogOpen={dialogOpen}
       setDialogOpen={setDialogOpen}
       userId={userId}
+      setLoading={setLoading}
       {...props}
     />
   );

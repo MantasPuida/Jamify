@@ -2,6 +2,7 @@
 import * as React from "react";
 import { Button, ButtonProps, Grid, Typography } from "@mui/material";
 import { WithStyles } from "@mui/styles";
+import SpotifyWebApi from "spotify-web-api-node";
 import { useNavigate, NavigateFunction } from "react-router";
 import { SpotifyPlaylistsStyles, useSpotifyPlaylistsStyles } from "./playlists.styles";
 import { extractThumbnail } from "../../helpers/thumbnails";
@@ -9,6 +10,8 @@ import { PlaylistType } from "./me-component";
 import { AppRoutes } from "../routes/routes";
 import { FeaturedPlaylistState } from "../Home/featured-playlists/featured-card";
 import { PlaylistsResponse } from "../../types/deezer.types";
+import { useAppContext } from "../../context/app-context";
+import { LastTick } from "../../utils/last-tick";
 
 import "./carousel-items.css";
 
@@ -17,15 +20,30 @@ interface OuterProps {
   spotifyPlaylist?: SpotifyApi.PlaylistObjectSimplified;
   deezerPlaylist?: PlaylistsResponse;
   ownPlaylist?: PlaylistType;
+  spotifyApi: SpotifyWebApi;
+  shouldCancelLoader: boolean;
 }
 
 interface InnerProps extends WithStyles<typeof SpotifyPlaylistsStyles> {
   navigate: NavigateFunction;
+  image?: string;
+  setLoading: Function;
+  loading: boolean;
 }
 
 type Props = InnerProps & OuterProps;
 
 class PlaylistCardClass extends React.PureComponent<Props> {
+  componentDidMount() {
+    const { setLoading, shouldCancelLoader, loading } = this.props;
+
+    if (shouldCancelLoader && loading) {
+      LastTick(() => {
+        setLoading(false);
+      });
+    }
+  }
+
   private handleOnPlaylistClick: ButtonProps["onClick"] = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -44,7 +62,7 @@ class PlaylistCardClass extends React.PureComponent<Props> {
   };
 
   public render(): React.ReactNode {
-    const { classes, spotifyPlaylist, youtubePlaylist, ownPlaylist, deezerPlaylist } = this.props;
+    const { classes, spotifyPlaylist, youtubePlaylist, ownPlaylist, deezerPlaylist, image: myImage } = this.props;
 
     let id: string = "";
     let name: string = "";
@@ -53,7 +71,7 @@ class PlaylistCardClass extends React.PureComponent<Props> {
     if (spotifyPlaylist) {
       id = spotifyPlaylist.id;
       name = spotifyPlaylist.name;
-      image = spotifyPlaylist.images[0].url;
+      image = spotifyPlaylist.images.length > 0 ? spotifyPlaylist.images[0].url : myImage;
     } else if (youtubePlaylist && youtubePlaylist.id && youtubePlaylist.snippet) {
       id = youtubePlaylist.id;
       const { snippet } = youtubePlaylist;
@@ -96,8 +114,26 @@ class PlaylistCardClass extends React.PureComponent<Props> {
 }
 
 export const PlaylistCard = React.memo<OuterProps>((props) => {
+  const [image, setImage] = React.useState<string | undefined>(undefined);
   const classes = useSpotifyPlaylistsStyles();
   const navigate = useNavigate();
+  const { setLoading, loading } = useAppContext();
+  const { spotifyPlaylist, spotifyApi } = props;
 
-  return <PlaylistCardClass {...props} navigate={navigate} classes={classes} />;
+  if (spotifyPlaylist && spotifyPlaylist.images.length === 0) {
+    spotifyApi.getPlaylistTracks(spotifyPlaylist.id).then((tracks) => {
+      setImage(tracks.body.items[0].track.album.images[0].url);
+    });
+  }
+
+  return (
+    <PlaylistCardClass
+      setLoading={setLoading}
+      loading={loading}
+      image={image}
+      {...props}
+      navigate={navigate}
+      classes={classes}
+    />
+  );
 });

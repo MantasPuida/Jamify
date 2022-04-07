@@ -3,7 +3,7 @@ import * as React from "react";
 import { WithStyles } from "@mui/styles";
 import ReactPlayer, { ReactPlayerProps } from "react-player";
 import memoizeOne from "memoize-one";
-import { Stack, Grid, IconButton, IconButtonProps, Slider, SliderProps, Typography, Box, styled } from "@mui/material";
+import { Stack, Grid, IconButton, IconButtonProps, Slider, SliderProps, Typography, styled } from "@mui/material";
 import PauseRounded from "mdi-material-ui/Pause";
 import PlayArrowRounded from "mdi-material-ui/Play";
 import FastForwardRounded from "mdi-material-ui/FastForward";
@@ -117,8 +117,8 @@ class PlayerClass extends React.PureComponent<Props> {
             container={true}
             item={true}
             xs={12}
-            style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: -6, width: "100%" }}>
-            <Grid item={true} xs={3} style={{ paddingLeft: 8 }}>
+            style={{ display: "flex", alignItems: "center", marginTop: -10, width: "100%" }}>
+            <Grid item={true} xs={8} style={{ paddingLeft: 8 }}>
               <Grid container={true} item={true} xs={12}>
                 <IconButton aria-label="previous song" style={{ marginTop: -8 }}>
                   <FastRewindRounded style={{ fontSize: "24px" }} htmlColor="#fff" />
@@ -136,40 +136,44 @@ class PlayerClass extends React.PureComponent<Props> {
                 <IconButton aria-label="next song" style={{ marginTop: -8 }}>
                   <FastForwardRounded style={{ fontSize: "24px" }} htmlColor="#fff" />
                 </IconButton>
-                <Typography color="#aaa" style={{ paddingLeft: 16, marginTop: 10 }} fontSize={12}>
-                  {this.formatDuration(position)} / {this.formatDuration(duration)}
-                </Typography>
+                <Stack direction="column">
+                  <Typography color="#aaa" style={{ paddingLeft: 16 }} fontSize={12}>
+                    {this.formatDuration(position)} / {this.formatDuration(duration)}
+                  </Typography>
+                  <Stack
+                    spacing={2}
+                    direction="row"
+                    alignItems="center"
+                    style={{ justifyContent: "end", paddingLeft: 16 }}>
+                    <Slider
+                      id="customSliderId"
+                      aria-label="Volume"
+                      defaultValue={volume * 100}
+                      size="small"
+                      className={classes.volumeSlider}
+                      onChange={this.handleVolumeOnChange}
+                    />
+                    <VolumeUpRounded className={classes.volumeIcon} />
+                  </Stack>
+                </Stack>
               </Grid>
             </Grid>
             <Grid
+              container={true}
               item={true}
-              xs={6}
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", marginTop: -8 }}>
-              <img alt="alt" src={thumbnail} width={60} height={60} style={{ objectFit: "scale-down" }} />
-              <Box sx={{ ml: 1.5, minWidth: 0, color: "white" }}>
-                <Typography noWrap={true}>{parseTitle(title)}</Typography>
-                <Typography noWrap={true} letterSpacing={-0.25}>
+              xs={4}
+              style={{ display: "flex", alignItems: "center", justifyContent: "end", width: "100%", marginTop: -8 }}>
+              <Grid item={true} xs={10} style={{ textAlign: "end", paddingRight: 8 }}>
+                <Typography color="white" noWrap={true}>
+                  {parseTitle(title)}
+                </Typography>
+                <Typography color="white" noWrap={true} letterSpacing={-0.25}>
                   {channelTitle}
                 </Typography>
-              </Box>
-            </Grid>
-            <Grid item={true} xs={3} style={{ width: "100%", paddingRight: 8 }}>
-              <Stack
-                spacing={2}
-                direction="row"
-                sx={{ mb: 1, px: 1 }}
-                alignItems="center"
-                style={{ justifyContent: "end" }}>
-                <Slider
-                  id="customSliderId"
-                  aria-label="Volume"
-                  defaultValue={volume * 100}
-                  size="small"
-                  className={classes.volumeSlider}
-                  onChange={this.handleVolumeOnChange}
-                />
-                <VolumeUpRounded className={classes.volumeIcon} />
-              </Stack>
+              </Grid>
+              <Grid item={true} xs={2} style={{ textAlign: "end", paddingRight: 8 }}>
+                <img alt="alt" src={thumbnail} width={68} height={68} style={{ objectFit: "scale-down" }} />
+              </Grid>
             </Grid>
           </Grid>
         </Widget>

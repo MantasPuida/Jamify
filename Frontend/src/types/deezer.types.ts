@@ -272,3 +272,18 @@ export interface ArtistResponseData {
   tracklist: string;
   type: string;
 }
+
+export interface GenreResponse {
+  data: GenreData[];
+}
+
+export interface GenreData {
+  id: number;
+  name: string;
+  picture: string;
+  picture_big: string;
+  picture_medium: string;
+  picture_small: string;
+  picture_xl: string;
+  type: string;
+}

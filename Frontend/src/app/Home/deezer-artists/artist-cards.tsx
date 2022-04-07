@@ -5,6 +5,7 @@ import { NavigateFunction, useNavigate } from "react-router";
 import { Artist } from "../../../types/deezer.types";
 import { DeezerStyles, useDeezerStyles } from "./deezer.styles";
 import { AppRoutes } from "../../routes/routes";
+import { useAppContext } from "../../../context/app-context";
 
 interface OuterProps {
   artist: Artist;
@@ -12,11 +13,18 @@ interface OuterProps {
 
 interface InnerProps extends WithStyles<typeof DeezerStyles> {
   navigate: NavigateFunction;
+  setLoading: Function;
 }
 
 type Props = InnerProps & OuterProps;
 
 class ArtistCardsClass extends React.PureComponent<Props> {
+  componentDidMount() {
+    const { setLoading } = this.props;
+
+    setLoading(false);
+  }
+
   private handleOnClick: ButtonProps["onClick"] = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -61,6 +69,7 @@ class ArtistCardsClass extends React.PureComponent<Props> {
 export const ArtistCards = React.memo<OuterProps>((props) => {
   const classes = useDeezerStyles();
   const navigate = useNavigate();
+  const { setLoading } = useAppContext();
 
-  return <ArtistCardsClass classes={classes} navigate={navigate} {...props} />;
+  return <ArtistCardsClass setLoading={setLoading} classes={classes} navigate={navigate} {...props} />;
 });

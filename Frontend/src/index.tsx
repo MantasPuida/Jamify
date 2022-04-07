@@ -7,21 +7,24 @@ import { YoutubeAuthProvider } from "./context/youtube-context";
 import { DeezerAuthProvider } from "./context/deezer-context";
 import { PlayerProvider } from "./context/player-context";
 import { UserProvider } from "./context/user-context";
+import { AppProvider } from "./context/app-context";
 
 const rootElement = document.getElementById("root");
 
 ReactDOM.render(
-  <UserProvider>
-    <PlayerProvider>
-      <SpotifyAuthProvider>
-        <YoutubeAuthProvider>
-          <DeezerAuthProvider>
-            <AppStartup />
-          </DeezerAuthProvider>
-        </YoutubeAuthProvider>
-      </SpotifyAuthProvider>
-    </PlayerProvider>
-  </UserProvider>,
+  <AppProvider>
+    <UserProvider>
+      <PlayerProvider>
+        <SpotifyAuthProvider>
+          <YoutubeAuthProvider>
+            <DeezerAuthProvider>
+              <AppStartup />
+            </DeezerAuthProvider>
+          </YoutubeAuthProvider>
+        </SpotifyAuthProvider>
+      </PlayerProvider>
+    </UserProvider>
+  </AppProvider>,
   rootElement
 );
 

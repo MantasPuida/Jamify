@@ -27,6 +27,7 @@ import {
   PlaylistTracksData,
   PlaylistTracksResponse
 } from "../../types/deezer.types";
+import { useAppContext } from "../../context/app-context";
 
 import "./fontFamily.css";
 
@@ -45,11 +46,19 @@ interface OuterProps {
   myOwn?: boolean;
 }
 
-interface InnerProps extends WithStyles<typeof PlaylistStyles> {}
+interface InnerProps extends WithStyles<typeof PlaylistStyles> {
+  setLoading: Function;
+}
 
 type Props = InnerProps & OuterProps;
 
 class TracksComponentClass extends React.PureComponent<Props> {
+  componentDidMount() {
+    const { setLoading } = this.props;
+
+    setLoading(false);
+  }
+
   public render(): React.ReactNode {
     const { playlistTracks, classes, sourceType, spotifyApi, playlist, myOwn } = this.props;
 
@@ -187,6 +196,7 @@ class TracksComponentClass extends React.PureComponent<Props> {
 
 export const TracksComponent = React.memo<OuterProps>((props) => {
   const classes = usePlaylistStyles();
+  const { setLoading } = useAppContext();
 
-  return <TracksComponentClass {...props} classes={classes} />;
+  return <TracksComponentClass setLoading={setLoading} {...props} classes={classes} />;
 });

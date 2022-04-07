@@ -8,6 +8,12 @@ export namespace PlaylistApi {
     DeezerUniqueIdentifier: string;
     SpotifyUniqueIdentifier: string;
     YoutubeUniqueIdentifier: string;
+    SpotifyName: string;
+    YoutubeName: string;
+    DeezerName: string;
+    SpotifyEmail: string;
+    YoutubeEmail: string;
+    DeezerEmail: string;
   }
 
   interface PlaylistData {

@@ -4,11 +4,15 @@ import { Grid, IconButtonProps, SelectProps, TextField, TextFieldProps } from "@
 import SpotifyWebApi from "spotify-web-api-node";
 import { EndAdornment } from "./adornment";
 import { SearchStyles, useSearchStyles } from "./search.styles";
+import { SearchComponentContent } from "./search-component-content";
+import { useAppContext } from "../../context/app-context";
+import { LastTick } from "../../utils/last-tick";
 
 import "./fontFamily.css";
-import { SearchComponentContent } from "./search-component-content";
 
-type InnerProps = WithStyles<typeof SearchStyles>;
+interface InnerProps extends WithStyles<typeof SearchStyles> {
+  setLoading: Function;
+}
 
 interface OuterProps {
   spotifyApi: SpotifyWebApi;
@@ -29,6 +33,14 @@ interface State {
 
 class SearchClass extends React.PureComponent<Props, State> {
   public state: State = { searchTerm: "", source: "All", isLoading: false };
+
+  componentDidMount() {
+    const { setLoading } = this.props;
+
+    LastTick(() => {
+      setLoading(false);
+    });
+  }
 
   private handleOnChange: SelectProps["onChange"] = (event) => {
     event.preventDefault();
@@ -245,6 +257,7 @@ class SearchClass extends React.PureComponent<Props, State> {
 
 export const Search = React.memo<OuterProps>((props) => {
   const classes = useSearchStyles();
+  const { setLoading } = useAppContext();
 
-  return <SearchClass classes={classes} {...props} />;
+  return <SearchClass setLoading={setLoading} classes={classes} {...props} />;
 });

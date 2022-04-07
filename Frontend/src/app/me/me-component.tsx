@@ -17,6 +17,7 @@ import { PlaylistsResponseMe } from "../../types/deezer.types";
 import "swiper/css";
 import "swiper/css/navigation";
 import "./styles.css";
+import { useAppContext } from "../../context/app-context";
 
 type PlaylistSourceType = "Spotify" | "Youtube" | "Deezer" | "Own";
 
@@ -30,11 +31,13 @@ export interface PlaylistType {
 interface InnerProps extends WithStyles<typeof HomeLandingPageStyles> {
   userId?: string;
   deezerToken: string | null;
+  setLoading: Function;
 }
 
 interface OuterProps {
   spotifyApi: SpotifyWebApi;
   playlistSource: PlaylistSourceType;
+  shouldCancelLoader: boolean;
 }
 
 type Props = InnerProps & OuterProps;
@@ -116,7 +119,7 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
   };
 
   public render(): React.ReactNode {
-    const { classes, playlistSource } = this.props;
+    const { classes, playlistSource, spotifyApi, shouldCancelLoader } = this.props;
     const { spotifyPlaylists, youtubePlaylists, ownPlaylist, deezerPlaylists } = this.state;
 
     if (
@@ -167,7 +170,12 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
                 {playlistSource === "Spotify" &&
                   spotifyPlaylists?.items.map((playlist) => (
                     <SwiperSlide style={{ backgroundColor: "black" }} key={playlist.id}>
-                      <PlaylistCard spotifyPlaylist={playlist} key={playlist.id} />
+                      <PlaylistCard
+                        shouldCancelLoader={shouldCancelLoader}
+                        spotifyApi={spotifyApi}
+                        spotifyPlaylist={playlist}
+                        key={playlist.id}
+                      />
                     </SwiperSlide>
                   ))}
                 {playlistSource === "Youtube" &&
@@ -180,7 +188,13 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
 
                     return (
                       <SwiperSlide style={{ backgroundColor: "black" }} key={playlist.id}>
-                        <PlaylistCard youtubePlaylist={playlist} key={playlist.id} />;
+                        <PlaylistCard
+                          shouldCancelLoader={shouldCancelLoader}
+                          spotifyApi={spotifyApi}
+                          youtubePlaylist={playlist}
+                          key={playlist.id}
+                        />
+                        ;
                       </SwiperSlide>
                     );
                   })}
@@ -194,7 +208,13 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
 
                     return (
                       <SwiperSlide style={{ backgroundColor: "black" }} key={playlist.playlistId}>
-                        <PlaylistCard ownPlaylist={playlist} key={playlist.playlistId} />;
+                        <PlaylistCard
+                          shouldCancelLoader={shouldCancelLoader}
+                          spotifyApi={spotifyApi}
+                          ownPlaylist={playlist}
+                          key={playlist.playlistId}
+                        />
+                        ;
                       </SwiperSlide>
                     );
                   })}
@@ -208,7 +228,13 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
 
                     return (
                       <SwiperSlide style={{ backgroundColor: "black" }} key={playlist.id}>
-                        <PlaylistCard deezerPlaylist={playlist} key={playlist.id} />;
+                        <PlaylistCard
+                          shouldCancelLoader={shouldCancelLoader}
+                          spotifyApi={spotifyApi}
+                          deezerPlaylist={playlist}
+                          key={playlist.id}
+                        />
+                        ;
                       </SwiperSlide>
                     );
                   })}
@@ -225,11 +251,14 @@ export const MePlaylist = React.memo<OuterProps>((props) => {
   const { userId } = useUserContext();
   const { deezerToken } = useDeezerAuth();
   const classes = useHomeLandingPageStyles();
+  const { setLoading } = useAppContext();
 
   if (!userId && props.playlistSource === "Own") {
     // eslint-disable-next-line react/jsx-no-useless-fragment
     return <></>;
   }
 
-  return <MePlaylistClass deezerToken={deezerToken} userId={userId} classes={classes} {...props} />;
+  return (
+    <MePlaylistClass setLoading={setLoading} deezerToken={deezerToken} userId={userId} classes={classes} {...props} />
+  );
 });

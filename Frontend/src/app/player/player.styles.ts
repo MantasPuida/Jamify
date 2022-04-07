@@ -6,6 +6,7 @@ export const PlayerStyles = () =>
       color: "#fff",
       height: 4,
       marginBottom: 16,
+      zIndex: 10,
       padding: 0,
       "& .MuiSlider-thumb": {
         width: 8,
@@ -28,6 +29,7 @@ export const PlayerStyles = () =>
     },
     volumeSlider: {
       color: "#fff",
+      width: 54,
       "& .MuiSlider-track": {
         border: "none"
       },
@@ -41,12 +43,11 @@ export const PlayerStyles = () =>
         "&:hover, &.Mui-focusVisible, &.Mui-active": {
           boxShadow: "none"
         }
-      },
-
-      width: 80
+      }
     },
     volumeIcon: {
-      color: "rgba(255,255,255,0.4)"
+      color: "rgba(255,255,255,0.4)",
+      paddingLeft: 20
     }
   });
 

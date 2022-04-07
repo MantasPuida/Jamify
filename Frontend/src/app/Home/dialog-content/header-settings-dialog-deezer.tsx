@@ -14,6 +14,7 @@ import "./fontFamily.css";
 interface OuterProps {
   isDeezerConnected: boolean;
   handleDialogClose: ButtonProps["onClick"];
+  playlistCount: number;
 }
 
 interface InnerProps extends WithStyles<typeof SettingsStyles> {
@@ -88,7 +89,7 @@ class HeaderSettingsDialogDeezerClass extends React.PureComponent<Props, State> 
   };
 
   public render(): React.ReactNode {
-    const { isDeezerConnected, classes } = this.props;
+    const { isDeezerConnected, classes, playlistCount } = this.props;
     const { deezerProfile, loading } = this.state;
 
     if (loading) {
@@ -122,6 +123,14 @@ class HeaderSettingsDialogDeezerClass extends React.PureComponent<Props, State> 
           </Grid>
           <Grid item={true} xs={4} style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16, paddingTop: 16 }}>
             <Typography fontFamily="Poppins,sans-serif">{email}</Typography>
+          </Grid>
+          <br />
+          <br />
+          <Grid item={true} xs={4} style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16 }}>
+            <Typography fontFamily="Poppins,sans-serif">Playlists: {playlistCount}</Typography>
+          </Grid>
+          <Grid item={true} xs={4} style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16 }}>
+            <Typography fontFamily="Poppins,sans-serif">Listened: 10h:20m</Typography>
           </Grid>
         </Grid>
       </Grid>

@@ -17,6 +17,7 @@ import "./styles.css";
 
 interface OuterProps {
   spotifyApi: SpotifyWebApi;
+  shouldSetLoading: boolean;
 }
 
 type FeaturedPlaylist = SpotifyApi.ListOfFeaturedPlaylistsResponse;
@@ -30,7 +31,7 @@ type Props = OuterProps & InnerProps;
 
 class FeaturedPlaylistsClass extends React.PureComponent<Props> {
   public render(): React.ReactNode {
-    const { classes, featuredPlaylists } = this.props;
+    const { classes, featuredPlaylists, shouldSetLoading } = this.props;
 
     if (!featuredPlaylists) {
       // eslint-disable-next-line react/jsx-no-useless-fragment
@@ -72,7 +73,7 @@ class FeaturedPlaylistsClass extends React.PureComponent<Props> {
               style={{ maxWidth: "85%", marginLeft: -20, paddingLeft: 15 }}>
               {playlists.items.map((x) => (
                 <SwiperSlide style={{ backgroundColor: "black" }} key={x.id}>
-                  <FeaturedCard playlist={x} />
+                  <FeaturedCard playlist={x} shouldSetLoading={shouldSetLoading} />
                 </SwiperSlide>
               ))}
             </Swiper>
@@ -89,7 +90,7 @@ export const FeaturedPlaylists = React.memo<OuterProps>((props) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [featuredObj, setFeaturedObj] = React.useState<undefined | FeaturedPlaylist>();
-  const { spotifyApi } = props;
+  const { spotifyApi, shouldSetLoading } = props;
 
   React.useEffect(() => {
     if (spotifyToken) {
@@ -113,6 +114,7 @@ export const FeaturedPlaylists = React.memo<OuterProps>((props) => {
       navigate={navigate}
       spotifyApi={spotifyApi}
       featuredPlaylists={featuredObj}
+      shouldSetLoading={shouldSetLoading}
     />
   );
 });

@@ -15,6 +15,12 @@ import "./styles.css";
 
 type InnerProps = WithStyles<typeof YoutubeTracksStyles>;
 
+type OuterProps = {
+  shouldSetLoading: boolean;
+};
+
+type Props = OuterProps & InnerProps;
+
 type TrackResponseType = gapi.client.youtube.PlaylistItemListResponse;
 
 interface State {
@@ -23,12 +29,12 @@ interface State {
   tracks?: TrackResponseType;
 }
 
-class YoutubePlaylistsClass extends React.PureComponent<InnerProps, State> {
+class YoutubePlaylistsClass extends React.PureComponent<Props, State> {
   public state: State = { loading: true, attempts: 0 };
 
   private readonly maxAttempts: number = 20;
 
-  constructor(props: InnerProps) {
+  constructor(props: Props) {
     super(props);
 
     this.fetchYoutubeTracks();
@@ -65,7 +71,7 @@ class YoutubePlaylistsClass extends React.PureComponent<InnerProps, State> {
   };
 
   public render(): React.ReactNode {
-    const { classes } = this.props;
+    const { classes, shouldSetLoading } = this.props;
     const { loading, tracks } = this.state;
 
     if (loading) {
@@ -108,11 +114,10 @@ class YoutubePlaylistsClass extends React.PureComponent<InnerProps, State> {
             freeMode={false}
             grabCursor={false}
             noSwiping={true}
-            style={{ maxWidth: "85%", marginLeft: -15, paddingLeft: 10 }}
-          >
+            style={{ maxWidth: "85%", marginLeft: -15, paddingLeft: 10 }}>
             {tracks.items.map((track) => (
               <SwiperSlide style={{ backgroundColor: "black" }} key={track.id}>
-                <TracksCards track={track} />
+                <TracksCards track={track} shouldSetLoading={shouldSetLoading} />
               </SwiperSlide>
             ))}
           </Swiper>
@@ -122,8 +127,8 @@ class YoutubePlaylistsClass extends React.PureComponent<InnerProps, State> {
   }
 }
 
-export const YoutubePlaylists = React.memo(() => {
+export const YoutubePlaylists = React.memo<OuterProps>((props) => {
   const classes = useYoutubeTracksStyles();
 
-  return <YoutubePlaylistsClass classes={classes} />;
+  return <YoutubePlaylistsClass {...props} classes={classes} />;
 });

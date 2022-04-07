@@ -35,7 +35,7 @@ export const SearchStyles = () =>
     typographyWithPadding: {
       textOverflow: "ellipsis",
       whiteSpace: "nowrap",
-      paddingLeft: 16,
+      textAlign: "center",
       overflow: "hidden",
       maxWidth: 160,
       WebkitLineClamp: 3,
