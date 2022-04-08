@@ -18,6 +18,7 @@ import { HeaderStyles, useHeaderStyles } from "./header.styles";
 import { SettingsDialog } from "./header-settings-dialog";
 
 import "./fontFamily.css";
+import { useAppContext } from "../../../context/app-context";
 
 type LogoutFunctionType = () => void;
 
@@ -30,6 +31,7 @@ interface InnerProps extends WithStyles<typeof HeaderStyles> {
   logoutYoutube: LogoutFunctionType;
   logoutSpotify: LogoutFunctionType;
   logoutDeezer: LogoutFunctionType;
+  setIsOnline: Function;
 }
 
 interface OuterProps {
@@ -68,34 +70,34 @@ class AccountMenuClass extends React.PureComponent<Props> {
     setAnchorEl(event.currentTarget);
   };
 
-  private handleLogoutSpotify = () => {
-    const { logoutSpotify, navigate } = this.props;
+  // private handleLogoutSpotify = () => {
+  //   const { logoutSpotify, navigate } = this.props;
 
-    logoutSpotify();
-    navigate(AppRoutes.Dashboard);
-  };
+  //   logoutSpotify();
+  //   navigate(AppRoutes.Dashboard);
+  // };
 
-  private handleLogoutYoutube = () => {
-    const { logoutYoutube, navigate } = this.props;
+  // private handleLogoutYoutube = () => {
+  //   const { logoutYoutube, navigate } = this.props;
 
-    logoutYoutube();
-    navigate(AppRoutes.Dashboard);
-  };
+  //   logoutYoutube();
+  //   navigate(AppRoutes.Dashboard);
+  // };
 
-  private handleLogoutDeezer = () => {
-    const { logoutDeezer, navigate } = this.props;
+  // private handleLogoutDeezer = () => {
+  //   const { logoutDeezer, navigate } = this.props;
 
-    logoutDeezer();
-    navigate(AppRoutes.Dashboard);
-  };
+  //   logoutDeezer();
+  //   navigate(AppRoutes.Dashboard);
+  // };
 
   private handleOnLogout: MenuItemProps["onClick"] = (event) => {
     event.preventDefault();
     event.stopPropagation();
 
-    this.handleLogoutDeezer();
-    this.handleLogoutSpotify();
-    this.handleLogoutYoutube();
+    const { setIsOnline, navigate } = this.props;
+    setIsOnline(false);
+    navigate(AppRoutes.Dashboard);
   };
 
   public render(): React.ReactNode {
@@ -153,6 +155,7 @@ export const AccountMenu = React.memo<OuterProps>((props) => {
   const { logout: logoutSpotify } = useSpotifyAuth();
   const { logout: logoutYoutube } = useYoutubeAuth();
   const { logout: logoutDeezer } = useDeezerAuth();
+  const { setIsOnline } = useAppContext();
   const classes = useHeaderStyles();
 
   return (
@@ -160,6 +163,7 @@ export const AccountMenu = React.memo<OuterProps>((props) => {
       isDialogOpen={isDialogOpen}
       setDialogOpen={setDialogOpen}
       anchorEl={anchorEl}
+      setIsOnline={setIsOnline}
       setAnchorEl={setAnchorEl}
       navigate={navigate}
       logoutSpotify={logoutSpotify}

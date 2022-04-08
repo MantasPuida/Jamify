@@ -8,7 +8,6 @@ import { Box, Grid, Typography } from "@mui/material";
 import Spotify from "mdi-material-ui/Spotify";
 import { FeaturedPlaylistsStyles, useFeaturedPlaylistsStyles } from "./featured.styles";
 import { useSpotifyAuth } from "../../../context/spotify-context";
-import { Notify } from "../../notification/notification-component";
 import { FeaturedCard } from "./featured-card";
 
 import "swiper/css";
@@ -103,7 +102,6 @@ export const FeaturedPlaylists = React.memo<OuterProps>((props) => {
         })
         .catch(() => {
           logout();
-          Notify("Unable to synchronize with Spotify", "error");
         });
     }
   }, [location.pathname]);

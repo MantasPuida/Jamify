@@ -58,7 +58,7 @@ class FeaturedCardClass extends React.PureComponent<Props> {
       <Grid container={true} item={true} xs={12} key={playlist.id}>
         <Grid container={true} item={true} xs={12} style={{ marginRight: 50 }}>
           <Grid item={true}>
-            <Button>
+            <Button style={{ color: "black" }}>
               <div className="tint-img">
                 <img
                   src={playlist.images[0].url}

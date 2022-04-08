@@ -55,17 +55,11 @@ const HomeRoutes = (): JSX.Element => {
   const navigate = useNavigate();
   const { isOpen } = usePlayerContext();
   const { spotifyToken, register } = useSpotifyAuth();
-  const { loading, setLoading } = useAppContext();
+  const { loading, setLoading, setIsOnline } = useAppContext();
 
   React.useEffect(() => {
     setLoading(true);
   }, [location.pathname]);
-
-  const spotifyApi = new SpotifyWebApi({
-    accessToken: spotifyToken!,
-    clientId: process.env.REACT_APP_SPOTIFY_CLIENT_ID,
-    clientSecret: process.env.REACT_APP_SPOTIFY_CLIENT_SECRET
-  });
 
   React.useEffect(() => {
     if (location.pathname === SpotifyConstants.SPOTIFY_REDIRECT_PATHNAME) {
@@ -74,7 +68,7 @@ const HomeRoutes = (): JSX.Element => {
       if (accessToken) {
         register(accessToken);
         navigate(AppRoutes.Home);
-        window.location.reload();
+        setIsOnline(true);
       }
     }
 
@@ -82,6 +76,13 @@ const HomeRoutes = (): JSX.Element => {
       navigate(AppRoutes.Home);
     }
   }, [location.pathname]);
+
+  const spotifyApi = new SpotifyWebApi({
+    accessToken: spotifyToken!,
+    clientId: process.env.REACT_APP_SPOTIFY_CLIENT_ID,
+    clientSecret: process.env.REACT_APP_SPOTIFY_CLIENT_SECRET,
+    redirectUri: SpotifyConstants.SPOTIFY_CALLBACK
+  });
 
   return <HomeRoutesClass spotifyApi={spotifyApi} loading={loading} isPlayerOpen={isOpen} />;
 };

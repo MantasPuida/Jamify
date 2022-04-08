@@ -6,6 +6,7 @@ import { NotFound } from "../errors/not-found-component";
 import { Dashboard } from "../dashboard/dashboard-component";
 import { AppRoutes } from "./routes";
 import { SpotifyConstants } from "../../constants/constants-spotify";
+import { useAppContext } from "../../context/app-context";
 
 interface InnerProps {
   error: boolean;
@@ -29,6 +30,7 @@ const DashboardRoutes = (): JSX.Element => {
   const navigate = useNavigate();
   const { register: registerSpotifyToken } = useSpotifyAuth();
   const [error, setError] = React.useState<boolean>(false);
+  const { setIsOnline } = useAppContext();
 
   React.useEffect(() => {
     if (location.pathname === AppRoutes.Default) {
@@ -45,6 +47,7 @@ const DashboardRoutes = (): JSX.Element => {
 
       if (accessToken) {
         registerSpotifyToken(accessToken);
+        setIsOnline(true);
       }
     }
   }, [location.pathname]);

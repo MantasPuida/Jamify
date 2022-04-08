@@ -1,16 +1,18 @@
-import { Grid } from "@mui/material";
+import { Grid, Typography } from "@mui/material";
 import { WithStyles } from "@mui/styles";
+import memoizeOne from "memoize-one";
 import * as React from "react";
 import SpotifyWebApi from "spotify-web-api-node";
 import { useAppContext } from "../../context/app-context";
 import { useDeezerAuth } from "../../context/deezer-context";
 import { useSpotifyAuth } from "../../context/spotify-context";
-import { GenreResponse } from "../../types/deezer.types";
+import { GenreData, GenreResponse } from "../../types/deezer.types";
 import { LastTick } from "../../utils/last-tick";
-import { HomeLandingPageStyles, useHomeLandingPageStyles } from "../Home/landing-page.styles";
+import { ExploreStyles, useExploreStyles } from "./explore.styles";
 import { BackdropLoader } from "../loader/loader-backdrop";
+import { MappedGenres } from "./mapped-genres";
 
-interface InnerProps extends WithStyles<typeof HomeLandingPageStyles> {
+interface InnerProps extends WithStyles<typeof ExploreStyles> {
   setLoading: Function;
   dzToken: string | null;
   spToken: string | null;
@@ -18,6 +20,11 @@ interface InnerProps extends WithStyles<typeof HomeLandingPageStyles> {
 
 interface OuterProps {
   spotifyApi: SpotifyWebApi;
+}
+
+interface FilterReturnType {
+  sameDzGenres: GenreData[];
+  sameSpGenres: SpotifyApi.CategoryObject[];
 }
 
 type Props = InnerProps & OuterProps;
@@ -29,6 +36,41 @@ interface State {
 
 class ExploreClass extends React.PureComponent<Props, State> {
   public state: State = {};
+
+  private filterSameCategories: (
+    deezerGenres?: GenreResponse,
+    spotifyGenres?: SpotifyApi.MultipleCategoriesResponse
+  ) => FilterReturnType = memoizeOne(
+    (deezerGenres?: GenreResponse, spotifyGenres?: SpotifyApi.MultipleCategoriesResponse) => {
+      const { setLoading } = this.props;
+
+      const sameDzGenres =
+        deezerGenres && spotifyGenres
+          ? deezerGenres.data.filter((deezerGenre) => {
+              const spotifyGenre = spotifyGenres.categories.items.find(
+                (genre) => deezerGenre.name.includes(genre.name) || genre.name.includes(deezerGenre.name)
+              );
+
+              return spotifyGenre;
+            })
+          : [];
+
+      const sameSpGenres =
+        deezerGenres && spotifyGenres
+          ? spotifyGenres.categories.items.filter((spotifyGenre) => {
+              const deezerGenre = sameDzGenres.find(
+                (genre) => genre.name.includes(spotifyGenre.name) || spotifyGenre.name.includes(genre.name)
+              );
+
+              return deezerGenre;
+            })
+          : [];
+
+      setLoading(false);
+
+      return { sameDzGenres, sameSpGenres };
+    }
+  );
 
   constructor(props: Props) {
     super(props);
@@ -42,9 +84,13 @@ class ExploreClass extends React.PureComponent<Props, State> {
     }
 
     if (spToken) {
-      spotifyApi.getCategories().then((response) => {
-        this.setState({ spotifyGenres: response.body as SpotifyApi.MultipleCategoriesResponse });
-      });
+      spotifyApi
+        .getCategories({
+          limit: 50
+        })
+        .then((response) => {
+          this.setState({ spotifyGenres: response.body as SpotifyApi.MultipleCategoriesResponse });
+        });
     }
   }
 
@@ -64,31 +110,47 @@ class ExploreClass extends React.PureComponent<Props, State> {
       return <BackdropLoader />;
     }
 
-    const sameDzGenres =
-      deezerGenres && spotifyGenres
-        ? deezerGenres.data.filter((deezerGenre) => {
-            const spotifyGenre = spotifyGenres.categories.items.find(
-              (genre) => genre.name.includes(deezerGenre.name) || deezerGenre.name.includes(genre.name)
-            );
-
-            return spotifyGenre;
-          })
-        : [];
+    const { sameDzGenres, sameSpGenres } = this.filterSameCategories(deezerGenres, spotifyGenres);
 
     return (
-      <Grid container={true} item={true} xs={12} className={classes.homeGrid}>
-        {sameDzGenres.map((genre) => (
-          <Grid item={true} xs={12} key={genre.id}>
-            <img src={genre.picture_xl} alt={genre.name} />
+      <Grid container={true} item={true} xs={12} className={classes.exploreGrid}>
+        <Grid container={true} item={true} xs={12}>
+          <Grid item={true} xs={12}>
+            <Typography fontSize={45} fontWeight={900} fontFamily="Poppins,sans-serif" color="white">
+              Genres
+            </Typography>
           </Grid>
-        ))}
+          <Grid item={true}>
+            <Typography
+              fontSize={25}
+              fontWeight={400}
+              fontFamily="Poppins,sans-serif"
+              color="white"
+              style={{ float: "left" }}>
+              Unified Genres
+            </Typography>
+          </Grid>
+        </Grid>
+        <Grid container={true} item={true} xs={12} style={{ display: "flex", maxWidth: "85%" }}>
+          {sameDzGenres.map((genre, index) => {
+            if (!genre.id || !sameSpGenres[index]) {
+              return null;
+            }
+
+            return (
+              <Grid item={true} xs={2} key={genre.id}>
+                <MappedGenres deezerGenre={genre} spotifyGenre={sameSpGenres[index]} />
+              </Grid>
+            );
+          })}
+        </Grid>
       </Grid>
     );
   }
 }
 
 export const Explore = React.memo<OuterProps>((props) => {
-  const classes = useHomeLandingPageStyles();
+  const classes = useExploreStyles();
   const { setLoading } = useAppContext();
   const { deezerToken } = useDeezerAuth();
   const { spotifyToken } = useSpotifyAuth();
