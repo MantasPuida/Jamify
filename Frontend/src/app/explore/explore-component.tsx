@@ -1,7 +1,8 @@
+import * as React from "react";
 import { Grid, Typography } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import memoizeOne from "memoize-one";
-import * as React from "react";
+import axios from "axios";
 import SpotifyWebApi from "spotify-web-api-node";
 import { useAppContext } from "../../context/app-context";
 import { useDeezerAuth } from "../../context/deezer-context";
@@ -11,6 +12,7 @@ import { LastTick } from "../../utils/last-tick";
 import { ExploreStyles, useExploreStyles } from "./explore.styles";
 import { BackdropLoader } from "../loader/loader-backdrop";
 import { MappedGenres } from "./mapped-genres";
+import { Notify } from "../notification/notification-component";
 
 interface InnerProps extends WithStyles<typeof ExploreStyles> {
   setLoading: Function;
@@ -75,23 +77,29 @@ class ExploreClass extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { spotifyApi, dzToken, spToken } = props;
+    const { dzToken, spToken } = props;
 
-    if (dzToken) {
-      DZ.api("genre", (response) => {
-        this.setState({ deezerGenres: response as GenreResponse });
-      });
-    }
-
-    if (spToken) {
-      spotifyApi
-        .getCategories({
-          limit: 50
-        })
-        .then((response) => {
-          this.setState({ spotifyGenres: response.body as SpotifyApi.MultipleCategoriesResponse });
+    setTimeout(() => {
+      if (dzToken) {
+        DZ.api("genre", (response) => {
+          this.setState({ deezerGenres: response as GenreResponse });
         });
-    }
+      }
+    }, 1000);
+
+    setTimeout(async () => {
+      const apiUrl = "https://api.spotify.com/v1/browse/categories?limit=50";
+      try {
+        const response = await axios.get(apiUrl, {
+          headers: {
+            Authorization: `Bearer ${spToken}`
+          }
+        });
+        this.setState({ spotifyGenres: response.data as SpotifyApi.MultipleCategoriesResponse });
+      } catch (error) {
+        Notify("Could not fetch Spotify Genres", "error");
+      }
+    }, 1000);
   }
 
   componentDidMount() {
@@ -103,7 +111,7 @@ class ExploreClass extends React.PureComponent<Props, State> {
   }
 
   public render(): React.ReactNode {
-    const { classes, dzToken, spToken } = this.props;
+    const { classes, dzToken, spToken, spotifyApi } = this.props;
     const { deezerGenres, spotifyGenres } = this.state;
 
     if ((!deezerGenres && dzToken) || (!spotifyGenres && spToken)) {
@@ -139,7 +147,7 @@ class ExploreClass extends React.PureComponent<Props, State> {
 
             return (
               <Grid item={true} xs={2} key={genre.id}>
-                <MappedGenres deezerGenre={genre} spotifyGenre={sameSpGenres[index]} />
+                <MappedGenres deezerGenre={genre} spotifyGenre={sameSpGenres[index]} spotifyApi={spotifyApi} />
               </Grid>
             );
           })}

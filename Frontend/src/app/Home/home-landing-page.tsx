@@ -2,6 +2,7 @@ import * as React from "react";
 import { Grid } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import SpotifyWebApi from "spotify-web-api-node";
+import { useLocation } from "react-router";
 import { HomeLandingPageStyles, useHomeLandingPageStyles } from "./landing-page.styles";
 import { FeaturedPlaylists } from "./featured-playlists/featured-playlists";
 import { YoutubePlaylists } from "../youtube-playlists/playlist-component";
@@ -19,19 +20,13 @@ interface InnerProps extends WithStyles<typeof HomeLandingPageStyles> {
   spotifyToken: string | null;
   deezerToken: string | null;
   youtubeToken: string | null;
-  loading: boolean;
-  setLoading: Function;
 }
 
 type Props = InnerProps & OuterProps;
 
 class HomeLandingPageClass extends React.PureComponent<Props> {
   public render(): React.ReactNode {
-    const { classes, spotifyApi, spotifyToken, youtubeToken, deezerToken, setLoading, loading } = this.props;
-
-    if (!spotifyToken && loading) {
-      setLoading(false);
-    }
+    const { classes, spotifyApi, spotifyToken, youtubeToken, deezerToken } = this.props;
 
     const shouldSetLoading = Boolean(youtubeToken || deezerToken);
 
@@ -51,12 +46,17 @@ export const HomeLandingPage = React.memo<OuterProps>((props) => {
   const { spotifyToken } = useSpotifyAuth();
   const classes = useHomeLandingPageStyles();
   const { loading, setLoading } = useAppContext();
+  const location = useLocation();
+
+  React.useEffect(() => {
+    if (!spotifyToken && loading) {
+      setLoading(false);
+    }
+  }, [location]);
 
   return (
     <HomeLandingPageClass
       {...props}
-      loading={loading}
-      setLoading={setLoading}
       classes={classes}
       youtubeToken={youtubeToken}
       deezerToken={deezerToken}

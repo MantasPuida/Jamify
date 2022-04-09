@@ -7,6 +7,7 @@ import { Artist, ArtistResponse, TrackListResponse, TrackListData, Album, Albums
 import { ArtistStyles, useArtistStyles } from "./artist.styles";
 import { ArtistTrackTable } from "./artist-tracks-table";
 import { ArtistAlbums } from "./artist-albums";
+import { useAppContext } from "../../context/app-context";
 
 interface OuterProps {
   chartArtist: Artist;
@@ -17,6 +18,7 @@ interface OuterProps {
 interface InnerProps extends WithStyles<typeof ArtistStyles> {
   trackList?: TrackListResponse;
   albumList?: Albums;
+  setLoading: Function;
 }
 
 type Props = InnerProps & OuterProps;
@@ -28,6 +30,12 @@ interface State {
 
 class ArtistContentClass extends React.PureComponent<Props, State> {
   public state: State = { isClickedTracks: false, isClickedAlbums: false };
+
+  componentDidMount() {
+    const { setLoading } = this.props;
+
+    setLoading(false);
+  }
 
   private handleOnShowMoreTracks: ButtonProps["onClick"] = (event) => {
     event.preventDefault();
@@ -127,6 +135,7 @@ export const ArtistContent = React.memo<OuterProps>((props) => {
   const [albumList, setAlbumList] = React.useState<Albums>();
   const classes = useArtistStyles();
   const location = useLocation();
+  const { setLoading } = useAppContext();
   const { chartArtist } = props;
 
   React.useEffect(() => {
@@ -139,5 +148,13 @@ export const ArtistContent = React.memo<OuterProps>((props) => {
     });
   }, [location.pathname]);
 
-  return <ArtistContentClass albumList={albumList} trackList={trackList} classes={classes} {...props} />;
+  return (
+    <ArtistContentClass
+      setLoading={setLoading}
+      albumList={albumList}
+      trackList={trackList}
+      classes={classes}
+      {...props}
+    />
+  );
 });

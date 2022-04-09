@@ -63,6 +63,7 @@ interface InnerProps {
   spotifyPlaylists?: SpotifyApi.ListOfUsersPlaylistsResponse;
   youtubePlaylists?: gapi.client.youtube.PlaylistListResponse;
   deezerToken: string | null;
+  duration: number;
 }
 
 interface State {
@@ -104,12 +105,36 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
     this.setState({ text: event.currentTarget.value });
   };
 
+  private convertMilliseconds = (milliseconds: number): string => {
+    const minutes = Math.floor(milliseconds / 60000);
+    const seconds = ((milliseconds % 60000) / 1000).toFixed(0);
+
+    let duration: string = minutes.toString();
+
+    if (minutes < 10) {
+      duration = `0${minutes}:`;
+    }
+
+    if (Number(seconds) < 10) {
+      duration += `0${seconds}`;
+    } else {
+      duration += seconds;
+    }
+
+    return duration;
+  };
+
   private postOwnPlaylist = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
     const { text } = this.state;
-    const { userId, imageUrl, trackName: songName } = this.props;
+    const { userId, imageUrl, trackName: songName, artists, duration } = this.props;
 
     if (!userId || text.length < 1) {
       return;
+    }
+
+    let customDuration: string = "";
+    if (duration > 1) {
+      customDuration = this.convertMilliseconds(duration);
     }
 
     const { PlaylistApiEndpoints, TracksApiEndpoints } = PlaylistApi;
@@ -126,9 +151,10 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
         TracksApiEndpoints()
           .postTrack(userId, playlist.playlistId, {
             ImageUrl: imageUrl,
-            TrackDescription: "",
             TrackName: songName,
-            TrackSource: "Spotify"
+            Album: playlist.playlistName,
+            Artists: artists ?? "",
+            Duration: customDuration
           })
           .then(() => {
             if (this.onDialogClose) {
@@ -523,15 +549,15 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
   }
 }
 
-// eslint-disable-next-line arrow-body-style
 export const PlaylistsDialogComponent = React.memo<OuterProps>((props) => {
+  const [duration, setDuration] = React.useState<number>(0);
   const [spotifyPlaylists, setSpotifyPlaylists] = React.useState<SpotifyApi.ListOfUsersPlaylistsResponse>();
   const [youtubePlaylists, setYoutubePlaylists] = React.useState<gapi.client.youtube.PlaylistListResponse>();
   const [deezerPlaylists, setDeezerPlaylists] = React.useState<PlaylistsResponseMe>();
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const location = useLocation();
-  const { spotifyApi } = props;
+  const { spotifyApi, trackName } = props;
   const { spotifyToken } = useSpotifyAuth();
   const { youtubeToken } = useYoutubeAuth();
   const { deezerToken } = useDeezerAuth();
@@ -543,7 +569,7 @@ export const PlaylistsDialogComponent = React.memo<OuterProps>((props) => {
 
     if (youtubeToken) {
       gapi.client.youtube.playlists
-        .list({ part: "snippet", mine: true, maxResults: 99 })
+        .list({ part: "snippet", mine: true, maxResults: 99, access_token: youtubeToken })
         .then((data) => setYoutubePlaylists(data.result));
     }
 
@@ -551,11 +577,19 @@ export const PlaylistsDialogComponent = React.memo<OuterProps>((props) => {
       DZ.api(`user/me/playlists?access_token=${deezerToken}`, (response) => {
         setDeezerPlaylists(response);
       });
+
+      DZ.api(`search?q=track:${trackName}`, (response) => {
+        if (response.data.length > 0) {
+          const durationMs = response.data[0].duration;
+          setDuration(durationMs);
+        }
+      });
     }
   }, [location]);
 
   return (
     <PlaylistsDialogComponentClass
+      duration={duration}
       spotifyPlaylists={spotifyPlaylists}
       youtubePlaylists={youtubePlaylists}
       deezerPlaylists={deezerPlaylists}

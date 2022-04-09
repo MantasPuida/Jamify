@@ -7,7 +7,6 @@ import { AppRoutes } from "./routes";
 import { MeComponent } from "../me/me-class";
 import { useSpotifyAuth } from "../../context/spotify-context";
 import { SpotifyConstants } from "../../constants/constants-spotify";
-import { Explore } from "../explore/explore-component";
 import { Search } from "../search/search-component";
 import { Playlist } from "../spotify-playlist/playlist-class";
 import { Helpers } from "../../utils/helpers";
@@ -17,6 +16,7 @@ import { Player } from "../player/player-component";
 import { Artist } from "../artist/artist-component";
 import { useAppContext } from "../../context/app-context";
 import { BackdropLoader } from "../loader/loader-backdrop";
+import { RelativeExploreRoutes } from "../explore/explore-relative-routes";
 
 interface Props {
   spotifyApi: SpotifyWebApi;
@@ -36,7 +36,7 @@ function HomeRoutesClass(props: Props) {
       <div style={{ paddingBottom: paddingStyle }}>
         <Routes>
           <Route path={AppRoutes.Home} element={<Home spotifyApi={spotifyApi} />} />
-          <Route path={AppRoutes.Explore} element={<Explore spotifyApi={spotifyApi} />} />
+          <Route path={`${AppRoutes.Explore}/*`} element={<RelativeExploreRoutes spotifyApi={spotifyApi} />} />
           <Route path={AppRoutes.Me} element={<MeComponent spotifyApi={spotifyApi} />} />
           <Route path={AppRoutes.Search} element={<Search spotifyApi={spotifyApi} />} />
           <Route path={AppRoutes.Playlist} element={<Playlist spotifyApi={spotifyApi} />} />

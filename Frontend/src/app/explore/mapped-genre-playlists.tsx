@@ -3,38 +3,46 @@ import { WithStyles } from "@mui/styles";
 import { Grid, Typography, Button, ButtonProps } from "@mui/material";
 import SpotifyWebApi from "spotify-web-api-node";
 import { NavigateFunction, useNavigate } from "react-router";
-import { GenreData } from "../../types/deezer.types";
 import { ExploreStyles, useExploreStyles } from "./explore.styles";
+import { useAppContext } from "../../context/app-context";
+import { AppRoutes } from "../routes/routes";
+import { FeaturedPlaylistState } from "../Home/featured-playlists/featured-card";
 
 interface InnerProps extends WithStyles<typeof ExploreStyles> {
   navigate: NavigateFunction;
+  setLoading: Function;
 }
 
 interface OuterProps {
-  deezerGenre: GenreData;
-  spotifyGenre: SpotifyApi.CategoryObject;
+  playlist: SpotifyApi.PlaylistObjectSimplified;
   spotifyApi: SpotifyWebApi;
 }
 
 type Props = InnerProps & OuterProps;
 
-class MappedGenresClass extends React.PureComponent<Props> {
+class MappedGenrePlaylistsClass extends React.PureComponent<Props> {
+  componentDidMount() {
+    const { setLoading } = this.props;
+
+    setLoading(false);
+  }
+
   private handleOnClick: ButtonProps["onClick"] = (event) => {
     event.preventDefault();
     event.stopPropagation();
 
-    const { navigate, spotifyGenre, deezerGenre, spotifyApi } = this.props;
-    navigate(spotifyGenre.id, {
-      state: {
-        spotifyGenre,
-        deezerGenre,
-        spotifyApi
-      }
-    });
+    const { navigate, playlist: spotifyPlaylist } = this.props;
+
+    navigate(AppRoutes.Playlist, { state: { spotifyPlaylist, myOwn: false } as FeaturedPlaylistState });
   };
 
   public render(): React.ReactNode {
-    const { spotifyGenre, deezerGenre, classes } = this.props;
+    const { playlist, classes } = this.props;
+
+    if (playlist.images.length === 0) {
+      // eslint-disable-next-line react/jsx-no-useless-fragment
+      return <></>;
+    }
 
     return (
       <Grid container={true} item={true} xs={12} style={{ paddingBottom: 32 }}>
@@ -42,8 +50,8 @@ class MappedGenresClass extends React.PureComponent<Props> {
           <Button style={{ color: "black", padding: 0 }} onClick={this.handleOnClick}>
             <div className="tint-img">
               <img
-                src={spotifyGenre.icons[0].url}
-                alt={deezerGenre.name}
+                src={playlist.images[0].url}
+                alt={playlist.name}
                 style={{ maxWidth: 220, maxHeight: 220, objectFit: "scale-down" }}
               />
             </div>
@@ -52,7 +60,7 @@ class MappedGenresClass extends React.PureComponent<Props> {
         <Grid item={true} xs={12}>
           <Button variant="text" className={classes.genreName}>
             <Typography color="white" fontSize={20} fontWeight={200} fontFamily="Poppins,sans-serif">
-              {spotifyGenre.name}
+              {playlist.name}
             </Typography>
           </Button>
         </Grid>
@@ -61,9 +69,10 @@ class MappedGenresClass extends React.PureComponent<Props> {
   }
 }
 
-export const MappedGenres = React.memo<OuterProps>((props) => {
+export const MappedGenrePlaylists = React.memo<OuterProps>((props) => {
   const navigate = useNavigate();
   const classes = useExploreStyles();
+  const { setLoading } = useAppContext();
 
-  return <MappedGenresClass classes={classes} {...props} navigate={navigate} />;
+  return <MappedGenrePlaylistsClass setLoading={setLoading} classes={classes} {...props} navigate={navigate} />;
 });

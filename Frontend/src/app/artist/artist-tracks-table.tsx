@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Button, ButtonProps, TableCell, TableRow, Typography } from "@mui/material";
+import { Box, Button, ButtonProps, TableCell, TableRow, Typography } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import SpotifyWebApi from "spotify-web-api-node";
 import Play from "mdi-material-ui/Play";
@@ -8,6 +8,7 @@ import { ArtistStyles, useArtistStyles } from "./artist.styles";
 import { TrackActionComponent } from "../spotify-playlist/track-actions-component";
 import { SourceType } from "../spotify-playlist/playlist-component";
 import { TrackObject, usePlayerContext } from "../../context/player-context";
+import { useAppContext } from "../../context/app-context";
 
 interface OuterProps {
   track: TrackListData;
@@ -19,11 +20,18 @@ interface InnerProps extends WithStyles<typeof ArtistStyles> {
   setTrack: Function;
   isOpen: boolean;
   setOpen: Function;
+  setLoading: Function;
 }
 
 type Props = InnerProps & OuterProps;
 
 class ArtistTrackTableClass extends React.PureComponent<Props> {
+  componentDidMount() {
+    const { setLoading } = this.props;
+
+    setLoading(false);
+  }
+
   private handleOnClick: ButtonProps["onClick"] = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -83,9 +91,9 @@ class ArtistTrackTableClass extends React.PureComponent<Props> {
               width={40}
               id="rowTrackImage"
             />
-            <div className={classes.playlistIconButton}>
+            <Box className={classes.playlistIconButton}>
               <Play id="playSvgIcon" className={classes.playlistIconButtonIcon} />
-            </div>
+            </Box>
           </Button>
           <Button className={classes.buttonText} variant="text">
             <Typography
@@ -121,7 +129,17 @@ class ArtistTrackTableClass extends React.PureComponent<Props> {
 
 export const ArtistTrackTable = React.memo<OuterProps>((props) => {
   const classes = useArtistStyles();
+  const { setLoading } = useAppContext();
   const { setTrack, isOpen, setOpen } = usePlayerContext();
 
-  return <ArtistTrackTableClass classes={classes} isOpen={isOpen} setOpen={setOpen} setTrack={setTrack} {...props} />;
+  return (
+    <ArtistTrackTableClass
+      setLoading={setLoading}
+      classes={classes}
+      isOpen={isOpen}
+      setOpen={setOpen}
+      setTrack={setTrack}
+      {...props}
+    />
+  );
 });

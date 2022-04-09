@@ -287,3 +287,12 @@ export interface GenreData {
   picture_xl: string;
   type: string;
 }
+
+export interface GenreDataArtists {
+  data: GenreDataArtist[];
+}
+
+export interface GenreDataArtist extends GenreData {
+  tracklist: string;
+  radio: boolean;
+}

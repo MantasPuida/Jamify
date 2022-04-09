@@ -52,14 +52,14 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { sourceType, row, albumName } = props;
+    const { sourceType, row } = props;
 
     if (sourceType === SourceType.Youtube) {
       this.resolveYoutubeTrack(row as gapi.client.youtube.PlaylistItem);
     } else if (sourceType === SourceType.Spotify) {
       this.resolveSpotifyTrack(row as SpotifyApi.PlaylistTrackObject);
-    } else if (sourceType === SourceType.Own && albumName) {
-      this.resolveOwnTrack(row as TrackType, albumName);
+    } else if (sourceType === SourceType.Own) {
+      this.resolveOwnTrack(row as TrackType);
     } else if (sourceType === SourceType.Deezer) {
       this.resolveDeezerTrack(row as DeezerPlaylistTrackType);
     }
@@ -119,7 +119,7 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
     return `${minutes > 10 ? minutes : `0${minutes}`}:${seconds < 10 ? `0${seconds}` : seconds}`;
   };
 
-  private resolveOwnTrack = (ownRow: TrackType, albmName: string): void => {
+  private resolveOwnTrack = (ownRow: TrackType): void => {
     gapi.client.youtube.search.list({ part: "snippet", q: ownRow.trackName, maxResults: 999 }).then((results) => {
       const resultData = results.result;
 
@@ -128,9 +128,9 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
           trackName: ownRow.trackName,
           imageUrl: ownRow.imageUrl,
           trackId: resultData.items[0].id.videoId,
-          albumName: albmName,
-          duration: "00:00",
-          artistName: "artist"
+          albumName: ownRow.album,
+          duration: ownRow.duration,
+          artistName: ownRow.artists
         });
       }
     });
@@ -286,7 +286,7 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
     const { classes, sourceType, spotifyApi, playlist, myOwn } = this.props;
     const { albumName, artistName, duration, imageUrl, trackId, trackName } = this.state;
 
-    if (!albumName || !artistName || !duration || !imageUrl || !trackId || !trackName) {
+    if (!albumName || !artistName || !imageUrl || !trackId || !trackName) {
       // eslint-disable-next-line react/jsx-no-useless-fragment
       return <></>;
     }

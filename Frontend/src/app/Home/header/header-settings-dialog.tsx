@@ -151,7 +151,8 @@ export const SettingsDialog = React.memo<OuterProps>((props) => {
         gapi.client.youtube.playlists
           .list({
             part: "snippet",
-            mine: true
+            mine: true,
+            access_token: youtubeToken
           })
           .then((response) => {
             const { pageInfo } = response.result;
@@ -164,7 +165,8 @@ export const SettingsDialog = React.memo<OuterProps>((props) => {
       gapi.client.youtube.playlists
         .list({
           part: "snippet",
-          mine: true
+          mine: true,
+          access_token: youtubeToken
         })
         .then((response) => {
           const { pageInfo } = response.result;

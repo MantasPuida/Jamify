@@ -6,5 +6,6 @@ export enum AppRoutes {
   Search = "/search",
   Playlist = "/playlist",
   Me = "/me",
-  Artist = "/artist"
+  Artist = "/artist",
+  ExploreRelative = "/explore/:id"
 }

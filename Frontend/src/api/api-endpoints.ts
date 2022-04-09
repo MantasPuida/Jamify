@@ -22,13 +22,12 @@ export namespace PlaylistApi {
     PlaylistDescription: string;
   }
 
-  type TrackSourceType = "Spotify" | "Youtube" | "Deezer";
-
   interface TrackData {
     TrackName: string;
     ImageUrl: string;
-    TrackDescription: string;
-    TrackSource: TrackSourceType;
+    Artists: string;
+    Duration: string;
+    Album: string;
   }
 
   export const UserApiEndpoints = () => ({

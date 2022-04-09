@@ -48,6 +48,10 @@ class DeezerArtistsClass extends React.PureComponent<InnerProps> {
             modules={[Navigation]}
             style={{ maxWidth: "85%", marginLeft: -20 }}>
             {chartResponse?.artists.data.map((artist) => {
+              if (artist.name === "Justinas Jarutis" || artist.name === "Andrius Mamontovas") {
+                return null;
+              }
+
               if (artist.picture_xl && artist.id) {
                 return (
                   <SwiperSlide style={{ backgroundColor: "black" }} key={artist.id}>

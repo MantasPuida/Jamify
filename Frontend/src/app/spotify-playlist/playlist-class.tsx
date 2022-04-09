@@ -17,6 +17,7 @@ import { ArtistAlbumsResponse, Album, PlaylistsResponse, PlaylistTracksResponse 
 
 type SpotifyPlaylistTracksResponse = SpotifyApi.PlaylistTrackResponse;
 type DeezerPlaylistType = Album | PlaylistsResponse;
+
 interface InnerProps extends WithStyles<typeof HomeLandingPageStyles> {
   playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType | DeezerPlaylistType;
   playlistTracks:
@@ -33,8 +34,9 @@ export interface TrackType {
   trackId: string;
   trackName: string;
   imageUrl: string;
-  trackDescription: string;
-  trackSource: string;
+  artists: string;
+  duration: string;
+  album: string;
 }
 
 interface OuterProps {

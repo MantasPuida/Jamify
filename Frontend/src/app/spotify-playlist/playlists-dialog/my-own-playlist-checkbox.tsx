@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Checkbox, CheckboxProps, CircularProgress, FormControlLabel, Grid } from "@mui/material";
+import { useLocation } from "react-router";
 import { SourceType } from "../playlist-component";
 import { Album, PlaylistsResponse } from "../../../types/deezer.types";
 import { PlaylistApi } from "../../../api/api-endpoints";
@@ -30,6 +31,7 @@ interface OuterProps {
 
 interface InnerProps {
   userId?: string;
+  duration?: number;
 }
 
 type Props = OuterProps & InnerProps;
@@ -41,6 +43,25 @@ interface State {
 class MyOwnPlaylistCheckboxClass extends React.PureComponent<Props> {
   public state: State = { loading: false };
 
+  private convertMilliseconds = (milliseconds: number): string => {
+    const minutes = Math.floor(milliseconds / 60000);
+    const seconds = ((milliseconds % 60000) / 1000).toFixed(0);
+
+    let duration: string = minutes.toString();
+
+    if (minutes < 10) {
+      duration = `0${minutes}:`;
+    }
+
+    if (Number(seconds) < 10) {
+      duration += `0${seconds}`;
+    } else {
+      duration += seconds;
+    }
+
+    return duration;
+  };
+
   private handleOnChange: CheckboxProps["onChange"] = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -49,15 +70,21 @@ class MyOwnPlaylistCheckboxClass extends React.PureComponent<Props> {
     this.setState({ loading: true });
 
     const { TracksApiEndpoints } = PlaylistApi;
-    const { userId, playlist, trackName, imageUrl } = this.props;
+    const { userId, playlist, trackName, imageUrl, artists, duration } = this.props;
+
+    let stringDuration = "";
+    if (duration) {
+      stringDuration = this.convertMilliseconds(duration);
+    }
 
     if (isChecked && userId) {
       TracksApiEndpoints()
         .postTrack(userId, playlist.playlistId, {
           TrackName: trackName,
           ImageUrl: imageUrl,
-          TrackDescription: "",
-          TrackSource: "Spotify"
+          Album: playlist.playlistName,
+          Artists: artists ?? "",
+          Duration: stringDuration
         })
         .then(() => {
           Notify("Track has been added", "success");
@@ -104,7 +131,19 @@ class MyOwnPlaylistCheckboxClass extends React.PureComponent<Props> {
 }
 
 export const MyOwnPlaylistCheckbox = React.memo<OuterProps>((props) => {
+  const [duration, setDuration] = React.useState<number>();
   const { userId } = useUserContext();
+  const location = useLocation();
+  const { trackName } = props;
 
-  return <MyOwnPlaylistCheckboxClass userId={userId} {...props} />;
+  React.useEffect(() => {
+    DZ.api(`search?q=track:${trackName}`, (response) => {
+      if (response.data.length > 0) {
+        const durationMs = response.data[0].duration;
+        setDuration(durationMs);
+      }
+    });
+  }, [location]);
+
+  return <MyOwnPlaylistCheckboxClass duration={duration} userId={userId} {...props} />;
 });
