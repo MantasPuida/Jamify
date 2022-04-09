@@ -9,12 +9,15 @@ import SpotifyWebApi from "spotify-web-api-node";
 import { HomeLandingPageStyles, useHomeLandingPageStyles } from "../Home/landing-page.styles";
 // eslint-disable-next-line import/no-cycle
 import { PlaylistCard } from "./playlist-component";
+import { useUserContext } from "../../context/user-context";
+import { PlaylistApi } from "../../api/api-endpoints";
+import { useDeezerAuth } from "../../context/deezer-context";
+import { PlaylistsResponseMe } from "../../types/deezer.types";
 
 import "swiper/css";
 import "swiper/css/navigation";
 import "./styles.css";
-import { useUserContext } from "../../context/user-context";
-import { PlaylistApi } from "../../api/api-endpoints";
+import { useAppContext } from "../../context/app-context";
 
 type PlaylistSourceType = "Spotify" | "Youtube" | "Deezer" | "Own";
 
@@ -27,11 +30,14 @@ export interface PlaylistType {
 
 interface InnerProps extends WithStyles<typeof HomeLandingPageStyles> {
   userId?: string;
+  deezerToken: string | null;
+  setLoading: Function;
 }
 
 interface OuterProps {
   spotifyApi: SpotifyWebApi;
   playlistSource: PlaylistSourceType;
+  shouldCancelLoader: boolean;
 }
 
 type Props = InnerProps & OuterProps;
@@ -39,17 +45,20 @@ type Props = InnerProps & OuterProps;
 interface State {
   spotifyPlaylists?: SpotifyApi.ListOfUsersPlaylistsResponse;
   youtubePlaylists?: gapi.client.youtube.PlaylistListResponse;
+  deezerPlaylists?: PlaylistsResponseMe;
   ownPlaylist?: PlaylistType[];
   attempts: number;
 }
 
 class MePlaylistClass extends React.PureComponent<Props, State> {
-  public state: State = { attempts: 0 };
+  public state: State;
 
   private readonly maxAttempts: number = 20;
 
   constructor(props: Props) {
     super(props);
+
+    this.state = { attempts: 0 };
 
     const { spotifyApi, playlistSource, userId } = props;
 
@@ -65,8 +74,17 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
       }
 
       this.fetchOwnTracks(userId);
+    } else if (playlistSource === "Deezer") {
+      this.fetchDeezerTracks();
     }
   }
+
+  private fetchDeezerTracks = () => {
+    const { deezerToken } = this.props;
+    DZ.api(`user/me/playlists?access_token=${deezerToken}`, (response) => {
+      this.setState({ deezerPlaylists: response });
+    });
+  };
 
   private fetchOwnTracks = (userId: string): void => {
     const { PlaylistApiEndpoints } = PlaylistApi;
@@ -101,13 +119,14 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
   };
 
   public render(): React.ReactNode {
-    const { classes, playlistSource } = this.props;
-    const { spotifyPlaylists, youtubePlaylists, ownPlaylist } = this.state;
+    const { classes, playlistSource, spotifyApi, shouldCancelLoader } = this.props;
+    const { spotifyPlaylists, youtubePlaylists, ownPlaylist, deezerPlaylists } = this.state;
 
     if (
       (playlistSource === "Spotify" && !spotifyPlaylists) ||
       (playlistSource === "Youtube" && !youtubePlaylists) ||
-      (playlistSource === "Own" && !ownPlaylist)
+      (playlistSource === "Own" && !ownPlaylist) ||
+      (playlistSource === "Deezer" && !deezerPlaylists)
     ) {
       // eslint-disable-next-line react/jsx-no-useless-fragment
       return <></>;
@@ -151,19 +170,31 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
                 {playlistSource === "Spotify" &&
                   spotifyPlaylists?.items.map((playlist) => (
                     <SwiperSlide style={{ backgroundColor: "black" }} key={playlist.id}>
-                      <PlaylistCard spotifyPlaylist={playlist} key={playlist.id} />
+                      <PlaylistCard
+                        shouldCancelLoader={shouldCancelLoader}
+                        spotifyApi={spotifyApi}
+                        spotifyPlaylist={playlist}
+                        key={playlist.id}
+                      />
                     </SwiperSlide>
                   ))}
                 {playlistSource === "Youtube" &&
                   youtubePlaylists?.items?.map((playlist) => {
                     if (!playlist.id) {
                       // eslint-disable-next-line react/jsx-no-useless-fragment
-                      return <></>;
+                      const randomKey = Math.random() * 50;
+                      return <React.Fragment key={randomKey} />;
                     }
 
                     return (
                       <SwiperSlide style={{ backgroundColor: "black" }} key={playlist.id}>
-                        <PlaylistCard youtubePlaylist={playlist} key={playlist.id} />;
+                        <PlaylistCard
+                          shouldCancelLoader={shouldCancelLoader}
+                          spotifyApi={spotifyApi}
+                          youtubePlaylist={playlist}
+                          key={playlist.id}
+                        />
+                        ;
                       </SwiperSlide>
                     );
                   })}
@@ -171,12 +202,39 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
                   ownPlaylist?.map((playlist) => {
                     if (!playlist.playlistId) {
                       // eslint-disable-next-line react/jsx-no-useless-fragment
-                      return <></>;
+                      const randomKey = Math.random() * 50;
+                      return <React.Fragment key={randomKey} />;
                     }
 
                     return (
                       <SwiperSlide style={{ backgroundColor: "black" }} key={playlist.playlistId}>
-                        <PlaylistCard ownPlaylist={playlist} key={playlist.playlistId} />;
+                        <PlaylistCard
+                          shouldCancelLoader={shouldCancelLoader}
+                          spotifyApi={spotifyApi}
+                          ownPlaylist={playlist}
+                          key={playlist.playlistId}
+                        />
+                        ;
+                      </SwiperSlide>
+                    );
+                  })}
+                {playlistSource === "Deezer" &&
+                  deezerPlaylists?.data.map((playlist) => {
+                    if (!playlist.id) {
+                      // eslint-disable-next-line react/jsx-no-useless-fragment
+                      const randomKey = Math.random() * 50;
+                      return <React.Fragment key={randomKey} />;
+                    }
+
+                    return (
+                      <SwiperSlide style={{ backgroundColor: "black" }} key={playlist.id}>
+                        <PlaylistCard
+                          shouldCancelLoader={shouldCancelLoader}
+                          spotifyApi={spotifyApi}
+                          deezerPlaylist={playlist}
+                          key={playlist.id}
+                        />
+                        ;
                       </SwiperSlide>
                     );
                   })}
@@ -191,12 +249,16 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
 
 export const MePlaylist = React.memo<OuterProps>((props) => {
   const { userId } = useUserContext();
+  const { deezerToken } = useDeezerAuth();
   const classes = useHomeLandingPageStyles();
+  const { setLoading } = useAppContext();
 
   if (!userId && props.playlistSource === "Own") {
     // eslint-disable-next-line react/jsx-no-useless-fragment
     return <></>;
   }
 
-  return <MePlaylistClass userId={userId} classes={classes} {...props} />;
+  return (
+    <MePlaylistClass setLoading={setLoading} deezerToken={deezerToken} userId={userId} classes={classes} {...props} />
+  );
 });

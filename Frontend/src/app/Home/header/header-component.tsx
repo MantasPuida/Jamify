@@ -94,7 +94,7 @@ class HeaderComponentClass extends React.PureComponent<Props> {
           <Grid item={true} className={classes.textSpacing}>
             <Button
               variant="text"
-              className={clsx({ [classes.textColor]: pathname === AppRoutes.Explore }, classes.buttons)}
+              className={clsx({ [classes.textColor]: pathname.includes(AppRoutes.Explore) }, classes.buttons)}
               onClick={this.handleOnExploreClick}>
               <Typography fontSize={28} fontFamily="Poppins,sans-serif">
                 Explore

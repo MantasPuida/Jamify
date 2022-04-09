@@ -15,31 +15,78 @@ export function handleOnLogin(userData: PlaylistApi.UserData, setUserId: Functio
         setUserId(responseData.userId);
       });
     } else {
-      const { DeezerUniqueIdentifier: dzId, SpotifyUniqueIdentifier: spId, YoutubeUniqueIdentifier: ytId } = userData;
-      const user = data.filter(
+      const {
+        DeezerUniqueIdentifier: dzId,
+        SpotifyUniqueIdentifier: spId,
+        YoutubeUniqueIdentifier: ytId,
+        DeezerEmail,
+        DeezerName,
+        SpotifyEmail,
+        SpotifyName,
+        YoutubeEmail,
+        YoutubeName
+      } = userData;
+
+      const user = data.find(
         (item) =>
           item.youtubeUniqueIdentifier === ytId ||
+          (item.deezerEmail === DeezerEmail && item.deezerName === DeezerName) ||
           item.deezerUniqueIdentifier === dzId ||
-          item.spotifyUniqueIdentifier === spId
+          (item.spotifyEmail === SpotifyEmail && item.spotifyName === SpotifyName) ||
+          item.spotifyUniqueIdentifier === spId ||
+          (item.youtubeEmail === YoutubeEmail && item.youtubeName === YoutubeName) ||
+          item.youtubeEmail === item.deezerEmail ||
+          item.youtubeEmail === item.spotifyEmail ||
+          item.deezerEmail === item.spotifyEmail
       );
 
-      if (user && user.length > 0) {
-        const { deezerUniqueIdentifier, spotifyUniqueIdentifier, youtubeUniqueIdentifier, userId } = user[0];
+      if (user) {
+        const {
+          deezerUniqueIdentifier,
+          spotifyUniqueIdentifier,
+          youtubeUniqueIdentifier,
+          userId,
+          deezerEmail,
+          deezerName,
+          spotifyEmail,
+          spotifyName,
+          youtubeEmail,
+          youtubeName
+        } = user;
+
         if (
           (spId && spId !== spotifyUniqueIdentifier) ||
           (dzId && dzId !== deezerUniqueIdentifier) ||
-          (ytId && ytId !== youtubeUniqueIdentifier)
+          (ytId && ytId !== youtubeUniqueIdentifier) ||
+          (DeezerEmail && DeezerEmail !== deezerEmail) ||
+          (DeezerName && DeezerName !== deezerName) ||
+          (SpotifyEmail && SpotifyEmail !== spotifyEmail) ||
+          (SpotifyName && SpotifyName !== spotifyName) ||
+          (YoutubeEmail && YoutubeEmail !== youtubeEmail) ||
+          (YoutubeName && YoutubeName !== youtubeName)
         ) {
           putUser(
             {
               DeezerUniqueIdentifier: deezerUniqueIdentifier.length > 1 ? deezerUniqueIdentifier : dzId,
               SpotifyUniqueIdentifier: spotifyUniqueIdentifier.length > 1 ? spotifyUniqueIdentifier : spId,
-              YoutubeUniqueIdentifier: youtubeUniqueIdentifier.length > 1 ? youtubeUniqueIdentifier : ytId
+              YoutubeUniqueIdentifier: youtubeUniqueIdentifier.length > 1 ? youtubeUniqueIdentifier : ytId,
+              DeezerEmail: deezerEmail.length > 1 ? deezerEmail : DeezerEmail,
+              DeezerName: deezerName.length > 1 ? deezerName : DeezerName,
+              SpotifyEmail: spotifyEmail.length > 1 ? spotifyEmail : SpotifyEmail,
+              SpotifyName: spotifyName.length > 1 ? spotifyName : SpotifyName,
+              YoutubeEmail: youtubeEmail.length > 1 ? youtubeEmail : YoutubeEmail,
+              YoutubeName: youtubeName.length > 1 ? youtubeName : YoutubeName
             },
             userId
           );
         }
         setUserId(userId);
+      } else {
+        postUser(userData).then((response) => {
+          const responseData = response.data as User;
+
+          setUserId(responseData.userId);
+        });
       }
     }
   });

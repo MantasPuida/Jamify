@@ -13,6 +13,7 @@ interface OuterProps {
   isSpotifyConnected: boolean;
   spotifyApi: SpotifyWebApi;
   handleDialogClose: ButtonProps["onClick"];
+  playlistCount: number;
 }
 
 interface InnerProps extends WithStyles<typeof SettingsStyles> {
@@ -22,11 +23,6 @@ interface InnerProps extends WithStyles<typeof SettingsStyles> {
 interface State {
   loading: boolean;
   spotifyProfile?: SpotifyApi.CurrentUsersProfileResponse;
-  followers?: number;
-  followedArtists?: number;
-  topArtist?: string;
-  savedAlbums?: number;
-  savedTracks?: number;
 }
 
 type Props = InnerProps & OuterProps;
@@ -37,42 +33,24 @@ class HeaderSettingsDialogSpotifyClass extends React.PureComponent<Props, State>
   constructor(props: Props) {
     super(props);
 
-    this.state = { loading: true };
+    const { isSpotifyConnected } = props;
 
-    this.fetchUserData(props.spotifyApi);
-    this.fetchStats(props.spotifyApi);
+    if (isSpotifyConnected) {
+      this.state = { loading: true };
+      this.fetchUserData(props.spotifyApi);
+    } else {
+      this.state = { loading: false };
+    }
   }
-
-  private fetchStats = (spotifyApi: SpotifyWebApi): void => {
-    this.setState({ loading: true });
-
-    spotifyApi.getMe().then((me) =>
-      spotifyApi.getFollowedArtists().then((artists) =>
-        spotifyApi.getMyTopArtists().then((topArtists) =>
-          spotifyApi.getMySavedAlbums().then((mySavedAlbums) =>
-            spotifyApi.getMySavedTracks().then((mySavedTracks) =>
-              this.setState({
-                followers: me.body.followers?.total,
-                followedArtists: artists.body.artists.total,
-                topArtist: topArtists.body.items[0].name,
-                savedAlbums: mySavedAlbums.body.total,
-                savedTracks: mySavedTracks.body.total,
-                loading: false
-              })
-            )
-          )
-        )
-      )
-    );
-  };
 
   private fetchUserData = (spotifyApi: SpotifyWebApi): void => {
     spotifyApi
       .getMe()
       .then((callback) => {
-        this.setState({ spotifyProfile: callback.body });
+        this.setState({ spotifyProfile: callback.body, loading: false });
       })
       .catch((err) => {
+        this.setState({ loading: false });
         // eslint-disable-next-line no-console
         console.error(err);
       });
@@ -92,8 +70,8 @@ class HeaderSettingsDialogSpotifyClass extends React.PureComponent<Props, State>
   };
 
   public render(): React.ReactNode {
-    const { isSpotifyConnected, classes } = this.props;
-    const { spotifyProfile, loading, followers, savedAlbums, savedTracks, followedArtists, topArtist } = this.state;
+    const { isSpotifyConnected, classes, playlistCount } = this.props;
+    const { spotifyProfile, loading } = this.state;
 
     if (loading) {
       return <CircularProgress style={{ marginTop: "13%", marginLeft: "45%", color: "black" }} />;
@@ -120,31 +98,8 @@ class HeaderSettingsDialogSpotifyClass extends React.PureComponent<Props, State>
       return <></>;
     }
 
-    // eslint-disable-next-line react/jsx-no-useless-fragment
-    const statsJsx: JSX.Element[] = [<></>];
-
-    if (followers && followers > 0) {
-      statsJsx.push(<Typography fontFamily="Poppins,sans-serif">Followers: {followers}</Typography>);
-    }
-
-    if (savedAlbums && savedAlbums > 0) {
-      statsJsx.push(<Typography fontFamily="Poppins,sans-serif">Saved Albums: {savedAlbums}</Typography>);
-    }
-
-    if (savedTracks && savedTracks > 0) {
-      statsJsx.push(<Typography fontFamily="Poppins,sans-serif">Saved Tracks: {savedTracks}</Typography>);
-    }
-
-    if (followedArtists && followedArtists > 0) {
-      statsJsx.push(<Typography fontFamily="Poppins,sans-serif">Followed Artists: {followedArtists}</Typography>);
-    }
-
-    if (topArtist) {
-      statsJsx.push(<Typography fontFamily="Poppins,sans-serif">Top Artist: {topArtist}</Typography>);
-    }
-
     return (
-      <Grid container={true}>
+      <Grid container={true} style={{ overflow: "hidden" }}>
         <Grid item={true} xs={4} style={{ maxWidth: "32%" }}>
           <img src={images[0].url} alt="me" style={{ maxWidth: 160, borderRadius: 5 }} />
         </Grid>
@@ -156,11 +111,13 @@ class HeaderSettingsDialogSpotifyClass extends React.PureComponent<Props, State>
             <Typography fontFamily="Poppins,sans-serif">{email}</Typography>
           </Grid>
           <br />
-          {statsJsx.map((jsx) => (
-            <Grid item={true} xs={12} style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16 }}>
-              {jsx}
-            </Grid>
-          ))}
+          <br />
+          <Grid item={true} xs={12} style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16 }}>
+            <Typography fontFamily="Poppins,sans-serif">Playlists: {playlistCount}</Typography>
+          </Grid>
+          <Grid item={true} xs={4} style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16 }}>
+            <Typography fontFamily="Poppins,sans-serif">Listened: 10h:20m</Typography>
+          </Grid>
         </Grid>
       </Grid>
     );

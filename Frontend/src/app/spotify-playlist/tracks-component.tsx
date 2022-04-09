@@ -19,22 +19,46 @@ import { SourceType } from "./playlist-component";
 // eslint-disable-next-line import/no-cycle
 import { TrackType } from "./playlist-class";
 import { PlaylistType } from "../me/me-component";
+import {
+  Album,
+  ArtistAlbumsData,
+  ArtistAlbumsResponse,
+  PlaylistsResponse,
+  PlaylistTracksData,
+  PlaylistTracksResponse
+} from "../../types/deezer.types";
+import { useAppContext } from "../../context/app-context";
 
 import "./fontFamily.css";
 
+type DeezerPlaylistType = Album | PlaylistsResponse;
+type DeezerPlaylistTrackType = ArtistAlbumsResponse | PlaylistTracksResponse;
+
 interface OuterProps {
-  playlistTracks: SpotifyApi.PlaylistTrackResponse | gapi.client.youtube.PlaylistItemListResponse | TrackType[];
+  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType | DeezerPlaylistType;
+  playlistTracks:
+    | SpotifyApi.PlaylistTrackResponse
+    | gapi.client.youtube.PlaylistItemListResponse
+    | TrackType[]
+    | DeezerPlaylistTrackType;
   spotifyApi: SpotifyWebApi;
   sourceType: SourceType;
-  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType;
   myOwn?: boolean;
 }
 
-interface InnerProps extends WithStyles<typeof PlaylistStyles> {}
+interface InnerProps extends WithStyles<typeof PlaylistStyles> {
+  setLoading: Function;
+}
 
 type Props = InnerProps & OuterProps;
 
 class TracksComponentClass extends React.PureComponent<Props> {
+  componentDidMount() {
+    const { setLoading } = this.props;
+
+    setLoading(false);
+  }
+
   public render(): React.ReactNode {
     const { playlistTracks, classes, sourceType, spotifyApi, playlist, myOwn } = this.props;
 
@@ -122,6 +146,44 @@ class TracksComponentClass extends React.PureComponent<Props> {
                         />
                       );
                     })}
+
+                  {sourceType === SourceType.Deezer &&
+                    (playlistTracks as DeezerPlaylistTrackType).data.map((row) => {
+                      if (!row || !row.id) {
+                        const randomKey = Math.floor(Math.random() * 5000);
+                        return <React.Fragment key={randomKey} />;
+                      }
+
+                      if (row.type === "album") {
+                        const currentRow = row as ArtistAlbumsData;
+
+                        return (
+                          <TracksTableContent
+                            row={currentRow}
+                            key={currentRow.id}
+                            albumName="random"
+                            sourceType={SourceType.Deezer}
+                            spotifyApi={spotifyApi}
+                            playlist={playlist}
+                            myOwn={myOwn}
+                          />
+                        );
+                      }
+
+                      const currentRow = row as PlaylistTracksData;
+
+                      return (
+                        <TracksTableContent
+                          row={currentRow}
+                          key={currentRow.id}
+                          albumName="random"
+                          sourceType={SourceType.Deezer}
+                          spotifyApi={spotifyApi}
+                          playlist={playlist}
+                          myOwn={myOwn}
+                        />
+                      );
+                    })}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -134,6 +196,7 @@ class TracksComponentClass extends React.PureComponent<Props> {
 
 export const TracksComponent = React.memo<OuterProps>((props) => {
   const classes = usePlaylistStyles();
+  const { setLoading } = useAppContext();
 
-  return <TracksComponentClass {...props} classes={classes} />;
+  return <TracksComponentClass setLoading={setLoading} {...props} classes={classes} />;
 });

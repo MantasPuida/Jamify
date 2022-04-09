@@ -8,19 +8,30 @@ import "./fontFamily.css";
 import { TrackObject, usePlayerContext } from "../../context/player-context";
 import { parseTitle } from "../../helpers/title-parser";
 import { extractThumbnail } from "../../helpers/thumbnails";
+import { useAppContext } from "../../context/app-context";
 
 interface OuterProps {
   track: gapi.client.youtube.PlaylistItem;
+  shouldSetLoading: boolean;
 }
 
 interface InnerProps extends WithStyles<typeof YoutubeTracksStyles> {
   setPlayerOpen: Function;
   setPlayerTrack: Function;
+  setLoading: Function;
 }
 
 type Props = InnerProps & OuterProps;
 
 class TracksCardsClass extends React.PureComponent<Props> {
+  componentDidMount() {
+    const { setLoading, shouldSetLoading } = this.props;
+
+    if (shouldSetLoading) {
+      setLoading(false);
+    }
+  }
+
   private handleOnTrackClick: ButtonProps["onClick"] = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -80,8 +91,7 @@ class TracksCardsClass extends React.PureComponent<Props> {
                 paddingBottom: 2,
                 color: "transparent"
               }}
-              variant="text"
-            >
+              variant="text">
               <Typography className={classes.typography} fontFamily="Poppins,sans-serif" fontSize={16} color="white">
                 {parseTitle(title)}
               </Typography>
@@ -99,8 +109,7 @@ class TracksCardsClass extends React.PureComponent<Props> {
                 paddingBottom: 0
               }}
               className={classes.buttonOnHover}
-              variant="text"
-            >
+              variant="text">
               <Typography className={classes.helperTypography} fontFamily="Poppins,sans-serif" fontSize={12}>
                 {videoOwnerChannelTitle}
               </Typography>
@@ -115,6 +124,15 @@ class TracksCardsClass extends React.PureComponent<Props> {
 export const TracksCards = React.memo<OuterProps>((props) => {
   const { setOpen, setTrack } = usePlayerContext();
   const classes = useYoutubeTracksStyles();
+  const { setLoading } = useAppContext();
 
-  return <TracksCardsClass {...props} classes={classes} setPlayerOpen={setOpen} setPlayerTrack={setTrack} />;
+  return (
+    <TracksCardsClass
+      setLoading={setLoading}
+      {...props}
+      classes={classes}
+      setPlayerOpen={setOpen}
+      setPlayerTrack={setTrack}
+    />
+  );
 });

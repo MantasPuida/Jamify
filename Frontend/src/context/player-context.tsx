@@ -31,7 +31,7 @@ function PlayerProvider({ children }: { children: React.ReactNode }) {
   const [position, setPosition] = React.useState<number>(0);
   const [volume, setVolume] = React.useState<number>(0.5);
   const [duration, setDuration] = React.useState<number>(0);
-  const [paused, setPaused] = React.useState<boolean>(true);
+  const [paused, setPaused] = React.useState<boolean>(false);
 
   const value = React.useMemo(
     () => ({

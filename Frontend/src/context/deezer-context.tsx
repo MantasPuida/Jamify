@@ -5,6 +5,8 @@ interface AuthContextType {
   deezerToken: string | null;
   logout: () => void;
   register: Function;
+  deezerUserId?: string;
+  setDeezerUserId: Function;
 }
 
 const AuthContext = React.createContext<AuthContextType | null>(null);
@@ -12,6 +14,7 @@ AuthContext.displayName = "AuthContext";
 
 function DeezerAuthProvider({ children }: { children: React.ReactNode }) {
   const [userToken, setUserToken] = React.useState<null | string>(() => auth.getUserToken("__deezer_auth_token__"));
+  const [deezerUserId, setDeezerUserId] = React.useState<string>();
 
   const register = React.useCallback(
     async (deezerToken) => {
@@ -25,7 +28,10 @@ function DeezerAuthProvider({ children }: { children: React.ReactNode }) {
     setUserToken(null);
   }, [setUserToken]);
 
-  const value = React.useMemo(() => ({ deezerToken: userToken, register, logout }), [userToken, register, logout]);
+  const value = React.useMemo(
+    () => ({ deezerToken: userToken, register, logout, deezerUserId, setDeezerUserId }),
+    [userToken, register, logout, deezerUserId, setDeezerUserId]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

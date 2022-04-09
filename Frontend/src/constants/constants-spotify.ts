@@ -31,5 +31,5 @@ export namespace SpotifyConstants {
     process.env.REACT_APP_SPOTIFY_CLIENT_ID!
   )}&redirect_uri=${encodeURIComponent(SPOTIFY_CALLBACK)}&scope=${encodeURIComponent(
     SPOTIFY_PERMISSION_SCOPE.join(" ")
-  )}&response_type=token&show_dialog=true`;
+  )}&response_type=token&show_dialog=false`;
 }

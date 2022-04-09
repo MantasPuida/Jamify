@@ -7,6 +7,9 @@ import { SourceType } from "./playlist-component";
 import { PlaylistApi } from "../../api/api-endpoints";
 import { useUserContext } from "../../context/user-context";
 import { PlaylistsDialogComponent } from "./playlists-dialog/playlists-dialog-component";
+import { Album, TrackListData, PlaylistsResponse } from "../../types/deezer.types";
+import { useDeezerAuth } from "../../context/deezer-context";
+import { useAppContext } from "../../context/app-context";
 
 interface PlaylistType {
   playlistId: string;
@@ -23,20 +26,25 @@ interface TrackType {
   trackSource: string;
 }
 
+type DeezerPlaylistType = Album | PlaylistsResponse;
+
 interface OuterProps {
   myOwn?: boolean;
   sourceType: SourceType;
   spotifyApi: SpotifyWebApi;
   trackName: string;
-  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType;
+  playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType | DeezerPlaylistType;
   imageUrl: string;
   artists?: string;
+  deezerTrack?: TrackListData;
 }
 
 interface InnerProps {
   userId?: string;
   setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
   dialogOpen: boolean;
+  deezerToken: string | null;
+  setLoading: Function;
 }
 
 type Props = OuterProps & InnerProps;
@@ -62,11 +70,12 @@ class TrackActionComponentClass extends React.PureComponent<Props, State> {
     event.preventDefault();
     event.stopPropagation();
 
-    const { spotifyApi, playlist, trackName, sourceType, userId } = this.props;
+    const { spotifyApi, playlist, trackName, sourceType, userId, deezerTrack, deezerToken, setLoading } = this.props;
     const { TracksApiEndpoints } = PlaylistApi;
     const { isMine } = this.state;
 
     if (isMine) {
+      setLoading(true);
       if (sourceType === SourceType.Youtube) {
         const youtubePlaylist = playlist as gapi.client.youtube.Playlist;
 
@@ -132,7 +141,46 @@ class TrackActionComponentClass extends React.PureComponent<Props, State> {
                 });
             }
           });
+      } else if (sourceType === SourceType.Deezer) {
+        if (deezerTrack) {
+          DZ.api(
+            `playlist/${deezerTrack.album.id}/tracks`,
+            "DELETE",
+            {
+              songs: [deezerTrack.id]
+            },
+            () => {
+              this.setState({ isMine: false });
+            }
+          );
+        } else {
+          const deezerPlaylist = playlist as DeezerPlaylistType;
+
+          if (deezerPlaylist.type === "playlist") {
+            const currentPlaylist = deezerPlaylist as PlaylistsResponse;
+            DZ.api(`playlist/${currentPlaylist.id}/tracks`, (response) => {
+              const removableTrack = response.data.filter((value) => value.title.includes(trackName));
+
+              if (!removableTrack || !removableTrack[0].id || !deezerToken) {
+                return;
+              }
+
+              DZ.api(
+                `playlist/${currentPlaylist.id}/tracks?access_token=${deezerToken}`,
+                "DELETE",
+                {
+                  songs: [removableTrack[0].id]
+                },
+                () => {
+                  this.setState({ isMine: false });
+                }
+              );
+            });
+          }
+        }
       }
+
+      setLoading(false);
     } else {
       const { setDialogOpen } = this.props;
 
@@ -142,14 +190,22 @@ class TrackActionComponentClass extends React.PureComponent<Props, State> {
 
   public render(): React.ReactNode {
     const { isMine } = this.state;
-    const { dialogOpen, setDialogOpen, spotifyApi, imageUrl, trackName, userId, playlist, sourceType, artists } =
-      this.props;
+    const {
+      dialogOpen,
+      setDialogOpen,
+      spotifyApi,
+      imageUrl,
+      trackName,
+      userId,
+      playlist,
+      sourceType,
+      artists,
+      deezerTrack
+    } = this.props;
 
     return (
       <>
-        <IconButton
-          onClick={this.handleOnIconClick}
-          style={{ padding: 0, color: "rgba(255, 255, 255, .7)", float: "left" }}>
+        <IconButton onClick={this.handleOnIconClick} style={{ padding: 0, color: "rgba(255, 255, 255, .7)" }}>
           {isMine ? (
             <CardsHeart id="DotsSvgIcon" style={{ display: "none", color: "red" }} />
           ) : (
@@ -167,6 +223,7 @@ class TrackActionComponentClass extends React.PureComponent<Props, State> {
             currentPlaylist={playlist}
             sourceType={sourceType}
             artists={artists}
+            deezerTrack={deezerTrack}
           />
         )}
       </>
@@ -176,7 +233,18 @@ class TrackActionComponentClass extends React.PureComponent<Props, State> {
 
 export const TrackActionComponent = React.memo<OuterProps>((props) => {
   const { userId } = useUserContext();
+  const { deezerToken } = useDeezerAuth();
   const [dialogOpen, setDialogOpen] = React.useState(false);
+  const { setLoading } = useAppContext();
 
-  return <TrackActionComponentClass dialogOpen={dialogOpen} setDialogOpen={setDialogOpen} userId={userId} {...props} />;
+  return (
+    <TrackActionComponentClass
+      deezerToken={deezerToken}
+      dialogOpen={dialogOpen}
+      setDialogOpen={setDialogOpen}
+      userId={userId}
+      setLoading={setLoading}
+      {...props}
+    />
+  );
 });

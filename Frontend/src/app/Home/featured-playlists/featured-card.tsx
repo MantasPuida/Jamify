@@ -8,20 +8,25 @@ import { FeaturedPlaylistsStyles, useFeaturedPlaylistsStyles } from "./featured.
 import { AppRoutes } from "../../routes/routes";
 // eslint-disable-next-line import/no-cycle
 import { PlaylistType } from "../../me/me-component";
+import { Album, PlaylistsResponse } from "../../../types/deezer.types";
 
 import "./carousel-items.css";
+import { useAppContext } from "../../../context/app-context";
 
 interface OuterProps {
   playlist: SpotifyApi.PlaylistObjectSimplified;
+  shouldSetLoading: boolean;
 }
 
 interface InnerProps extends WithStyles<typeof FeaturedPlaylistsStyles> {
   navigate: NavigateFunction;
+  setLoading: Function;
 }
 
 export interface FeaturedPlaylistState {
   youtubePlaylist?: gapi.client.youtube.Playlist;
   spotifyPlaylist?: SpotifyApi.PlaylistObjectSimplified;
+  deezerAlbum?: Album | PlaylistsResponse;
   ownPlaylist?: PlaylistType;
   myOwn?: boolean;
 }
@@ -29,6 +34,14 @@ export interface FeaturedPlaylistState {
 type Props = InnerProps & OuterProps;
 
 class FeaturedCardClass extends React.PureComponent<Props> {
+  componentDidMount() {
+    const { setLoading, shouldSetLoading } = this.props;
+
+    if (shouldSetLoading) {
+      setLoading(false);
+    }
+  }
+
   private handleOnCardClick: React.MouseEventHandler = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -45,7 +58,7 @@ class FeaturedCardClass extends React.PureComponent<Props> {
       <Grid container={true} item={true} xs={12} key={playlist.id}>
         <Grid container={true} item={true} xs={12} style={{ marginRight: 50 }}>
           <Grid item={true}>
-            <Button>
+            <Button style={{ color: "black" }}>
               <div className="tint-img">
                 <img
                   src={playlist.images[0].url}
@@ -72,6 +85,7 @@ class FeaturedCardClass extends React.PureComponent<Props> {
 export const FeaturedCard = React.memo<OuterProps>((props) => {
   const navigate = useNavigate();
   const classes = useFeaturedPlaylistsStyles();
+  const { setLoading } = useAppContext();
 
-  return <FeaturedCardClass {...props} navigate={navigate} classes={classes} />;
+  return <FeaturedCardClass {...props} setLoading={setLoading} navigate={navigate} classes={classes} />;
 });

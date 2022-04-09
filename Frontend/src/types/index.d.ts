@@ -271,10 +271,10 @@ declare namespace DeezerSdk {
    */
   interface LoginStatus {
     status: ConnectionStatus;
+    userID: string;
     authResponse: {
       accessToken: string;
       expire: string;
-      userID: string;
     };
   }
 

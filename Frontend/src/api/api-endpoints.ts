@@ -8,6 +8,12 @@ export namespace PlaylistApi {
     DeezerUniqueIdentifier: string;
     SpotifyUniqueIdentifier: string;
     YoutubeUniqueIdentifier: string;
+    SpotifyName: string;
+    YoutubeName: string;
+    DeezerName: string;
+    SpotifyEmail: string;
+    YoutubeEmail: string;
+    DeezerEmail: string;
   }
 
   interface PlaylistData {
@@ -16,13 +22,12 @@ export namespace PlaylistApi {
     PlaylistDescription: string;
   }
 
-  type TrackSourceType = "Spotify" | "Youtube" | "Deezer";
-
   interface TrackData {
     TrackName: string;
     ImageUrl: string;
-    TrackDescription: string;
-    TrackSource: TrackSourceType;
+    Artists: string;
+    Duration: string;
+    Album: string;
   }
 
   export const UserApiEndpoints = () => ({

@@ -1,12 +1,21 @@
 import * as React from "react";
-import "./loader.css";
+import { CircularProgress, Grid } from "@mui/material";
 
 export class Loader extends React.PureComponent {
   public render(): React.ReactNode {
     return (
-      <div className="main">
-        <div className="loader" />
-      </div>
+      <Grid
+        container={true}
+        item={true}
+        style={{
+          width: "100vw",
+          height: "100vh",
+          backgroundColor: "black",
+          justifyContent: "center",
+          alignContent: "center"
+        }}>
+        <CircularProgress style={{ color: "white" }} size={96} thickness={5} />;
+      </Grid>
     );
   }
 }

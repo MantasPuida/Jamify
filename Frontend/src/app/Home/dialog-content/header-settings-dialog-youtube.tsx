@@ -13,6 +13,7 @@ import "./fontFamily.css";
 interface OuterProps {
   isYoutubeConnected: boolean;
   handleDialogClose: ButtonProps["onClick"];
+  playlistCount: number;
 }
 
 interface InnerProps extends WithStyles<typeof SettingsStyles> {
@@ -24,55 +25,27 @@ interface InnerProps extends WithStyles<typeof SettingsStyles> {
 interface State {
   loading: boolean;
   googleUser?: gapi.auth2.BasicProfile;
-  playlists?: number;
-  playlistTracks?: number;
 }
 
 type Props = InnerProps & OuterProps;
 
 class HeaderSettingsDialogYouTubeClass extends React.PureComponent<Props, State> {
-  public state: State;
+  public state: State = { loading: true };
 
-  constructor(props: Props) {
-    super(props);
+  componentDidMount() {
+    const { isYoutubeConnected, googleAuthObject } = this.props;
 
-    this.state = { loading: true };
+    if (isYoutubeConnected) {
+      this.fetchUserData(googleAuthObject);
+    }
 
-    this.fetchUserData(props.googleAuthObject);
-    this.fetchStats();
+    this.setState({ loading: false });
   }
-
-  private fetchStats = (): void => {
-    gapi.client.youtube.playlists.list({ part: "contentDetails", mine: true }).then((playlistsData) => {
-      const playlist = playlistsData.result;
-
-      const tracks = playlist.items?.map((value) => {
-        let count = 0;
-
-        if (value.contentDetails?.itemCount) {
-          count += value.contentDetails.itemCount;
-        }
-
-        return count;
-      });
-
-      if (!tracks || tracks.length === 0) {
-        return;
-      }
-
-      const count = tracks.reduce((partial, num) => partial + num, 0);
-
-      this.setState({ playlists: playlist.pageInfo?.totalResults, playlistTracks: count });
-    });
-  };
 
   private fetchUserData = (googleAuthObject: gapi.auth2.GoogleAuthBase | undefined): void => {
     const googleUserObject = googleAuthObject?.currentUser.get().getBasicProfile();
 
-    this.state = {
-      googleUser: googleUserObject,
-      loading: false
-    };
+    this.setState({ googleUser: googleUserObject });
   };
 
   private youtubeLogin: ButtonProps["onClick"] = (event) => {
@@ -101,8 +74,8 @@ class HeaderSettingsDialogYouTubeClass extends React.PureComponent<Props, State>
   };
 
   public render(): React.ReactNode {
-    const { isYoutubeConnected, classes } = this.props;
-    const { googleUser, loading, playlistTracks, playlists } = this.state;
+    const { isYoutubeConnected, classes, playlistCount } = this.props;
+    const { googleUser, loading } = this.state;
 
     if (loading) {
       return <CircularProgress style={{ marginTop: "13%", marginLeft: "45%", color: "black" }} />;
@@ -126,19 +99,8 @@ class HeaderSettingsDialogYouTubeClass extends React.PureComponent<Props, State>
     const name = googleUser.getName();
     const email = googleUser.getEmail();
 
-    // eslint-disable-next-line react/jsx-no-useless-fragment
-    const statsJsx: JSX.Element[] = [<></>];
-
-    if (playlists && playlists > 0) {
-      statsJsx.push(<Typography fontFamily="Poppins,sans-serif">Playlists: {playlists}</Typography>);
-    }
-
-    if (playlistTracks && playlistTracks > 0) {
-      statsJsx.push(<Typography fontFamily="Poppins,sans-serif">Tracks: {playlistTracks}</Typography>);
-    }
-
     return (
-      <Grid container={true}>
+      <Grid container={true} style={{ overflow: "hidden" }}>
         <Grid item={true} xs={4} style={{ maxWidth: "32%" }}>
           <img src={imageUrl} alt="me" style={{ maxWidth: 160, borderRadius: 5, width: "100%" }} />
         </Grid>
@@ -150,11 +112,17 @@ class HeaderSettingsDialogYouTubeClass extends React.PureComponent<Props, State>
             <Typography fontFamily="Poppins,sans-serif">{email}</Typography>
           </Grid>
           <br />
-          {statsJsx.map(async (jsx) => (
-            <Grid item={true} xs={4} style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16 }}>
-              {jsx}
-            </Grid>
-          ))}
+          <br />
+          <Grid
+            item={true}
+            xs={4}
+            style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16 }}
+            key={Math.random() * 50}>
+            <Typography fontFamily="Poppins,sans-serif">Playlists: {playlistCount}</Typography>
+          </Grid>
+          <Grid item={true} xs={4} style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16 }}>
+            <Typography fontFamily="Poppins,sans-serif">Listened: 10h:20m</Typography>
+          </Grid>
         </Grid>
       </Grid>
     );
