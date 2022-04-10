@@ -1,4 +1,28 @@
 import * as React from "react";
+import { ArtistAlbumsResponse, PlaylistTracksResponse } from "../types/deezer.types";
+
+type SpotifyPlaylistTracksResponse = SpotifyApi.PlaylistTrackResponse;
+
+interface TrackType {
+  trackId: string;
+  trackName: string;
+  imageUrl: string;
+  artists: string;
+  duration: string;
+  album: string;
+}
+
+type PlaylistTracksType =
+  | SpotifyPlaylistTracksResponse
+  | gapi.client.youtube.PlaylistItemListResponse
+  | TrackType[]
+  | ArtistAlbumsResponse
+  | PlaylistTracksResponse;
+
+interface QueueType {
+  queue: PlaylistTracksType | undefined;
+  source: "spotify" | "youtube" | "deezer" | "own";
+}
 
 export interface TrackObject {
   title: string;
@@ -20,6 +44,8 @@ interface PlayerContextType {
   setDuration: Function;
   paused: boolean;
   setPaused: Function;
+  setQueue: React.Dispatch<React.SetStateAction<QueueType | undefined>>;
+  queue: QueueType | undefined;
 }
 
 const PlayerContext = React.createContext<PlayerContextType | null>(null);
@@ -32,6 +58,7 @@ function PlayerProvider({ children }: { children: React.ReactNode }) {
   const [volume, setVolume] = React.useState<number>(0.5);
   const [duration, setDuration] = React.useState<number>(0);
   const [paused, setPaused] = React.useState<boolean>(false);
+  const [queue, setQueue] = React.useState<QueueType>();
 
   const value = React.useMemo(
     () => ({
@@ -46,7 +73,9 @@ function PlayerProvider({ children }: { children: React.ReactNode }) {
       duration,
       setDuration,
       paused,
-      setPaused
+      setPaused,
+      queue,
+      setQueue
     }),
     [
       isOpen,
@@ -60,7 +89,9 @@ function PlayerProvider({ children }: { children: React.ReactNode }) {
       duration,
       setDuration,
       paused,
-      setPaused
+      setPaused,
+      queue,
+      setQueue
     ]
   );
 

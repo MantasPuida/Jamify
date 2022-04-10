@@ -18,6 +18,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "./styles.css";
 import { useAppContext } from "../../context/app-context";
+import { useYoutubeApiContext } from "../../context/youtube-api-context";
 
 type PlaylistSourceType = "Spotify" | "Youtube" | "Deezer" | "Own";
 
@@ -32,6 +33,7 @@ interface InnerProps extends WithStyles<typeof HomeLandingPageStyles> {
   userId?: string;
   deezerToken: string | null;
   setLoading: Function;
+  minePlaylist?: gapi.client.Response<gapi.client.youtube.PlaylistListResponse>;
 }
 
 interface OuterProps {
@@ -47,27 +49,22 @@ interface State {
   youtubePlaylists?: gapi.client.youtube.PlaylistListResponse;
   deezerPlaylists?: PlaylistsResponseMe;
   ownPlaylist?: PlaylistType[];
-  attempts: number;
 }
 
 class MePlaylistClass extends React.PureComponent<Props, State> {
-  public state: State;
-
-  private readonly maxAttempts: number = 20;
+  public state: State = {};
 
   constructor(props: Props) {
     super(props);
 
-    this.state = { attempts: 0 };
-
-    const { spotifyApi, playlistSource, userId } = props;
+    const { spotifyApi, playlistSource, userId, minePlaylist } = props;
 
     if (playlistSource === "Spotify") {
       spotifyApi.getUserPlaylists().then((playlists) => {
         this.setState({ spotifyPlaylists: playlists.body });
       });
-    } else if (playlistSource === "Youtube") {
-      this.fetchYoutubeTracks();
+    } else if (playlistSource === "Youtube" && minePlaylist) {
+      this.setState({ youtubePlaylists: minePlaylist.result });
     } else if (playlistSource === "Own") {
       if (!userId) {
         return;
@@ -94,28 +91,6 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
       .then((value) => {
         this.setState({ ownPlaylist: value.data as PlaylistType[] });
       });
-  };
-
-  private fetchYoutubeTracks = (): void => {
-    const { attempts } = this.state;
-
-    if (attempts >= this.maxAttempts) {
-      this.setState({ attempts: this.maxAttempts });
-      return;
-    }
-
-    if (!gapi.client || !gapi.client.youtube || !gapi.client.youtube.playlistItems) {
-      setTimeout(() => {
-        this.setState((state) => ({ attempts: state.attempts + 1 }));
-        this.fetchYoutubeTracks();
-      }, 100);
-    } else {
-      setTimeout(() => {
-        gapi.client.youtube.playlists.list({ part: "snippet", mine: true, maxResults: 99 }).then((playlists) => {
-          this.setState({ youtubePlaylists: playlists.result });
-        });
-      }, 50);
-    }
   };
 
   public render(): React.ReactNode {
@@ -252,6 +227,7 @@ export const MePlaylist = React.memo<OuterProps>((props) => {
   const { deezerToken } = useDeezerAuth();
   const classes = useHomeLandingPageStyles();
   const { setLoading } = useAppContext();
+  const { minePlaylist } = useYoutubeApiContext();
 
   if (!userId && props.playlistSource === "Own") {
     // eslint-disable-next-line react/jsx-no-useless-fragment
@@ -259,6 +235,13 @@ export const MePlaylist = React.memo<OuterProps>((props) => {
   }
 
   return (
-    <MePlaylistClass setLoading={setLoading} deezerToken={deezerToken} userId={userId} classes={classes} {...props} />
+    <MePlaylistClass
+      minePlaylist={minePlaylist}
+      setLoading={setLoading}
+      deezerToken={deezerToken}
+      userId={userId}
+      classes={classes}
+      {...props}
+    />
   );
 });

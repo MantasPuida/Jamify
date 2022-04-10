@@ -28,6 +28,7 @@ import { useUserContext } from "../../../context/user-context";
 // import { PlaylistType } from "../../me/me-component";
 
 import "./fontFamily.css";
+import { useYoutubeApiContext } from "../../../context/youtube-api-context";
 
 interface OuterProps {
   handleDialogClose: ButtonProps["onClick"];
@@ -71,7 +72,8 @@ class SettingsDialogClass extends React.PureComponent<Props> {
       spotifyApi,
       youtubePlaylistCount,
       deezerPlaylistCount,
-      spotifyPlaylistCount
+      spotifyPlaylistCount,
+      classes
     } = this.props;
 
     return (
@@ -85,7 +87,7 @@ class SettingsDialogClass extends React.PureComponent<Props> {
             {value} Profile
           </Typography>
         </DialogTitle>
-        <DialogContent style={{ minWidth: 500, minHeight: 200 }}>
+        <DialogContent className={classes.dialogContentStyles}>
           {(value as BottomNavigationValues) === "Spotify" && (
             <HeaderSettingsDialogSpotify
               isSpotifyConnected={isSpotifyConnected}
@@ -122,8 +124,8 @@ class SettingsDialogClass extends React.PureComponent<Props> {
 }
 
 export const SettingsDialog = React.memo<OuterProps>((props) => {
+  const { minePlaylist } = useYoutubeApiContext();
   const [deezerPlaylistCount, setDeezerPlaylistCount] = React.useState<number>(0);
-  const [youtubePlaylistCount, setYoutubePlaylistCount] = React.useState<number>(0);
   const [spotifyPlaylistCount, setSpotifyPlaylistCount] = React.useState<number>(0);
   const [value, setValue] = React.useState<BottomNavigationValues>("Spotify");
   const classes = useHeaderSettingsStyles();
@@ -138,42 +140,13 @@ export const SettingsDialog = React.memo<OuterProps>((props) => {
   let isYoutubeConnected: boolean = false;
   let isDeezerConnected: boolean = false;
   let isSpotifyConnected: boolean = false;
+  let youtubePlaylistCount: number = 0;
 
   React.useEffect(() => {
     if (deezerToken) {
       DZ.api(`user/me/playlists?access_token=${deezerToken}`, (response) => {
         setDeezerPlaylistCount(response.total);
       });
-    }
-
-    if (youtubeToken && (!gapi || !gapi.client || !gapi.client.youtube || !gapi.client.youtube.playlists)) {
-      setTimeout(() => {
-        gapi.client.youtube.playlists
-          .list({
-            part: "snippet",
-            mine: true,
-            access_token: youtubeToken
-          })
-          .then((response) => {
-            const { pageInfo } = response.result;
-            if (pageInfo && pageInfo.totalResults) {
-              setYoutubePlaylistCount(pageInfo.totalResults);
-            }
-          });
-      }, 1000);
-    } else if (youtubeToken && gapi && gapi.client && gapi.client.youtube && gapi.client.youtube.playlists) {
-      gapi.client.youtube.playlists
-        .list({
-          part: "snippet",
-          mine: true,
-          access_token: youtubeToken
-        })
-        .then((response) => {
-          const { pageInfo } = response.result;
-          if (pageInfo && pageInfo.totalResults) {
-            setYoutubePlaylistCount(pageInfo.totalResults);
-          }
-        });
     }
 
     if (spotifyToken) {
@@ -191,8 +164,12 @@ export const SettingsDialog = React.memo<OuterProps>((props) => {
     isDeezerConnected = true;
   }
 
-  if (youtubeToken) {
+  if (youtubeToken && minePlaylist) {
     isYoutubeConnected = true;
+    const { pageInfo } = minePlaylist.result;
+    if (pageInfo && pageInfo.totalResults) {
+      youtubePlaylistCount = pageInfo.totalResults;
+    }
   }
 
   if (spotifyToken) {

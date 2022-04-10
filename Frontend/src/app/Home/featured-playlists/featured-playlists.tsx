@@ -43,7 +43,7 @@ class FeaturedPlaylistsClass extends React.PureComponent<Props> {
       <Grid container={true} item={true} xs={12} className={classes.featuredPlaylistsGrid}>
         <Grid container={true} item={true} xs={12}>
           <Grid item={true} xs={12}>
-            <Typography fontSize={45} fontWeight={900} fontFamily="Poppins,sans-serif" color="white">
+            <Typography className={classes.featuredPlaylistsTitle} fontFamily="Poppins,sans-serif" color="white">
               Featured Playlists
             </Typography>
           </Grid>
@@ -68,6 +68,20 @@ class FeaturedPlaylistsClass extends React.PureComponent<Props> {
               className="mySwiper"
               centeredSlides={false}
               navigation={true}
+              breakpoints={{
+                0: {
+                  slidesPerView: 2
+                },
+                300: {
+                  slidesPerView: 3
+                },
+                768: {
+                  slidesPerView: 4
+                },
+                1024: {
+                  slidesPerView: 5
+                }
+              }}
               modules={[Navigation]}
               style={{ maxWidth: "85%", marginLeft: -20, paddingLeft: 15 }}>
               {playlists.items.map((x) => (

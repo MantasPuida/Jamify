@@ -21,7 +21,6 @@ import SpotifyWebApi from "spotify-web-api-node";
 import Plus from "mdi-material-ui/Plus";
 import { useLocation } from "react-router";
 import { useSpotifyAuth } from "../../../context/spotify-context";
-import { useYoutubeAuth } from "../../../context/youtube-context";
 import { DialogContentDialog } from "./dialog-component";
 import { PlaylistApi } from "../../../api/api-endpoints";
 import { SourceType } from "../playlist-component";
@@ -30,6 +29,7 @@ import { useDeezerAuth } from "../../../context/deezer-context";
 
 import "../fontFamily.css";
 import { Notify } from "../../notification/notification-component";
+import { useYoutubeApiContext } from "../../../context/youtube-api-context";
 
 interface PlaylistType {
   playlistId: string;
@@ -552,25 +552,18 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
 export const PlaylistsDialogComponent = React.memo<OuterProps>((props) => {
   const [duration, setDuration] = React.useState<number>(0);
   const [spotifyPlaylists, setSpotifyPlaylists] = React.useState<SpotifyApi.ListOfUsersPlaylistsResponse>();
-  const [youtubePlaylists, setYoutubePlaylists] = React.useState<gapi.client.youtube.PlaylistListResponse>();
   const [deezerPlaylists, setDeezerPlaylists] = React.useState<PlaylistsResponseMe>();
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const location = useLocation();
   const { spotifyApi, trackName } = props;
   const { spotifyToken } = useSpotifyAuth();
-  const { youtubeToken } = useYoutubeAuth();
   const { deezerToken } = useDeezerAuth();
+  const { minePlaylist } = useYoutubeApiContext();
 
   React.useEffect(() => {
     if (spotifyToken) {
       spotifyApi.getUserPlaylists().then((data) => setSpotifyPlaylists(data.body));
-    }
-
-    if (youtubeToken) {
-      gapi.client.youtube.playlists
-        .list({ part: "snippet", mine: true, maxResults: 99, access_token: youtubeToken })
-        .then((data) => setYoutubePlaylists(data.result));
     }
 
     if (deezerToken) {
@@ -591,7 +584,7 @@ export const PlaylistsDialogComponent = React.memo<OuterProps>((props) => {
     <PlaylistsDialogComponentClass
       duration={duration}
       spotifyPlaylists={spotifyPlaylists}
-      youtubePlaylists={youtubePlaylists}
+      youtubePlaylists={minePlaylist?.result}
       deezerPlaylists={deezerPlaylists}
       deezerToken={deezerToken}
       fullScreen={fullScreen}

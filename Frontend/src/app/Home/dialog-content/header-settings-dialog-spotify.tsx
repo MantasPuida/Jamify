@@ -1,5 +1,14 @@
 import * as React from "react";
-import { Avatar, Button, ButtonProps, CircularProgress, Grid, Typography } from "@mui/material";
+import {
+  Avatar,
+  Button,
+  ButtonProps,
+  CircularProgress,
+  Grid,
+  Typography,
+  useMediaQuery,
+  useTheme
+} from "@mui/material";
 import { useLocation, Location } from "react-router";
 import SpotifyWebApi from "spotify-web-api-node";
 import { WithStyles } from "@mui/styles";
@@ -8,6 +17,7 @@ import { SettingsStyles, useSettingsStyles } from "./settings.styles";
 import { SpotifyConstants } from "../../../constants/constants-spotify";
 
 import "./fontFamily.css";
+import { AppTheme } from "../../../shared/app-theme";
 
 interface OuterProps {
   isSpotifyConnected: boolean;
@@ -18,6 +28,7 @@ interface OuterProps {
 
 interface InnerProps extends WithStyles<typeof SettingsStyles> {
   location: Location;
+  isMobile: boolean;
 }
 
 interface State {
@@ -70,7 +81,7 @@ class HeaderSettingsDialogSpotifyClass extends React.PureComponent<Props, State>
   };
 
   public render(): React.ReactNode {
-    const { isSpotifyConnected, classes, playlistCount } = this.props;
+    const { isSpotifyConnected, classes, playlistCount, isMobile } = this.props;
     const { spotifyProfile, loading } = this.state;
 
     if (loading) {
@@ -100,22 +111,22 @@ class HeaderSettingsDialogSpotifyClass extends React.PureComponent<Props, State>
 
     return (
       <Grid container={true} style={{ overflow: "hidden" }}>
-        <Grid item={true} xs={4} style={{ maxWidth: "32%" }}>
-          <img src={images[0].url} alt="me" style={{ maxWidth: 160, borderRadius: 5 }} />
+        <Grid item={true} xs={4} className={classes.contentStyles}>
+          <img src={images[0].url} alt="me" className={classes.profilePicture} />
         </Grid>
-        <Grid container={true} item={true} xs={8} style={{ flexDirection: "column" }}>
-          <Grid item={true} xs={4} style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16 }}>
+        <Grid container={true} item={true} xs={isMobile ? 12 : 8} style={{ flexDirection: "column" }}>
+          <Grid item={true} xs={4} className={classes.typographyStyles}>
             <Typography fontFamily="Poppins,sans-serif">{displayName ?? "User"}</Typography>
           </Grid>
-          <Grid item={true} xs={4} style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16 }}>
+          <Grid item={true} xs={4} className={classes.typographyStyles}>
             <Typography fontFamily="Poppins,sans-serif">{email}</Typography>
           </Grid>
           <br />
           <br />
-          <Grid item={true} xs={12} style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16 }}>
+          <Grid item={true} xs={12} className={classes.typographyStyles}>
             <Typography fontFamily="Poppins,sans-serif">Playlists: {playlistCount}</Typography>
           </Grid>
-          <Grid item={true} xs={4} style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16 }}>
+          <Grid item={true} xs={4} className={classes.typographyStyles}>
             <Typography fontFamily="Poppins,sans-serif">Listened: 10h:20m</Typography>
           </Grid>
         </Grid>
@@ -128,5 +139,8 @@ export const HeaderSettingsDialogSpotify = React.memo<OuterProps>((props) => {
   const classes = useSettingsStyles();
   const location = useLocation();
 
-  return <HeaderSettingsDialogSpotifyClass {...props} classes={classes} location={location} />;
+  const theme = useTheme<AppTheme>();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  return <HeaderSettingsDialogSpotifyClass isMobile={isMobile} {...props} classes={classes} location={location} />;
 });

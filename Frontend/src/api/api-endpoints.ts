@@ -44,7 +44,7 @@ export namespace PlaylistApi {
       axios.get(`${UsersBaseUrl}/${userId}/playlists/${playlistId}`),
     postPlaylist: (userId: string, data: PlaylistData) => axios.post(`${UsersBaseUrl}/${userId}/playlists`, data),
     putPlaylist: (userId: string, playlistId: string, data: PlaylistData) =>
-      axios.post(`${UsersBaseUrl}/${userId}/playlists/${playlistId}`, data),
+      axios.put(`${UsersBaseUrl}/${userId}/playlists/${playlistId}`, data),
     deletePlaylist: (userId: string, playlistId: string) =>
       axios.delete(`${UsersBaseUrl}/${userId}/playlists/${playlistId}`)
   });

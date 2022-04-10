@@ -12,6 +12,8 @@ import VolumeUpRounded from "mdi-material-ui/VolumeHigh";
 import { TrackObject, usePlayerContext } from "../../context/player-context";
 import { parseTitle } from "../../helpers/title-parser";
 import { PlayerStyles, usePlayerStyles } from "./player.styles";
+import { ArtistAlbumsResponse, PlaylistTracksResponse } from "../../types/deezer.types";
+import { extractThumbnail } from "../../helpers/thumbnails";
 
 const Widget = styled("div")(() => ({
   width: "100%",
@@ -25,6 +27,28 @@ const Widget = styled("div")(() => ({
 
 interface OuterProps {}
 
+type SpotifyPlaylistTracksResponse = SpotifyApi.PlaylistTrackResponse;
+
+interface TrackType {
+  trackId: string;
+  trackName: string;
+  imageUrl: string;
+  artists: string;
+  duration: string;
+  album: string;
+}
+
+type PlaylistTracksType =
+  | SpotifyPlaylistTracksResponse
+  | gapi.client.youtube.PlaylistItemListResponse
+  | TrackType[]
+  | ArtistAlbumsResponse
+  | PlaylistTracksResponse;
+
+interface QueueType {
+  queue: PlaylistTracksType | undefined;
+  source: "spotify" | "youtube" | "deezer" | "own";
+}
 interface InnerProps extends WithStyles<typeof PlayerStyles> {
   track?: TrackObject;
   duration: number;
@@ -35,6 +59,9 @@ interface InnerProps extends WithStyles<typeof PlayerStyles> {
   setPaused: Function;
   setPosition: Function;
   setVolume: Function;
+  queue: QueueType | undefined;
+  setQueue: React.Dispatch<React.SetStateAction<QueueType | undefined>>;
+  setTrack: Function;
 }
 
 type Props = InnerProps & OuterProps;
@@ -85,6 +112,253 @@ class PlayerClass extends React.PureComponent<Props> {
     setPosition(Math.trunc(playedSeconds));
   };
 
+  private handleOnNext: IconButtonProps["onClick"] = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const { queue, track, setTrack } = this.props;
+
+    if (queue?.queue && track) {
+      // find track in the queue
+      if (queue.source === "spotify") {
+        const data = queue.queue as SpotifyPlaylistTracksResponse;
+
+        const trackIndex = data.items.findIndex((item) => item.track.name.includes(track.title));
+
+        if (trackIndex !== -1) {
+          const nextTrack = data.items[trackIndex + 1];
+
+          if (nextTrack) {
+            gapi.client.youtube.search
+              .list({
+                part: "snippet",
+                q: `${nextTrack.track.name} ${nextTrack.track.artists[0].name}`
+              })
+              .then((value) => {
+                if (value.result.items && value.result.items[0].id?.videoId) {
+                  const currentTrack: TrackObject = {
+                    channelTitle: nextTrack.track.album.name,
+                    thumbnail: nextTrack.track.album.images[0].url,
+                    title: nextTrack.track.name,
+                    videoId: value.result.items[0].id?.videoId
+                  };
+
+                  setTrack(currentTrack);
+                }
+              });
+          }
+        }
+      } else if (queue.source === "youtube") {
+        const data = queue.queue as gapi.client.youtube.PlaylistItemListResponse;
+
+        if (data.items && data.items.length > 0 && track) {
+          const trackIndex = data.items.findIndex((item) => item.snippet?.title?.includes(track.title));
+
+          if (trackIndex !== -1) {
+            const nextTrack = data.items[trackIndex + 1];
+
+            if (nextTrack && nextTrack.snippet && nextTrack.snippet.resourceId) {
+              const { channelTitle, thumbnails, resourceId, title } = nextTrack.snippet;
+              const imageUrl = extractThumbnail(thumbnails);
+
+              const currentTrack: TrackObject = {
+                channelTitle: channelTitle ?? "",
+                thumbnail: imageUrl ?? "",
+                title: title ?? "",
+                videoId: resourceId.videoId ?? ""
+              };
+
+              setTrack(currentTrack);
+            }
+          }
+        }
+      } else if (queue.source === "deezer") {
+        const data = queue.queue as ArtistAlbumsResponse;
+
+        if (data.data && data.data.length > 0 && track) {
+          const trackIndex = data.data.findIndex((item) => item.title.includes(track.title));
+
+          if (trackIndex !== -1) {
+            const nextTrack = data.data[trackIndex + 1];
+
+            if (nextTrack) {
+              gapi.client.youtube.search
+                .list({
+                  part: "snippet",
+                  q: `${nextTrack.title} ${nextTrack.artist.name}`
+                })
+                .then((value) => {
+                  if (value.result.items && value.result.items[0].id?.videoId) {
+                    const currentTrack: TrackObject = {
+                      channelTitle: nextTrack.artist.name,
+                      thumbnail: nextTrack.cover_xl,
+                      title: nextTrack.title,
+                      videoId: value.result.items[0].id?.videoId
+                    };
+
+                    setTrack(currentTrack);
+                  }
+                });
+            }
+          }
+        }
+      } else if (queue.source === "own") {
+        const data = queue.queue as TrackType[];
+
+        if (data.length > 0 && track) {
+          const trackIndex = data.findIndex((item) => item.trackName.includes(track.title));
+
+          if (trackIndex !== -1) {
+            const nextTrack = data[trackIndex + 1];
+
+            if (nextTrack) {
+              gapi.client.youtube.search
+                .list({
+                  part: "snippet",
+                  q: `${nextTrack.trackName} ${nextTrack.artists}`
+                })
+                .then((value) => {
+                  if (value.result.items && value.result.items[0].id?.videoId) {
+                    const currentTrack: TrackObject = {
+                      channelTitle: nextTrack.album,
+                      thumbnail: nextTrack.imageUrl,
+                      title: nextTrack.trackName,
+                      videoId: value.result.items[0].id?.videoId
+                    };
+
+                    setTrack(currentTrack);
+                  }
+                });
+            }
+          }
+        }
+      }
+    }
+  };
+
+  private handleOnPrevious: IconButtonProps["onClick"] = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const { queue, track, setTrack } = this.props;
+
+    if (queue?.queue && track) {
+      if (queue.source === "spotify") {
+        const data = queue.queue as SpotifyPlaylistTracksResponse;
+
+        const trackIndex = data.items.findIndex((item) => item.track.name.includes(track.title));
+
+        if (trackIndex !== -1) {
+          const previousTrack = data.items[trackIndex - 1];
+
+          if (previousTrack) {
+            gapi.client.youtube.search
+              .list({
+                part: "snippet",
+                q: `${previousTrack.track.name} ${previousTrack.track.artists[0].name}`
+              })
+              .then((value) => {
+                if (value.result.items && value.result.items[0].id?.videoId) {
+                  const currentTrack: TrackObject = {
+                    channelTitle: previousTrack.track.album.name,
+                    thumbnail: previousTrack.track.album.images[0].url,
+                    title: previousTrack.track.name,
+                    videoId: value.result.items[0].id?.videoId
+                  };
+
+                  setTrack(currentTrack);
+                }
+              });
+          }
+        }
+      } else if (queue.source === "youtube") {
+        const data = queue.queue as gapi.client.youtube.PlaylistItemListResponse;
+
+        if (data.items && data.items.length > 0 && track) {
+          const trackIndex = data.items.findIndex((item) => item.snippet?.title?.includes(track.title));
+
+          if (trackIndex !== -1) {
+            const previousTrack = data.items[trackIndex - 1];
+
+            if (previousTrack && previousTrack.snippet && previousTrack.snippet.resourceId) {
+              const { channelTitle, thumbnails, resourceId, title } = previousTrack.snippet;
+              const imageUrl = extractThumbnail(thumbnails);
+
+              const currentTrack: TrackObject = {
+                channelTitle: channelTitle ?? "",
+                thumbnail: imageUrl ?? "",
+                title: title ?? "",
+                videoId: resourceId.videoId ?? ""
+              };
+
+              setTrack(currentTrack);
+            }
+          }
+        }
+      } else if (queue.source === "deezer") {
+        const data = queue.queue as ArtistAlbumsResponse;
+
+        if (data.data && data.data.length > 0 && track) {
+          const trackIndex = data.data.findIndex((item) => item.title.includes(track.title));
+
+          if (trackIndex !== -1) {
+            const previousTrack = data.data[trackIndex - 1];
+
+            if (previousTrack) {
+              gapi.client.youtube.search
+                .list({
+                  part: "snippet",
+                  q: `${previousTrack.title} ${previousTrack.artist.name}`
+                })
+                .then((value) => {
+                  if (value.result.items && value.result.items[0].id?.videoId) {
+                    const currentTrack: TrackObject = {
+                      channelTitle: previousTrack.artist.name,
+                      thumbnail: previousTrack.cover_xl,
+                      title: previousTrack.title,
+                      videoId: value.result.items[0].id?.videoId
+                    };
+
+                    setTrack(currentTrack);
+                  }
+                });
+            }
+          }
+        }
+      } else if (queue.source === "own") {
+        const data = queue.queue as TrackType[];
+
+        if (data.length > 0 && track) {
+          const trackIndex = data.findIndex((item) => item.trackName.includes(track.title));
+
+          if (trackIndex !== -1) {
+            const previousTrack = data[trackIndex - 1];
+
+            if (previousTrack) {
+              gapi.client.youtube.search
+                .list({
+                  part: "snippet",
+                  q: `${previousTrack.trackName} ${previousTrack.artists}`
+                })
+                .then((value) => {
+                  if (value.result.items && value.result.items[0].id?.videoId) {
+                    const currentTrack: TrackObject = {
+                      channelTitle: previousTrack.album,
+                      thumbnail: previousTrack.imageUrl,
+                      title: previousTrack.trackName,
+                      videoId: value.result.items[0].id?.videoId
+                    };
+
+                    setTrack(currentTrack);
+                  }
+                });
+            }
+          }
+        }
+      }
+    }
+  };
+
   public render(): React.ReactNode {
     const { track, classes, paused, position, volume, duration } = this.props;
     if (!track) {
@@ -120,7 +394,7 @@ class PlayerClass extends React.PureComponent<Props> {
             style={{ display: "flex", alignItems: "center", marginTop: -10, width: "100%" }}>
             <Grid item={true} xs={8} style={{ paddingLeft: 8 }}>
               <Grid container={true} item={true} xs={12}>
-                <IconButton aria-label="previous song" style={{ marginTop: -8 }}>
+                <IconButton aria-label="previous song" style={{ marginTop: -8 }} onClick={this.handleOnNext}>
                   <FastRewindRounded style={{ fontSize: "24px" }} htmlColor="#fff" />
                 </IconButton>
                 <IconButton
@@ -133,7 +407,7 @@ class PlayerClass extends React.PureComponent<Props> {
                     <PauseRounded sx={{ fontSize: "40px" }} htmlColor="#fff" />
                   )}
                 </IconButton>
-                <IconButton aria-label="next song" style={{ marginTop: -8 }}>
+                <IconButton aria-label="next song" style={{ marginTop: -8 }} onClick={this.handleOnPrevious}>
                   <FastForwardRounded style={{ fontSize: "24px" }} htmlColor="#fff" />
                 </IconButton>
                 <Stack direction="column">
@@ -195,12 +469,26 @@ class PlayerClass extends React.PureComponent<Props> {
 }
 
 export const Player = React.memo<OuterProps>((props) => {
-  const { track, position, paused, duration, volume, setPaused, setDuration, setPosition, setVolume } =
-    usePlayerContext();
+  const {
+    track,
+    position,
+    paused,
+    duration,
+    volume,
+    setPaused,
+    setDuration,
+    setPosition,
+    setVolume,
+    queue,
+    setQueue,
+    setTrack
+  } = usePlayerContext();
   const classes = usePlayerStyles();
 
   return (
     <PlayerClass
+      queue={queue}
+      setTrack={setTrack}
       track={track}
       classes={classes}
       position={position}
@@ -211,6 +499,7 @@ export const Player = React.memo<OuterProps>((props) => {
       setDuration={setDuration}
       setPosition={setPosition}
       setVolume={setVolume}
+      setQueue={setQueue}
       {...props}
     />
   );

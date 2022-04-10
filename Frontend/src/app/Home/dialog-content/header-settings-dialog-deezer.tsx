@@ -1,6 +1,15 @@
 import * as React from "react";
 import { NavigateFunction, useNavigate } from "react-router";
-import { Avatar, Button, ButtonProps, CircularProgress, Grid, Typography } from "@mui/material";
+import {
+  Avatar,
+  Button,
+  ButtonProps,
+  CircularProgress,
+  Grid,
+  Typography,
+  useMediaQuery,
+  useTheme
+} from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import { SettingsStyles, useSettingsStyles } from "./settings.styles";
 import deezerIcon from "../../../assets/dashboard/Deezer_Icon_Black.png";
@@ -8,6 +17,7 @@ import { DeezerConstants } from "../../../constants/constants-deezer";
 import { AppRoutes } from "../../routes/routes";
 import { Notify } from "../../notification/notification-component";
 import { useDeezerAuth } from "../../../context/deezer-context";
+import { AppTheme } from "../../../shared/app-theme";
 
 import "./fontFamily.css";
 
@@ -22,6 +32,7 @@ interface InnerProps extends WithStyles<typeof SettingsStyles> {
   register: Function;
   deezerToken: string | null;
   setDeezerUserId: Function;
+  isMobile: boolean;
 }
 
 interface ProfileData {
@@ -89,7 +100,7 @@ class HeaderSettingsDialogDeezerClass extends React.PureComponent<Props, State> 
   };
 
   public render(): React.ReactNode {
-    const { isDeezerConnected, classes, playlistCount } = this.props;
+    const { isDeezerConnected, classes, playlistCount, isMobile } = this.props;
     const { deezerProfile, loading } = this.state;
 
     if (loading) {
@@ -114,22 +125,22 @@ class HeaderSettingsDialogDeezerClass extends React.PureComponent<Props, State> 
 
     return (
       <Grid container={true}>
-        <Grid item={true} xs={4} style={{ maxWidth: "32%", width: "100%" }}>
-          <img src={pictureUrl} alt="me" style={{ maxWidth: 160, borderRadius: 5 }} />
+        <Grid item={true} xs={4} className={classes.contentStyles}>
+          <img src={pictureUrl} alt="me" className={classes.profilePicture} />
         </Grid>
-        <Grid container={true} item={true} xs={8} style={{ flexDirection: "column" }}>
-          <Grid item={true} xs={4} style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16, paddingTop: 16 }}>
+        <Grid container={true} item={true} xs={isMobile ? 12 : 8} style={{ flexDirection: "column" }}>
+          <Grid item={true} xs={4} className={classes.typographyStyles}>
             <Typography fontFamily="Poppins,sans-serif">{userName}</Typography>
           </Grid>
-          <Grid item={true} xs={4} style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16, paddingTop: 16 }}>
+          <Grid item={true} xs={4} className={classes.typographyStyles}>
             <Typography fontFamily="Poppins,sans-serif">{email}</Typography>
           </Grid>
           <br />
           <br />
-          <Grid item={true} xs={4} style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16 }}>
+          <Grid item={true} xs={4} className={classes.typographyStyles}>
             <Typography fontFamily="Poppins,sans-serif">Playlists: {playlistCount}</Typography>
           </Grid>
-          <Grid item={true} xs={4} style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16 }}>
+          <Grid item={true} xs={4} className={classes.typographyStyles}>
             <Typography fontFamily="Poppins,sans-serif">Listened: 10h:20m</Typography>
           </Grid>
         </Grid>
@@ -143,9 +154,13 @@ export const HeaderSettingsDialogDeezer = React.memo<OuterProps>((props) => {
   const navigate = useNavigate();
   const classes = useSettingsStyles();
 
+  const theme = useTheme<AppTheme>();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   return (
     <HeaderSettingsDialogDeezerClass
       {...props}
+      isMobile={isMobile}
       setDeezerUserId={setDeezerUserId}
       deezerToken={deezerToken}
       register={register}

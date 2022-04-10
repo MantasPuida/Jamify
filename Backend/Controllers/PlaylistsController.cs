@@ -57,7 +57,7 @@ namespace Backend.Controllers
             return Created($"/api/users/{userId}/playlists/{playlist.PlaylistId}", _mapper.Map<PlaylistDto>(playlist));
         }
 
-        [HttpPut("{playlistId}")]
+        [HttpPut(template: "{playlistId}")]
         public async Task<ActionResult<PlaylistDto>> PostAsync(Guid userId, Guid playlistId, UpdatePlaylistDto playlistDto)
         {
             var user = await _usersRepository.GetUserAsync(userId);

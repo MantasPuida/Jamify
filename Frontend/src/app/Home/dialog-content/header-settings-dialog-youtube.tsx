@@ -1,12 +1,22 @@
 import * as React from "react";
 import { NavigateFunction, useNavigate } from "react-router";
-import { Avatar, Button, ButtonProps, CircularProgress, Grid, Typography } from "@mui/material";
+import {
+  Avatar,
+  Button,
+  ButtonProps,
+  CircularProgress,
+  Grid,
+  Typography,
+  useMediaQuery,
+  useTheme
+} from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import { useYoutubeAuth } from "../../../context/youtube-context";
 import { SettingsStyles, useSettingsStyles } from "./settings.styles";
 import youtubeIcon from "../../../assets/dashboard/Youtube_Icon_Black.png";
 import { AppRoutes } from "../../routes/routes";
 import { Notify } from "../../notification/notification-component";
+import { AppTheme } from "../../../shared/app-theme";
 
 import "./fontFamily.css";
 
@@ -20,6 +30,7 @@ interface InnerProps extends WithStyles<typeof SettingsStyles> {
   googleAuthObject: gapi.auth2.GoogleAuthBase | undefined;
   register: Function;
   navigate: NavigateFunction;
+  isMobile: boolean;
 }
 
 interface State {
@@ -74,7 +85,7 @@ class HeaderSettingsDialogYouTubeClass extends React.PureComponent<Props, State>
   };
 
   public render(): React.ReactNode {
-    const { isYoutubeConnected, classes, playlistCount } = this.props;
+    const { isYoutubeConnected, classes, playlistCount, isMobile } = this.props;
     const { googleUser, loading } = this.state;
 
     if (loading) {
@@ -101,26 +112,22 @@ class HeaderSettingsDialogYouTubeClass extends React.PureComponent<Props, State>
 
     return (
       <Grid container={true} style={{ overflow: "hidden" }}>
-        <Grid item={true} xs={4} style={{ maxWidth: "32%" }}>
-          <img src={imageUrl} alt="me" style={{ maxWidth: 160, borderRadius: 5, width: "100%" }} />
+        <Grid item={true} xs={4} className={classes.contentStyles}>
+          <img src={imageUrl} alt="me" className={classes.profilePicture} />
         </Grid>
-        <Grid container={true} item={true} xs={8} style={{ flexDirection: "column" }}>
-          <Grid item={true} xs={4} style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16 }}>
+        <Grid container={true} item={true} xs={isMobile ? 12 : 8} style={{ flexDirection: "column" }}>
+          <Grid item={true} xs={4} className={classes.typographyStyles}>
             <Typography fontFamily="Poppins,sans-serif">{name}</Typography>
           </Grid>
-          <Grid item={true} xs={4} style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16 }}>
+          <Grid item={true} xs={4} className={classes.typographyStyles}>
             <Typography fontFamily="Poppins,sans-serif">{email}</Typography>
           </Grid>
           <br />
           <br />
-          <Grid
-            item={true}
-            xs={4}
-            style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16 }}
-            key={Math.random() * 50}>
+          <Grid item={true} xs={4} className={classes.typographyStyles}>
             <Typography fontFamily="Poppins,sans-serif">Playlists: {playlistCount}</Typography>
           </Grid>
-          <Grid item={true} xs={4} style={{ maxHeight: "24px", minWidth: 300, paddingLeft: 16 }}>
+          <Grid item={true} xs={4} className={classes.typographyStyles}>
             <Typography fontFamily="Poppins,sans-serif">Listened: 10h:20m</Typography>
           </Grid>
         </Grid>
@@ -134,10 +141,14 @@ export const HeaderSettingsDialogYouTube = React.memo<OuterProps>((props) => {
   const classes = useSettingsStyles();
   const navigate = useNavigate();
 
+  const theme = useTheme<AppTheme>();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   return (
     <HeaderSettingsDialogYouTubeClass
       {...props}
       navigate={navigate}
+      isMobile={isMobile}
       register={register}
       googleAuthObject={googleAuthObject}
       classes={classes}

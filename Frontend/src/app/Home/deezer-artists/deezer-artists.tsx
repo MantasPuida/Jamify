@@ -26,12 +26,12 @@ class DeezerArtistsClass extends React.PureComponent<InnerProps> {
       <Grid container={true} item={true} xs={12} className={classes.deezerGrid}>
         <Grid container={true} item={true} xs={12}>
           <Grid item={true} xs={12}>
-            <Typography fontSize={45} fontWeight={900} fontFamily="Poppins,sans-serif" color="white">
+            <Typography className={classes.artistTitle} fontFamily="Poppins,sans-serif" color="white">
               Top Artists
             </Typography>
           </Grid>
           <Grid item={true}>
-            <Typography fontSize={25} fontWeight={400} fontFamily="Poppins,sans-serif" color="white">
+            <Typography className={classes.artistHelperTitle} fontFamily="Poppins,sans-serif" color="white">
               Today's Most-streamed artists
             </Typography>
           </Grid>
@@ -45,6 +45,20 @@ class DeezerArtistsClass extends React.PureComponent<InnerProps> {
             className="mySwiper"
             centeredSlides={false}
             navigation={true}
+            breakpoints={{
+              0: {
+                slidesPerView: 2
+              },
+              300: {
+                slidesPerView: 0
+              },
+              768: {
+                slidesPerView: 5
+              },
+              1024: {
+                slidesPerView: 6
+              }
+            }}
             modules={[Navigation]}
             style={{ maxWidth: "85%", marginLeft: -20 }}>
             {chartResponse?.artists.data.map((artist) => {

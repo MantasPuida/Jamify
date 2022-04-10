@@ -43,7 +43,7 @@ class ArtistCardsClass extends React.PureComponent<Props> {
           <Grid item={true} xs={12}>
             <Button style={{ padding: 0, backgroundColor: "transparent" }} onClick={this.handleOnClick}>
               <div id="tintImg" className="tint-img">
-                <img src={artist.picture_xl} alt={artist.name} style={{ maxWidth: 180, borderRadius: "50%" }} />
+                <img src={artist.picture_xl} alt={artist.name} className={classes.image} />
               </div>
             </Button>
           </Grid>

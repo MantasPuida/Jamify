@@ -73,9 +73,17 @@ body {
   border-radius: 50%;
   width: 40px;
   height: 40px;
-  transform: translateY(-10%);
+  transform: translateY(-10%) rotate(180deg);
+}
 
-  transform: rotate(180deg);
+@media only screen and (max-width: 600px) {
+  .swiper-button-next {
+    right: 15px;
+    transform: translateY(-45%);
+  }
+  .swiper-button-prev {
+    transform: translateY(-40%) rotate(180deg);
+  }
 }
 
 .swiper-button-prev::after,
