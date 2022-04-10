@@ -9,14 +9,15 @@ import { Button, ButtonProps, Grid, IconButton, Typography, MenuItem, Menu, Menu
 import { PlaylistStyles, usePlaylistStyles } from "./playlist.styles";
 import { extractThumbnail } from "../../helpers/thumbnails";
 import { PlaylistType } from "../me/me-component";
-import { Album, PlaylistsResponse } from "../../types/deezer.types";
-
-import "./fontFamily.css";
+import { Album, PlaylistsResponse, ArtistAlbumsResponse, PlaylistTracksResponse } from "../../types/deezer.types";
 import { Notify } from "../notification/notification-component";
 import { AppRoutes } from "../routes/routes";
 import { useDeezerAuth } from "../../context/deezer-context";
 import { PlaylistApi } from "../../api/api-endpoints";
 import { useUserContext } from "../../context/user-context";
+
+import "./fontFamily.css";
+import { usePlayerContext } from "../../context/player-context";
 
 export enum SourceType {
   Spotify,
@@ -25,13 +26,35 @@ export enum SourceType {
   Deezer
 }
 
+interface TrackType {
+  trackId: string;
+  trackName: string;
+  imageUrl: string;
+  artists: string;
+  duration: string;
+  album: string;
+}
+
+type SpotifyPlaylistTracksResponse = SpotifyApi.PlaylistTrackResponse;
 type DeezerPlaylistType = Album | PlaylistsResponse;
+type PlaylistTracksType =
+  | SpotifyPlaylistTracksResponse
+  | gapi.client.youtube.PlaylistItemListResponse
+  | TrackType[]
+  | ArtistAlbumsResponse
+  | PlaylistTracksResponse;
 
 interface OuterProps {
   playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType | DeezerPlaylistType;
   sourceType: SourceType;
   spotifyApi: SpotifyWebApi;
   myOwn?: boolean;
+  playlistTracks: PlaylistTracksType;
+}
+
+interface QueueType {
+  queue: PlaylistTracksType | undefined;
+  source: "spotify" | "youtube" | "deezer" | "own";
 }
 
 interface InnerProps extends WithStyles<typeof PlaylistStyles> {
@@ -39,6 +62,18 @@ interface InnerProps extends WithStyles<typeof PlaylistStyles> {
   navigate: NavigateFunction;
   deezerToken: string | null;
   userId?: string;
+  setQueue: React.Dispatch<React.SetStateAction<QueueType | undefined>>;
+  queue: QueueType | undefined;
+  setTrack: Function;
+  setOpen: Function;
+  isOpen: boolean;
+}
+
+interface TrackObject {
+  title: string;
+  thumbnail: string;
+  channelTitle: string;
+  videoId: string;
 }
 
 interface State {
@@ -53,6 +88,178 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
   private handleOnClick: ButtonProps["onClick"] = (event) => {
     event.preventDefault();
     event.stopPropagation();
+
+    const { playlistTracks, queue, setQueue, sourceType, isOpen, setOpen, setTrack, playlist, spotifyApi, userId } =
+      this.props;
+
+    let sourceOfTracks: "spotify" | "youtube" | "deezer" | "own" = "own";
+    if (sourceType === SourceType.Spotify) {
+      sourceOfTracks = "spotify";
+    } else if (sourceType === SourceType.Youtube) {
+      sourceOfTracks = "youtube";
+    } else if (sourceType === SourceType.Deezer) {
+      sourceOfTracks = "deezer";
+    }
+
+    if (queue !== playlistTracks) {
+      setQueue({
+        queue: playlistTracks,
+        source: sourceOfTracks
+      });
+    }
+
+    if (sourceType === SourceType.Spotify) {
+      const currentPlaylist = playlist as SpotifyApi.PlaylistObjectSimplified;
+
+      spotifyApi.getPlaylistTracks(currentPlaylist.id).then((response) => {
+        const responseData = response.body;
+
+        gapi.client.youtube.search
+          .list({
+            part: "snippet",
+            q: `${responseData.items[0].track.name} ${responseData.items[0].track.artists[0].name}`
+          })
+          .then((value) => {
+            if (value.result.items && value.result.items[0].id?.videoId) {
+              const currentTrack: TrackObject = {
+                videoId: value.result.items[0].id.videoId,
+                title: responseData.items[0].track.name,
+                thumbnail: responseData.items[0].track.album.images[0].url,
+                channelTitle: currentPlaylist.name
+              };
+
+              if (!isOpen) {
+                setOpen(true);
+              }
+              setTrack(currentTrack);
+            }
+          });
+      });
+    } else if (sourceType === SourceType.Youtube) {
+      const currentPlaylist = playlist as gapi.client.youtube.Playlist;
+
+      gapi.client.youtube.playlistItems
+        .list({
+          part: "snippet",
+          playlistId: currentPlaylist.id
+        })
+        .then((value) => {
+          const { items } = value.result;
+
+          if (
+            items &&
+            items[0].snippet?.resourceId?.videoId &&
+            items[0].snippet.title &&
+            currentPlaylist?.snippet?.channelTitle
+          ) {
+            const imageUrl = extractThumbnail(items[0]?.snippet?.thumbnails);
+
+            const currentTrack: TrackObject = {
+              videoId: items[0].snippet.resourceId.videoId,
+              title: items[0].snippet.title,
+              thumbnail: imageUrl ?? "",
+              channelTitle: currentPlaylist.snippet.channelTitle
+            };
+
+            if (!isOpen) {
+              setOpen(true);
+            }
+
+            setTrack(currentTrack);
+          }
+        });
+    } else if (sourceType === SourceType.Deezer) {
+      const currentPlaylist = playlist as DeezerPlaylistType;
+
+      if (currentPlaylist.type === "album") {
+        const currentAlbum = playlist as Album;
+
+        DZ.api(`album/${currentAlbum.id}/tracks`, (response) => {
+          const data = response as ArtistAlbumsResponse;
+          const firstRecord = data.data[0];
+
+          gapi.client.youtube.search
+            .list({
+              part: "snippet",
+              q: `${firstRecord.title} ${firstRecord.artist.name ?? ""}`
+            })
+            .then((value) => {
+              if (value.result.items && value.result.items[0].id?.videoId) {
+                const currentTrack: TrackObject = {
+                  videoId: value.result.items[0].id.videoId,
+                  title: firstRecord.title_short ?? "",
+                  thumbnail: firstRecord.cover_xl ?? "",
+                  channelTitle: currentPlaylist.title ?? ""
+                };
+
+                if (!isOpen) {
+                  setOpen(true);
+                }
+                setTrack(currentTrack);
+              }
+            });
+        });
+      } else if (currentPlaylist.type === "playlist") {
+        const currentDzPlaylist = playlist as PlaylistsResponse;
+
+        DZ.api(`playlist/${currentDzPlaylist.id}/tracks`, (response) => {
+          const data = response as PlaylistTracksResponse;
+          const firstRecord = data.data[0];
+
+          gapi.client.youtube.search
+            .list({
+              part: "snippet",
+              q: `${firstRecord.title ?? ""} ${firstRecord.artist.name ?? ""}`
+            })
+            .then((value) => {
+              if (value.result.items && value.result.items[0].id?.videoId) {
+                const currentTrack: TrackObject = {
+                  videoId: value.result.items[0].id.videoId,
+                  title: firstRecord.title ?? "",
+                  thumbnail: firstRecord.album.cover_xl ?? "",
+                  channelTitle: currentPlaylist.title ?? ""
+                };
+
+                if (!isOpen) {
+                  setOpen(true);
+                }
+                setTrack(currentTrack);
+              }
+            });
+        });
+      }
+    } else if (sourceType === SourceType.Own && userId) {
+      const currentPlaylist = playlist as PlaylistType;
+
+      const { TracksApiEndpoints } = PlaylistApi;
+
+      TracksApiEndpoints()
+        .fetchTracks(userId, currentPlaylist.playlistId)
+        .then((response) => {
+          const track = response.data[0] as TrackType;
+
+          gapi.client.youtube.search
+            .list({
+              part: "snippet",
+              q: `${track.trackName} ${track.artists ?? ""}`
+            })
+            .then((value) => {
+              if (value.result.items && value.result.items[0].id?.videoId) {
+                const currentTrack: TrackObject = {
+                  videoId: value.result.items[0].id.videoId,
+                  title: track.trackName ?? "",
+                  thumbnail: track.imageUrl ?? "",
+                  channelTitle: track.artists ?? ""
+                };
+
+                if (!isOpen) {
+                  setOpen(true);
+                }
+                setTrack(currentTrack);
+              }
+            });
+        });
+    }
   };
 
   private parseDescription = (description: string | null): string | null => {
@@ -286,6 +493,7 @@ export const PlaylistTopComponent = React.memo<OuterProps>((props) => {
   const [image, setImage] = React.useState<string>("");
   const { deezerToken } = useDeezerAuth();
   const { userId } = useUserContext();
+  const { setQueue, queue, setTrack, setOpen, isOpen } = usePlayerContext();
   const { playlist, sourceType, spotifyApi } = props;
 
   if (sourceType === SourceType.Spotify) {
@@ -300,11 +508,16 @@ export const PlaylistTopComponent = React.memo<OuterProps>((props) => {
 
   return (
     <PlaylistComponentClass
-      userId={userId}
-      deezerToken={deezerToken}
+      classes={classes}
       navigate={navigate}
       image={image}
-      classes={classes}
+      deezerToken={deezerToken}
+      userId={userId}
+      isOpen={isOpen}
+      setOpen={setOpen}
+      setTrack={setTrack}
+      setQueue={setQueue}
+      queue={queue}
       {...props}
     />
   );

@@ -94,7 +94,7 @@ export const PlaylistStyles = (theme: AppTheme) =>
     },
     artistTypography: {
       color: "rgba(255, 255, 255, .7)",
-      textAlign: "right",
+      textAlign: "start",
       float: "right"
     },
     artistTypographyIcon: {

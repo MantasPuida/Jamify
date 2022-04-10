@@ -50,13 +50,13 @@ class DeezerArtistsClass extends React.PureComponent<InnerProps> {
                 slidesPerView: 2
               },
               300: {
-                slidesPerView: 3
+                slidesPerView: 0
               },
               768: {
-                slidesPerView: 4
+                slidesPerView: 5
               },
               1024: {
-                slidesPerView: 5
+                slidesPerView: 6
               }
             }}
             modules={[Navigation]}
