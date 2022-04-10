@@ -1,19 +1,29 @@
 import { createStyles, makeStyles } from "@mui/styles";
+import { AppTheme } from "../../../shared/app-theme";
 
-export const HeaderStyles = () =>
+export const HeaderStyles = (theme: AppTheme) =>
   createStyles({
     mainContainer: {
-      height: 80,
-      maxHeight: 80,
       backgroundColor: "black"
     },
     leftHeaderItem: {
       alignSelf: "center",
-      paddingLeft: 16
+      paddingLeft: 16,
+      [theme.breakpoints.down(400)]: {
+        alignSelf: "normal"
+      }
     },
     textSpacing: {
       marginLeft: 40,
-      marginRight: 40
+      marginRight: 40,
+      [theme.breakpoints.down("lg")]: {
+        marginLeft: 20,
+        marginRight: 20
+      },
+      [theme.breakpoints.down("sm")]: {
+        marginLeft: 10,
+        marginRight: 10
+      }
     },
     buttons: {
       textTransform: "none",
@@ -33,11 +43,19 @@ export const HeaderStyles = () =>
     rightHeaderItem: {
       alignSelf: "center",
       textAlign: "end",
-      paddingRight: 16
+      paddingRight: 16,
+      [theme.breakpoints.down(400)]: {
+        alignSelf: "normal",
+        marginLeft: -16
+      }
     },
     centerContent: {
       justifyContent: "center",
-      alignContent: "center"
+      alignContent: "center",
+      [theme.breakpoints.down(400)]: {
+        flexDirection: "column",
+        textAlign: "center"
+      }
     },
     mainIcon: {
       width: 56,

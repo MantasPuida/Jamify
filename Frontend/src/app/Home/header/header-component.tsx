@@ -28,45 +28,55 @@ class HeaderComponentClass extends React.PureComponent<Props> {
     event.preventDefault();
     event.stopPropagation();
 
-    const { navigate } = this.props;
+    const { navigate, location } = this.props;
 
-    navigate(AppRoutes.Explore);
+    if (location.pathname !== AppRoutes.Explore) {
+      navigate(AppRoutes.Explore);
+    }
   };
 
   private handleOnMeClick: ButtonProps["onClick"] = (event) => {
     event.preventDefault();
     event.stopPropagation();
 
-    const { navigate } = this.props;
+    const { navigate, location } = this.props;
 
-    navigate(AppRoutes.Me);
+    if (location.pathname !== AppRoutes.Me) {
+      navigate(AppRoutes.Me);
+    }
   };
 
   private handleOnSearchClick: ButtonProps["onClick"] = (event) => {
     event.preventDefault();
     event.stopPropagation();
 
-    const { navigate } = this.props;
+    const { navigate, location } = this.props;
 
-    navigate(AppRoutes.Search);
+    if (location.pathname !== AppRoutes.Search) {
+      navigate(AppRoutes.Search);
+    }
   };
 
   private handleOnHomeClick: ButtonProps["onClick"] = (event) => {
     event.preventDefault();
     event.stopPropagation();
 
-    const { navigate } = this.props;
+    const { navigate, location } = this.props;
 
-    navigate(AppRoutes.Home);
+    if (location.pathname !== AppRoutes.Home) {
+      navigate(AppRoutes.Home);
+    }
   };
 
   private handleOnIconClick: IconButtonProps["onClick"] = (event) => {
     event.preventDefault();
     event.stopPropagation();
 
-    const { navigate } = this.props;
+    const { navigate, location } = this.props;
 
-    navigate(AppRoutes.Home);
+    if (location.pathname !== AppRoutes.Home) {
+      navigate(AppRoutes.Home);
+    }
   };
 
   public render(): React.ReactNode {

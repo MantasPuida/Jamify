@@ -1,6 +1,7 @@
 import { createStyles, makeStyles } from "@mui/styles";
+import { AppTheme } from "../../shared/app-theme";
 
-export const DashboardStyles = () =>
+export const DashboardStyles = (theme: AppTheme) =>
   createStyles({
     mainWindow: {
       backgroundImage: "linear-gradient(315deg, #43C6AC, #191654)",
@@ -12,24 +13,37 @@ export const DashboardStyles = () =>
       height: "100vh"
     },
     image: {
-      width: "100vw",
-      height: "100vh",
-      textAlignLast: "center"
+      width: "100%",
+      height: "100%",
+      textAlignLast: "center",
+      placeContent: "center"
     },
     imageTag: {
-      height: "100%"
+      height: "100%",
+      [theme.breakpoints.between("md", "xl")]: {
+        height: "80%"
+      }
     },
     mainText: {
       marginLeft: 45,
       marginTop: 10,
-      width: 381,
+      width: "calc(100% + 155px)",
       fontSize: 56,
-      fontWeight: 700
+      fontWeight: 700,
+      [theme.breakpoints.down("sm")]: {
+        fontSize: 40,
+        marginTop: 30
+      }
     },
     descriptiveText: {
       marginLeft: 50,
       marginTop: 10,
-      fontSize: 48
+      fontSize: 48,
+      [theme.breakpoints.down("sm")]: {
+        fontSize: 32,
+        marginLeft: 40,
+        width: "calc(100% + 10px)"
+      }
     },
     textGrid: {
       zIndex: 2
@@ -45,7 +59,13 @@ export const DashboardStyles = () =>
       float: "right",
       paddingLeft: 16,
       fontFamily: "Poppins, sans-serif",
-      fontWeight: 700
+      fontWeight: 700,
+      width: 0,
+      [theme.breakpoints.down("sm")]: {
+        fontSize: 32,
+        paddingLeft: 8,
+        maxWidth: 0
+      }
     },
     contentText: {
       paddingTop: 80

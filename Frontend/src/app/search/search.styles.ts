@@ -1,11 +1,18 @@
 import { createStyles, makeStyles } from "@mui/styles";
+import { AppTheme } from "../../shared/app-theme";
 
-export const SearchStyles = () =>
+export const SearchStyles = (theme: AppTheme) =>
   createStyles({
     homeGrid: {
       overflowX: "hidden",
       padding: "32px 0 24px 0",
-      margin: "0 150px"
+      margin: "0 150px",
+      [theme.breakpoints.down("sm")]: {
+        margin: "0 50px"
+      },
+      [theme.breakpoints.down(400)]: {
+        margin: "0 25px"
+      }
     },
 
     contentGrid: {
@@ -15,7 +22,22 @@ export const SearchStyles = () =>
 
     textField: {
       maxWidth: "80%",
-      color: "white"
+      color: "white",
+      [theme.breakpoints.down("xl")]: {
+        maxWidth: "calc(80% - 50px)"
+      },
+      [theme.breakpoints.down("lg")]: {
+        maxWidth: "calc(80% - 80px)"
+      },
+      [theme.breakpoints.down("md")]: {
+        maxWidth: "calc(80% - 100px)"
+      },
+      [theme.breakpoints.down("sm")]: {
+        maxWidth: "calc(80%)"
+      },
+      [theme.breakpoints.down(400)]: {
+        maxWidth: "calc(80% + 30px)"
+      }
     },
 
     typography: {

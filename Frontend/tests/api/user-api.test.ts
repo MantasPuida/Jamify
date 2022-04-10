@@ -1,19 +1,6 @@
 import { PlaylistApi } from "../../src/api/api-endpoints";
 
-interface User {
-  userId: string;
-  spotifyUniqueIdentifier: string;
-  youtubeUniqueIdentifier: string;
-  deezerUniqueIdentifier: string;
-  spotifyName: string;
-  youtubeName: string;
-  deezerName: string;
-  spotifyEmail: string;
-  youtubeEmail: string;
-  deezerEmail: string;
-}
-
-describe("Local API Tests", () => {
+describe("User API endpoints", () => {
   const { UserApiEndpoints } = PlaylistApi;
   let userId: string | undefined = undefined;
 

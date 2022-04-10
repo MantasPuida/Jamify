@@ -17,6 +17,8 @@ import { Artist } from "../artist/artist-component";
 import { useAppContext } from "../../context/app-context";
 import { BackdropLoader } from "../loader/loader-backdrop";
 import { RelativeExploreRoutes } from "../explore/explore-relative-routes";
+import { useYoutubeApiContext } from "../../context/youtube-api-context";
+import { useYoutubeAuth } from "../../context/youtube-context";
 
 interface Props {
   spotifyApi: SpotifyWebApi;
@@ -56,6 +58,24 @@ const HomeRoutes = (): JSX.Element => {
   const { isOpen } = usePlayerContext();
   const { spotifyToken, register } = useSpotifyAuth();
   const { loading, setLoading, setIsOnline } = useAppContext();
+  const { youtubeToken } = useYoutubeAuth();
+  const { setMinePlaylist } = useYoutubeApiContext();
+
+  React.useEffect(() => {
+    setTimeout(() => {
+      if (youtubeToken) {
+        gapi.client.youtube.playlists
+          .list({
+            part: "snippet",
+            mine: true,
+            access_token: youtubeToken
+          })
+          .then((response) => {
+            setMinePlaylist(response);
+          });
+      }
+    }, 1000);
+  }, [youtubeToken]);
 
   React.useEffect(() => {
     setLoading(true);

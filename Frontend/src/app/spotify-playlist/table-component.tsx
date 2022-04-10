@@ -47,12 +47,14 @@ interface State {
 type Props = InnerProps & OuterProps;
 
 class TracksTableContentClass extends React.PureComponent<Props, State> {
-  public state: State = { albumName: "", artistName: "", duration: "", imageUrl: "", trackId: "", trackName: "" };
+  public state: State;
 
   constructor(props: Props) {
     super(props);
 
     const { sourceType, row } = props;
+
+    this.state = { albumName: "", artistName: "", duration: "", imageUrl: "", trackId: "", trackName: "" };
 
     if (sourceType === SourceType.Youtube) {
       this.resolveYoutubeTrack(row as gapi.client.youtube.PlaylistItem);
@@ -71,44 +73,34 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
 
     if (deezerPlaylist.type === "album") {
       const currentPlaylist = deezerPlaylist as Album;
-      const { artist, title, duration, cover_xl: coverXl } = row as ArtistAlbumsData;
+      const { artist, title_short: titleShort, duration, id } = row as ArtistAlbumsData;
       const resolvedDuration = this.resolveDuration(duration);
-      gapi.client.youtube.search.list({ part: "snippet", q: `${artist} ${title}` }).then((response) => {
-        const { items } = response.result;
 
-        if (items && items.length > 0 && items[0].id?.videoId) {
-          this.setState({
-            albumName: currentPlaylist.title,
-            artistName: artist.name,
-            duration: resolvedDuration,
-            imageUrl: coverXl,
-            trackId: items[0].id.videoId,
-            trackName: title
-          });
-        }
-      });
+      this.state = {
+        albumName: currentPlaylist.title,
+        artistName: artist.name,
+        duration: resolvedDuration,
+        imageUrl: currentPlaylist.cover_xl,
+        trackId: id.toString(),
+        trackName: titleShort
+      };
     } else if (deezerPlaylist.type === "playlist") {
       const currentPlaylist = deezerPlaylist as PlaylistsResponse;
-      const { artist, title, duration } = row as PlaylistTracksData;
+      const { artist, title, duration, id } = row as PlaylistTracksData;
       const resolvedDuration = this.resolveDuration(duration);
-      gapi.client.youtube.search.list({ part: "snippet", q: `${artist} ${title}` }).then((response) => {
-        const { items } = response.result;
 
-        if (items && items.length > 0 && items[0].id?.videoId) {
-          const imgUrl = extractThumbnail(items[0].snippet?.thumbnails);
+      if (!currentPlaylist.title || !artist.name || !title || !resolvedDuration) {
+        return;
+      }
 
-          if (imgUrl) {
-            this.setState({
-              albumName: currentPlaylist.title,
-              artistName: artist.name,
-              duration: resolvedDuration,
-              imageUrl: imgUrl,
-              trackId: items[0].id.videoId,
-              trackName: title
-            });
-          }
-        }
-      });
+      this.state = {
+        albumName: currentPlaylist.title,
+        artistName: artist.name,
+        duration: resolvedDuration,
+        imageUrl: currentPlaylist.picture_xl,
+        trackId: id.toString(),
+        trackName: title
+      };
     }
   };
 
@@ -120,20 +112,14 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
   };
 
   private resolveOwnTrack = (ownRow: TrackType): void => {
-    gapi.client.youtube.search.list({ part: "snippet", q: ownRow.trackName, maxResults: 999 }).then((results) => {
-      const resultData = results.result;
-
-      if (resultData && resultData.items && resultData?.items[0]?.id?.videoId) {
-        this.setState({
-          trackName: ownRow.trackName,
-          imageUrl: ownRow.imageUrl,
-          trackId: resultData.items[0].id.videoId,
-          albumName: ownRow.album,
-          duration: ownRow.duration,
-          artistName: ownRow.artists
-        });
-      }
-    });
+    this.state = {
+      trackName: ownRow.trackName,
+      imageUrl: ownRow.imageUrl,
+      trackId: ownRow.trackId,
+      albumName: ownRow.album,
+      duration: ownRow.duration,
+      artistName: ownRow.artists
+    };
   };
 
   private resolveYoutubeTrack = (youtubeRow: gapi.client.youtube.PlaylistItem) => {
@@ -260,6 +246,27 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
 
       setOpen(true);
       setTrack(currentTrack);
+    } else if (sourceType === SourceType.Deezer) {
+      const deezerRow = row as DeezerPlaylistTrackType;
+
+      const { artist, title, title_short: titleShort } = deezerRow;
+      gapi.client.youtube.search.list({ part: "snippet", q: `${title} ${artist}` }).then((response) => {
+        const { items } = response.result;
+
+        if (items && items.length > 0 && items[0].id?.videoId) {
+          const imgUrl = extractThumbnail(items[0].snippet?.thumbnails);
+
+          const currentTrack: TrackObject = {
+            videoId: items[0].id?.videoId,
+            channelTitle: "title",
+            thumbnail: imgUrl ?? "",
+            title: titleShort
+          };
+
+          setOpen(true);
+          setTrack(currentTrack);
+        }
+      });
     }
   };
 
@@ -300,7 +307,7 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
               <Play id="playSvgIcon" className={classes.playlistIconButtonIcon} />
             </div>
           </Button>
-          <Button className={classes.buttonText} variant="text">
+          <Button className={classes.buttonText} variant="text" onClick={this.handleOnTrackClick}>
             <Typography
               style={{ height: "100%", marginTop: 4, textAlign: "left", minWidth: 400 }}
               fontFamily="Poppins, sans-serif"

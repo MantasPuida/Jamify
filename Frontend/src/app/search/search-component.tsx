@@ -54,10 +54,15 @@ class SearchClass extends React.PureComponent<Props, State> {
     event.preventDefault();
     event.stopPropagation();
 
+    const { source, searchTerm } = this.state;
+
+    if (!searchTerm) {
+      return;
+    }
+
     this.setState({ isLoading: true, artists: undefined, playlists: undefined, tracks: undefined });
 
     const { spotifyApi } = this.props;
-    const { source, searchTerm } = this.state;
 
     if (searchTerm) {
       switch (source) {

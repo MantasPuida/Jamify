@@ -1,6 +1,7 @@
 import { createStyles, makeStyles } from "@mui/styles";
+import { AppTheme } from "../../../shared/app-theme";
 
-export const SettingsStyles = () =>
+export const SettingsStyles = (theme: AppTheme) =>
   createStyles({
     button: {
       color: "black",
@@ -28,6 +29,30 @@ export const SettingsStyles = () =>
     loginButton: {
       marginTop: "13%",
       textAlign: "center"
+    },
+
+    profilePicture: {
+      maxWidth: 160,
+      borderRadius: 5,
+      [theme.breakpoints.down("sm")]: {
+        maxWidth: 80
+      }
+    },
+    contentStyles: {
+      maxWidth: "32%",
+      [theme.breakpoints.down("sm")]: {
+        maxWidth: "16%"
+      }
+    },
+
+    typographyStyles: {
+      maxHeight: "24px",
+      minWidth: 300,
+      paddingLeft: 16,
+      [theme.breakpoints.down("sm")]: {
+        paddingLeft: 0,
+        paddingTop: 2
+      }
     }
   });
 
