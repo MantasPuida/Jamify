@@ -37,7 +37,8 @@ export const PlaylistStyles = (theme: AppTheme) =>
       color: "transparent",
       padding: 0,
       textTransform: "none",
-      width: "85%"
+      width: "70%",
+      maxWidth: "80%"
     },
     hover: {
       "&:hover img#rowTrackImage": {

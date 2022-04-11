@@ -207,7 +207,7 @@ class TrackActionComponentClass extends React.PureComponent<Props, State> {
       <>
         <IconButton onClick={this.handleOnIconClick} style={{ padding: 0, color: "rgba(255, 255, 255, .7)" }}>
           {isMine ? (
-            <CardsHeart id="DotsSvgIcon" style={{ display: "none", color: "red" }} />
+            <CardsHeart id="DotsSvgIcon" style={{ color: "red" }} />
           ) : (
             <CardsHeartOutline id="DotsSvgIcon" style={{ display: "none", color: "red" }} />
           )}

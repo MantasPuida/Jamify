@@ -90,7 +90,7 @@ class TracksComponentClass extends React.PureComponent<Props> {
                 </TableHead>
                 <TableBody>
                   {sourceType === SourceType.Spotify &&
-                    (playlistTracks as SpotifyApi.PlaylistTrackResponse).items.map((row) => {
+                    (playlistTracks as SpotifyApi.PlaylistTrackResponse).items.map((row, trackIndex) => {
                       if (!row || !row.track || !row.track.id || !row.track.album) {
                         const randomKey = Math.floor(Math.random() * 5000);
                         return <React.Fragment key={randomKey} />;
@@ -98,6 +98,7 @@ class TracksComponentClass extends React.PureComponent<Props> {
 
                       return (
                         <TracksTableContent
+                          trackIndex={trackIndex + 1}
                           row={row}
                           key={row.track.id}
                           sourceType={SourceType.Spotify}
@@ -109,7 +110,7 @@ class TracksComponentClass extends React.PureComponent<Props> {
                     })}
 
                   {sourceType === SourceType.Youtube &&
-                    (playlistTracks as gapi.client.youtube.PlaylistItemListResponse).items?.map((row) => {
+                    (playlistTracks as gapi.client.youtube.PlaylistItemListResponse).items?.map((row, trackIndex) => {
                       if (!row || !row.id) {
                         const randomKey = Math.floor(Math.random() * 5000);
                         return <React.Fragment key={randomKey} />;
@@ -117,6 +118,7 @@ class TracksComponentClass extends React.PureComponent<Props> {
 
                       return (
                         <TracksTableContent
+                          trackIndex={trackIndex + 1}
                           row={row}
                           key={row.id}
                           sourceType={SourceType.Youtube}
@@ -128,7 +130,7 @@ class TracksComponentClass extends React.PureComponent<Props> {
                     })}
 
                   {sourceType === SourceType.Own &&
-                    (playlistTracks as TrackType[]).map((row) => {
+                    (playlistTracks as TrackType[]).map((row, trackIndex) => {
                       if (!row || !row.trackId) {
                         const randomKey = Math.floor(Math.random() * 5000);
                         return <React.Fragment key={randomKey} />;
@@ -136,6 +138,7 @@ class TracksComponentClass extends React.PureComponent<Props> {
 
                       return (
                         <TracksTableContent
+                          trackIndex={trackIndex + 1}
                           row={row}
                           key={row.trackId}
                           albumName="random"
@@ -148,7 +151,7 @@ class TracksComponentClass extends React.PureComponent<Props> {
                     })}
 
                   {sourceType === SourceType.Deezer &&
-                    (playlistTracks as DeezerPlaylistTrackType).data.map((row) => {
+                    (playlistTracks as DeezerPlaylistTrackType).data.map((row, trackIndex) => {
                       if (!row || !row.id) {
                         const randomKey = Math.floor(Math.random() * 5000);
                         return <React.Fragment key={randomKey} />;
@@ -159,6 +162,7 @@ class TracksComponentClass extends React.PureComponent<Props> {
 
                         return (
                           <TracksTableContent
+                            trackIndex={trackIndex + 1}
                             row={currentRow}
                             key={currentRow.id}
                             albumName="random"
@@ -174,6 +178,7 @@ class TracksComponentClass extends React.PureComponent<Props> {
 
                       return (
                         <TracksTableContent
+                          trackIndex={trackIndex + 1}
                           row={currentRow}
                           key={currentRow.id}
                           albumName="random"

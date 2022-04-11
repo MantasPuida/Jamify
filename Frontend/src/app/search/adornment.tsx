@@ -1,6 +1,7 @@
 import * as React from "react";
-import { Select, MenuItem, SelectProps, IconButton, IconButtonProps, Grid } from "@mui/material";
+import { Select, MenuItem, SelectProps, IconButton, IconButtonProps, Grid, Typography } from "@mui/material";
 import Magnify from "mdi-material-ui/Magnify";
+import Spotify from "mdi-material-ui/Spotify";
 
 import "./fontFamily.css";
 
@@ -32,17 +33,29 @@ export class EndAdornment extends React.PureComponent<OuterProps> {
               fontFamily: "Poppins,sans-serif",
               fontSize: 16
             }}>
-            <MenuItem value="All" style={{ fontFamily: "Poppins,sans-serif", fontSize: 16 }}>
-              All
+            <MenuItem value="All">
+              <Grid container={true} style={{ minWidth: 50 }}>
+                <Typography style={{ fontFamily: "Poppins,sans-serif", fontSize: 16 }}>All</Typography>
+                <Spotify style={{ color: "#1DB954", paddingLeft: 8, marginTop: -1, marginLeft: "auto" }} />
+              </Grid>
             </MenuItem>
-            <MenuItem value="Tracks" style={{ fontFamily: "Poppins,sans-serif", fontSize: 16 }}>
-              Tracks
+            <MenuItem value="Tracks">
+              <Grid container={true} style={{ minWidth: 50 }}>
+                <Typography style={{ fontFamily: "Poppins,sans-serif", fontSize: 16 }}>Tracks</Typography>
+                <Spotify style={{ color: "#1DB954", paddingLeft: 8, marginTop: -1, marginLeft: "auto" }} />
+              </Grid>
             </MenuItem>
-            <MenuItem value="Artists" style={{ fontFamily: "Poppins,sans-serif", fontSize: 16 }}>
-              Artists
+            <MenuItem value="Artists">
+              <Grid container={true} style={{ minWidth: 50 }}>
+                <Typography style={{ fontFamily: "Poppins,sans-serif", fontSize: 16 }}> Artists</Typography>
+                <Spotify style={{ color: "#1DB954", paddingLeft: 8, marginTop: -1, marginLeft: "auto" }} />
+              </Grid>
             </MenuItem>
-            <MenuItem value="Playlists" style={{ fontFamily: "Poppins,sans-serif", fontSize: 16 }}>
-              Playlists
+            <MenuItem value="Playlists">
+              <Grid container={true} style={{ minWidth: 50 }}>
+                <Typography style={{ fontFamily: "Poppins,sans-serif", fontSize: 16 }}>Playlists</Typography>
+                <Spotify style={{ color: "#1DB954", paddingLeft: 8, marginTop: -1, marginLeft: "auto" }} />
+              </Grid>
             </MenuItem>
           </Select>
           <IconButton onClick={handleOnClick}>

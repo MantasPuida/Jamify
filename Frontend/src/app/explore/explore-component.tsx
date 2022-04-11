@@ -128,16 +128,6 @@ class ExploreClass extends React.PureComponent<Props, State> {
               Genres
             </Typography>
           </Grid>
-          <Grid item={true}>
-            <Typography
-              fontSize={25}
-              fontWeight={400}
-              fontFamily="Poppins,sans-serif"
-              color="white"
-              style={{ float: "left" }}>
-              Unified Genres
-            </Typography>
-          </Grid>
         </Grid>
         <Grid container={true} item={true} xs={12} style={{ display: "flex", maxWidth: "85%" }}>
           {sameDzGenres.map((genre, index) => {

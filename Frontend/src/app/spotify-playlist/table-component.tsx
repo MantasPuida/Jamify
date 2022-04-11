@@ -28,6 +28,7 @@ interface OuterProps {
   albumName?: string;
   spotifyApi: SpotifyWebApi;
   myOwn?: boolean;
+  trackIndex: number;
 }
 
 interface InnerProps extends WithStyles<typeof PlaylistStyles> {
@@ -290,7 +291,7 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
   };
 
   public render(): React.ReactNode {
-    const { classes, sourceType, spotifyApi, playlist, myOwn } = this.props;
+    const { classes, sourceType, spotifyApi, playlist, myOwn, trackIndex } = this.props;
     const { albumName, artistName, duration, imageUrl, trackId, trackName } = this.state;
 
     if (!albumName || !artistName || !imageUrl || !trackId || !trackName) {
@@ -301,6 +302,14 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
     return (
       <TableRow classes={{ hover: classes.hover }} hover={true} role="checkbox" tabIndex={-1} key={trackId}>
         <TableCell key={trackId} style={{ paddingLeft: 0, minWidth: 350, maxWidth: 550 }}>
+          <Typography
+            fontSize={20}
+            fontWeight={200}
+            fontFamily="Poppins,sans-serif"
+            color="white"
+            style={{ float: "left", paddingTop: 8 }}>
+            {trackIndex}
+          </Typography>
           <Button style={{ padding: 0, color: "transparent" }} onClick={this.handleOnTrackClick}>
             <img className={classes.playlistImageStyle} src={imageUrl} alt={trackName} width={40} id="rowTrackImage" />
             <div className={classes.playlistIconButton}>
