@@ -33,6 +33,7 @@ export const SettingsStyles = (theme: AppTheme) =>
 
     profilePicture: {
       maxWidth: 160,
+      width: "100%",
       borderRadius: 5,
       [theme.breakpoints.down("sm")]: {
         maxWidth: 80

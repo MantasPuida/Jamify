@@ -59,23 +59,29 @@ const HomeRoutes = (): JSX.Element => {
   const { spotifyToken, register } = useSpotifyAuth();
   const { loading, setLoading, setIsOnline } = useAppContext();
   const { youtubeToken } = useYoutubeAuth();
-  const { setMinePlaylist } = useYoutubeApiContext();
+  const { setMinePlaylist, minePlaylist } = useYoutubeApiContext();
 
   React.useEffect(() => {
-    setTimeout(() => {
-      if (youtubeToken) {
-        gapi.client.youtube.playlists
-          .list({
-            part: "snippet",
-            mine: true,
-            access_token: youtubeToken
-          })
-          .then((response) => {
-            setMinePlaylist(response);
-          });
-      }
-    }, 1000);
-  }, [youtubeToken]);
+    if (!minePlaylist) {
+      setTimeout(() => {
+        if (youtubeToken) {
+          gapi.client.youtube.playlists
+            .list({
+              part: "snippet",
+              mine: true,
+              access_token: youtubeToken
+            })
+            .then((response) => {
+              setMinePlaylist(response);
+            });
+        }
+      }, 1000);
+    }
+  }, [location]);
+
+  if (location.pathname === AppRoutes.Me) {
+    setLoading(true);
+  }
 
   React.useEffect(() => {
     setLoading(true);

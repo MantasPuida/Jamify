@@ -1,7 +1,8 @@
 import * as React from "react";
 import Spotify from "mdi-material-ui/Spotify";
+import MusicRestQuarter from "mdi-material-ui/MusicRestQuarter";
 import PlayCircleOutline from "mdi-material-ui/PlayCircleOutline";
-import { Grid, Typography } from "@mui/material";
+import { Avatar, Grid, Typography } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper";
@@ -13,12 +14,13 @@ import { useUserContext } from "../../context/user-context";
 import { PlaylistApi } from "../../api/api-endpoints";
 import { useDeezerAuth } from "../../context/deezer-context";
 import { PlaylistsResponseMe } from "../../types/deezer.types";
+import { useAppContext } from "../../context/app-context";
+import { useYoutubeAuth } from "../../context/youtube-context";
+import Deezer from "../../assets/svg/deezer-logo-white.svg";
 
 import "swiper/css";
 import "swiper/css/navigation";
 import "./styles.css";
-import { useAppContext } from "../../context/app-context";
-import { useYoutubeApiContext } from "../../context/youtube-api-context";
 
 type PlaylistSourceType = "Spotify" | "Youtube" | "Deezer" | "Own";
 
@@ -33,7 +35,7 @@ interface InnerProps extends WithStyles<typeof HomeLandingPageStyles> {
   userId?: string;
   deezerToken: string | null;
   setLoading: Function;
-  minePlaylist?: gapi.client.Response<gapi.client.youtube.PlaylistListResponse>;
+  youtubeToken: string | null;
 }
 
 interface OuterProps {
@@ -57,14 +59,54 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { spotifyApi, playlistSource, userId, minePlaylist } = props;
+    const { spotifyApi, playlistSource, userId, youtubeToken } = props;
 
     if (playlistSource === "Spotify") {
       spotifyApi.getUserPlaylists().then((playlists) => {
         this.setState({ spotifyPlaylists: playlists.body });
       });
-    } else if (playlistSource === "Youtube" && minePlaylist) {
-      this.setState({ youtubePlaylists: minePlaylist.result });
+    } else if (playlistSource === "Youtube") {
+      if (youtubeToken) {
+        if (gapi && gapi.client && gapi.client.youtube && gapi.client.youtube.playlists) {
+          gapi.client.youtube.playlists
+            .list({
+              part: "snippet",
+              mine: true,
+              access_token: youtubeToken
+            })
+            .then((response) => {
+              this.setState({ youtubePlaylists: response.result });
+            });
+        } else {
+          setTimeout(() => {
+            if (gapi && gapi.client && gapi.client.youtube && gapi.client.youtube.playlists) {
+              gapi.client.youtube.playlists
+                .list({
+                  part: "snippet",
+                  mine: true,
+                  access_token: youtubeToken
+                })
+                .then((response) => {
+                  this.setState({ youtubePlaylists: response.result });
+                });
+            } else {
+              setTimeout(() => {
+                if (gapi && gapi.client && gapi.client.youtube && gapi.client.youtube.playlists) {
+                  gapi.client.youtube.playlists
+                    .list({
+                      part: "snippet",
+                      mine: true,
+                      access_token: youtubeToken
+                    })
+                    .then((response) => {
+                      this.setState({ youtubePlaylists: response.result });
+                    });
+                }
+              }, 1000);
+            }
+          }, 1000);
+        }
+      }
     } else if (playlistSource === "Own") {
       if (!userId) {
         return;
@@ -73,6 +115,14 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
       this.fetchOwnTracks(userId);
     } else if (playlistSource === "Deezer") {
       this.fetchDeezerTracks();
+    }
+  }
+
+  componentDidUpdate() {
+    const { setLoading, shouldCancelLoader } = this.props;
+
+    if (shouldCancelLoader) {
+      setLoading(false);
     }
   }
 
@@ -132,6 +182,10 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
               <Grid item={true} style={{ paddingLeft: 8, marginTop: 6 }}>
                 {playlistSource === "Spotify" && <Spotify style={{ color: "#1DB954" }} />}
                 {playlistSource === "Youtube" && <PlayCircleOutline style={{ color: "#FF0000" }} />}
+                {playlistSource === "Deezer" && (
+                  <Avatar src={Deezer} style={{ width: 20, height: 20, backgroundColor: "white", padding: 1 }} />
+                )}
+                {playlistSource === "Own" && <MusicRestQuarter style={{ color: "white" }} />}
               </Grid>
             </Grid>
             <Grid item={true} xs={12}>
@@ -227,7 +281,7 @@ export const MePlaylist = React.memo<OuterProps>((props) => {
   const { deezerToken } = useDeezerAuth();
   const classes = useHomeLandingPageStyles();
   const { setLoading } = useAppContext();
-  const { minePlaylist } = useYoutubeApiContext();
+  const { youtubeToken } = useYoutubeAuth();
 
   if (!userId && props.playlistSource === "Own") {
     // eslint-disable-next-line react/jsx-no-useless-fragment
@@ -236,7 +290,7 @@ export const MePlaylist = React.memo<OuterProps>((props) => {
 
   return (
     <MePlaylistClass
-      minePlaylist={minePlaylist}
+      youtubeToken={youtubeToken}
       setLoading={setLoading}
       deezerToken={deezerToken}
       userId={userId}

@@ -140,9 +140,6 @@ class HeaderSettingsDialogDeezerClass extends React.PureComponent<Props, State> 
           <Grid item={true} xs={4} className={classes.typographyStyles}>
             <Typography fontFamily="Poppins,sans-serif">Playlists: {playlistCount}</Typography>
           </Grid>
-          <Grid item={true} xs={4} className={classes.typographyStyles}>
-            <Typography fontFamily="Poppins,sans-serif">Listened: 10h:20m</Typography>
-          </Grid>
         </Grid>
       </Grid>
     );

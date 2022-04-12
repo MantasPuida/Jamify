@@ -62,6 +62,8 @@ class TracksComponentClass extends React.PureComponent<Props> {
   public render(): React.ReactNode {
     const { playlistTracks, classes, sourceType, spotifyApi, playlist, myOwn } = this.props;
 
+    let minus = 0;
+
     return (
       <Grid container={true} className={classes.playlistsGrid}>
         <Grid item={true} xs={12}>
@@ -111,14 +113,15 @@ class TracksComponentClass extends React.PureComponent<Props> {
 
                   {sourceType === SourceType.Youtube &&
                     (playlistTracks as gapi.client.youtube.PlaylistItemListResponse).items?.map((row, trackIndex) => {
-                      if (!row || !row.id) {
+                      if (!row || !row.id || row.snippet?.description === "This video is unavailable.") {
                         const randomKey = Math.floor(Math.random() * 5000);
+                        minus += 1;
                         return <React.Fragment key={randomKey} />;
                       }
 
                       return (
                         <TracksTableContent
-                          trackIndex={trackIndex + 1}
+                          trackIndex={trackIndex + 1 - minus}
                           row={row}
                           key={row.id}
                           sourceType={SourceType.Youtube}

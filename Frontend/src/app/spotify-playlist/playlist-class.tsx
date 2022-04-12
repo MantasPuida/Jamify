@@ -109,16 +109,6 @@ export const Playlist = React.memo<OuterProps>((props) => {
           logout();
           Notify("Unable to synchronize with Spotify", "error");
         });
-    } else if (youtubePlaylist) {
-      gapi.client.youtube.playlistItems
-        .list({
-          part: "snippet",
-          playlistId: youtubePlaylist.id,
-          maxResults: 99
-        })
-        .then((playlistItems) => {
-          setYoutubePlaylistTracks(playlistItems.result);
-        });
     } else if (ownPlaylist && userId) {
       const { TracksApiEndpoints } = PlaylistApi;
 
@@ -139,6 +129,20 @@ export const Playlist = React.memo<OuterProps>((props) => {
           setDeezerPlaylistTracks(response);
         });
       }
+    }
+  }, [location.pathname]);
+
+  React.useEffect(() => {
+    if (youtubePlaylist) {
+      gapi.client.youtube.playlistItems
+        .list({
+          part: "snippet",
+          playlistId: youtubePlaylist.id,
+          maxResults: 99
+        })
+        .then((playlistItems) => {
+          setYoutubePlaylistTracks(playlistItems.result);
+        });
     }
   }, [location.pathname]);
 

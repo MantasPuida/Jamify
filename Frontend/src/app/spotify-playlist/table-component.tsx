@@ -55,7 +55,14 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
 
     const { sourceType, row } = props;
 
-    this.state = { albumName: "", artistName: "", duration: "", imageUrl: "", trackId: "", trackName: "" };
+    this.state = {
+      albumName: "",
+      artistName: "",
+      duration: "",
+      imageUrl: "",
+      trackId: "",
+      trackName: ""
+    };
 
     if (sourceType === SourceType.Youtube) {
       this.resolveYoutubeTrack(row as gapi.client.youtube.PlaylistItem);
@@ -142,17 +149,20 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
 
             let formattedDuration = "";
 
-            if (durations[0].length === 1) {
-              formattedDuration = `0${durations[0]}`;
-            } else {
-              // eslint-disable-next-line prefer-destructuring
-              formattedDuration = durations[0];
-            }
-
-            if (durations[1].length === 1) {
-              formattedDuration += `:0${durations[1]}`;
-            } else {
-              formattedDuration += `:${durations[1]}`;
+            if (durations.length === 1) {
+              formattedDuration = `0${durations[0]}:00`;
+            } else if (durations.length > 1) {
+              if (durations[0].length === 1) {
+                formattedDuration = `0${durations[0]}`;
+              } else {
+                // eslint-disable-next-line prefer-destructuring
+                formattedDuration = durations[0];
+              }
+              if (durations[1].length === 1) {
+                formattedDuration += `:0${durations[1]}`;
+              } else {
+                formattedDuration += `:${durations[1]}`;
+              }
             }
 
             if (snippet.title && image) {
@@ -307,7 +317,7 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
             fontWeight={200}
             fontFamily="Poppins,sans-serif"
             color="white"
-            style={{ float: "left", paddingTop: 8 }}>
+            style={{ float: "left", paddingTop: sourceType !== SourceType.Youtube ? 8 : 0 }}>
             {trackIndex}
           </Typography>
           <Button style={{ padding: 0, color: "transparent" }} onClick={this.handleOnTrackClick}>
@@ -318,7 +328,7 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
           </Button>
           <Button className={classes.buttonText} variant="text" onClick={this.handleOnTrackClick}>
             <Typography
-              style={{ height: "100%", marginTop: 4, textAlign: "left", minWidth: 400 }}
+              className={classes.typography}
               fontFamily="Poppins, sans-serif"
               fontSize={16}
               fontWeight={500}

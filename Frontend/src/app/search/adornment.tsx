@@ -32,7 +32,8 @@ export class EndAdornment extends React.PureComponent<OuterProps> {
               },
               fontFamily: "Poppins,sans-serif",
               fontSize: 16
-            }}>
+            }}
+            style={{ color: "white" }}>
             <MenuItem value="All">
               <Grid container={true} style={{ minWidth: 50 }}>
                 <Typography style={{ fontFamily: "Poppins,sans-serif", fontSize: 16 }}>All</Typography>

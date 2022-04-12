@@ -93,14 +93,14 @@ class SettingsDialogClass extends React.PureComponent<Props> {
               isSpotifyConnected={isSpotifyConnected}
               handleDialogClose={handleDialogClose}
               spotifyApi={spotifyApi}
-              playlistCount={youtubePlaylistCount}
+              playlistCount={spotifyPlaylistCount}
             />
           )}
           {(value as BottomNavigationValues) === "YouTube" && (
             <HeaderSettingsDialogYouTube
               isYoutubeConnected={isYoutubeConnected}
               handleDialogClose={handleDialogClose}
-              playlistCount={spotifyPlaylistCount}
+              playlistCount={youtubePlaylistCount}
             />
           )}
           {(value as BottomNavigationValues) === "Deezer" && (
