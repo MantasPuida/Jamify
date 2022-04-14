@@ -50,6 +50,7 @@ import { BackdropLoader } from "../loader/loader-backdrop";
 import { useYoutubeAuth } from "../../context/youtube-context";
 
 import "./fontFamily.css";
+import { FeaturedPlaylistState } from "../Home/featured-playlists/featured-card";
 
 export enum SourceType {
   Spotify,
@@ -115,6 +116,7 @@ interface State {
   rename: boolean;
   newPlaylistName: string;
   loading: boolean;
+  unchangedPlaylistName: string;
 }
 
 type Props = InnerProps & OuterProps;
@@ -156,6 +158,7 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
       anchorEl: null,
       rename: false,
       newPlaylistName: playlistName,
+      unchangedPlaylistName: playlistName,
       loading: false,
       popoverAnchorEl: null
     };
@@ -435,35 +438,40 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
 
   private handleOnRename = async () => {
     const { playlist, sourceType, spotifyApi, myOwn, navigate, userId, deezerToken, youtubeToken } = this.props;
-    const { newPlaylistName } = this.state;
+    const { newPlaylistName, unchangedPlaylistName } = this.state;
 
     if (newPlaylistName === "") {
       Notify("Please enter a playlist name", "error");
+      this.setState({ loading: false, newPlaylistName: unchangedPlaylistName });
+      return;
+    }
+
+    if (newPlaylistName === unchangedPlaylistName) {
       this.setState({ loading: false });
       return;
     }
 
     if (myOwn) {
       if (sourceType === SourceType.Spotify) {
-        const currentPlaylist = playlist as SpotifyApi.PlaylistObjectSimplified;
+        const spotifyPlaylist = playlist as SpotifyApi.PlaylistObjectSimplified;
 
         if (newPlaylistName) {
           await spotifyApi
-            .changePlaylistDetails(currentPlaylist.id, {
+            .changePlaylistDetails(spotifyPlaylist.id, {
               name: newPlaylistName
             })
             .then(() => {
               Notify("Playlist renamed", "success");
-              navigate(AppRoutes.Me);
+              navigate(AppRoutes.Playlist, { state: { spotifyPlaylist, myOwn: true } as FeaturedPlaylistState });
               this.setState({ loading: false });
             });
         }
       }
 
       if (sourceType === SourceType.Youtube) {
-        const currentPlaylist = playlist as gapi.client.youtube.Playlist;
+        const youtubePlaylist = playlist as gapi.client.youtube.Playlist;
 
-        if (currentPlaylist.id && youtubeToken) {
+        if (youtubePlaylist.id && youtubeToken) {
           await gapi.client.youtube.playlists
             .update(
               {
@@ -471,7 +479,7 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
                 access_token: youtubeToken
               },
               {
-                id: currentPlaylist.id,
+                id: youtubePlaylist.id,
                 snippet: {
                   title: newPlaylistName
                 }
@@ -481,9 +489,8 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
               setTimeout(() => {
                 Notify("Playlist renamed", "success");
 
-                navigate(AppRoutes.Me);
+                navigate(AppRoutes.Playlist, { state: { youtubePlaylist, myOwn: true } as FeaturedPlaylistState });
                 this.setState({ loading: false });
-
                 window.location.reload();
               }, 5000);
             })
@@ -496,14 +503,14 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
       }
 
       if (sourceType === SourceType.Deezer) {
-        const currentPlaylist = playlist as DeezerPlaylistType;
+        const deezerAlbum = playlist as DeezerPlaylistType;
 
-        if (currentPlaylist.id && deezerToken) {
+        if (deezerAlbum.id && deezerToken) {
           await DZ.api(
-            `playlist/${currentPlaylist.id}?access_token=${deezerToken}`,
+            `playlist/${deezerAlbum.id}?access_token=${deezerToken}`,
             "POST",
             {
-              playlist_id: currentPlaylist.id,
+              playlist_id: deezerAlbum.id,
               title: newPlaylistName
             },
             (response) => {
@@ -512,7 +519,7 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
               } else {
                 Notify("Playlist renamed", "success");
 
-                navigate(AppRoutes.Me);
+                navigate(AppRoutes.Playlist, { state: { deezerAlbum, myOwn: true } as FeaturedPlaylistState });
                 this.setState({ loading: false });
               }
             }
@@ -521,21 +528,21 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
       }
 
       if (sourceType === SourceType.Own) {
-        const currentPlaylist = playlist as PlaylistType;
+        const ownPlaylist = playlist as PlaylistType;
 
         const { PlaylistApiEndpoints } = PlaylistApi;
 
-        if (currentPlaylist.playlistId && userId) {
+        if (ownPlaylist.playlistId && userId) {
           await PlaylistApiEndpoints()
-            .putPlaylist(userId, currentPlaylist.playlistId, {
-              PlaylistDescription: currentPlaylist.playlistDescription,
+            .putPlaylist(userId, ownPlaylist.playlistId, {
+              PlaylistDescription: ownPlaylist.playlistDescription,
               PlaylistName: newPlaylistName,
-              PlaylistImage: currentPlaylist.playlistImage
+              PlaylistImage: ownPlaylist.playlistImage
             })
             .then(() => {
               Notify("Playlist renamed", "success");
 
-              navigate(AppRoutes.Me);
+              navigate(AppRoutes.Playlist, { state: { ownPlaylist, myOwn: true } as FeaturedPlaylistState });
               this.setState({ loading: false });
             })
             .catch((error) => {

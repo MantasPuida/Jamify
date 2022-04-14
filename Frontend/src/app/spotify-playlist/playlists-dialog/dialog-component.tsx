@@ -2,7 +2,8 @@ import * as React from "react";
 import ChevronDown from "mdi-material-ui/ChevronDown";
 import SpotifyWebApi from "spotify-web-api-node";
 import Spotify from "mdi-material-ui/Spotify";
-import { Accordion, AccordionSummary, AccordionDetails, Typography, FormGroup, Grid, Avatar } from "@mui/material";
+import { FaDeezer } from "react-icons/fa";
+import { Accordion, AccordionSummary, AccordionDetails, Typography, FormGroup, Grid } from "@mui/material";
 import MusicRestQuarter from "mdi-material-ui/MusicRestQuarter";
 import PlayCircleOutline from "mdi-material-ui/PlayCircleOutline";
 import { SpotifyPlaylistCheckbox } from "./spotify-playlist-checkbox";
@@ -13,7 +14,6 @@ import { DeezerPlaylistCheckbox } from "./deezer-playlist-checkbox";
 import { PlaylistApi } from "../../../api/api-endpoints";
 import { useUserContext } from "../../../context/user-context";
 import { MyOwnPlaylistCheckbox } from "./my-own-playlist-checkbox";
-import Deezer from "../../../assets/svg/deezer-logo.svg";
 
 interface PlaylistType {
   playlistId: string;
@@ -148,7 +148,7 @@ class DialogContentDialogClass extends React.PureComponent<Props, State> {
                   <Typography style={{ float: "left", flexShrink: 0, width: "80%" }}>Deezer Playlist</Typography>
                 </Grid>
                 <Grid item={true} xs={2}>
-                  <Avatar src={Deezer} style={{ width: 24, height: 24 }} />
+                  <FaDeezer style={{ width: 24, height: 24, color: "white" }} />
                 </Grid>
               </Grid>
             </AccordionSummary>

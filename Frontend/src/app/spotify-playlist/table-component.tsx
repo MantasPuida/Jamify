@@ -353,7 +353,7 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
             </Button>
           </TableCell>
         )}
-        <TableCell>
+        <TableCell style={{ textAlign: sourceType === SourceType.Youtube ? "center" : "initial" }}>
           <TrackActionComponent
             sourceType={sourceType}
             spotifyApi={spotifyApi}

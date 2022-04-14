@@ -53,7 +53,15 @@ export const SettingsStyles = (theme: AppTheme) =>
       [theme.breakpoints.down("sm")]: {
         paddingLeft: 0,
         paddingTop: 2
-      }
+      },
+      whiteSpace: "nowrap"
+    },
+
+    typographyBreak: {
+      minWidth: 370,
+      maxHeight: "24px",
+      paddingLeft: 16,
+      overflowWrap: "break-word"
     }
   });
 

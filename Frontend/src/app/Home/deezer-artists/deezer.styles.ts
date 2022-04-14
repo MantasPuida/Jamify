@@ -54,6 +54,16 @@ export const DeezerStyles = (theme: AppTheme) =>
         fontWeight: 400,
         maxWidth: "80%"
       }
+    },
+
+    tabRootStyles: {
+      marginBottom: -62,
+      padding: 0,
+      color: "transparent !important",
+      backgroundColor: "transparent !important",
+      fontSiz: 25,
+      fontWeight: 400,
+      fontFamily: "Poppins,sans-serif"
     }
   });
 

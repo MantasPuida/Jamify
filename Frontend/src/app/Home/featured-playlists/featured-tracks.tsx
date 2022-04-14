@@ -2,21 +2,19 @@ import * as React from "react";
 import { Button, ButtonProps, Grid, Typography } from "@mui/material";
 import Play from "mdi-material-ui/Play";
 import { WithStyles } from "@mui/styles";
-import { YoutubeTracksStyles, useYoutubeTracksStyles } from "./playlist.styles";
-
-import "./fontFamily.css";
-import { TrackObject, usePlayerContext } from "../../context/player-context";
-import { parseTitle } from "../../helpers/title-parser";
-import { extractThumbnail } from "../../helpers/thumbnails";
-import { useAppContext } from "../../context/app-context";
+import { FeaturedPlaylistsStyles, useFeaturedPlaylistsStyles } from "./featured.styles";
+import { TrackObjectSimplified } from "../../../types/spotify.types";
+import { useAppContext } from "../../../context/app-context";
+import { usePlayerContext } from "../../../context/player-context";
+import { LastTick } from "../../../utils/last-tick";
 
 interface OuterProps {
-  track: gapi.client.youtube.PlaylistItem;
+  track: TrackObjectSimplified;
   shouldSetLoading: boolean;
-  changeLoading: () => void;
+  changeState: () => void;
 }
 
-interface InnerProps extends WithStyles<typeof YoutubeTracksStyles> {
+interface InnerProps extends WithStyles<typeof FeaturedPlaylistsStyles> {
   setPlayerOpen: Function;
   setPlayerTrack: Function;
   setLoading: Function;
@@ -24,60 +22,36 @@ interface InnerProps extends WithStyles<typeof YoutubeTracksStyles> {
 
 type Props = InnerProps & OuterProps;
 
-class TracksCardsClass extends React.PureComponent<Props> {
+class FeaturedTracksClass extends React.PureComponent<Props> {
   componentDidMount() {
-    const { shouldSetLoading, setLoading, changeLoading } = this.props;
+    const { shouldSetLoading, setLoading, changeState } = this.props;
 
     if (shouldSetLoading) {
       setLoading(false);
     }
 
     setTimeout(() => {
-      changeLoading();
+      LastTick(() => {
+        changeState();
+      });
     }, 1000);
   }
 
   private handleOnTrackClick: ButtonProps["onClick"] = (event) => {
     event.preventDefault();
     event.stopPropagation();
-
-    const { setPlayerOpen, setPlayerTrack, track } = this.props;
-
-    if (track.snippet) {
-      const { snippet } = track;
-
-      if (snippet.videoOwnerChannelTitle && snippet.thumbnails && snippet.title && snippet.resourceId?.videoId) {
-        setPlayerOpen(true);
-
-        const currentTrack: TrackObject = {
-          channelTitle: snippet.videoOwnerChannelTitle,
-          thumbnail: extractThumbnail(snippet.thumbnails)!,
-          title: snippet.title,
-          videoId: snippet.resourceId.videoId
-        };
-
-        setPlayerTrack(currentTrack);
-      }
-    }
   };
 
   public render(): React.ReactNode {
     const { track, classes } = this.props;
 
-    if (!track.id || !track.snippet || !track.snippet.thumbnails || !track.snippet.title) {
-      // eslint-disable-next-line react/jsx-no-useless-fragment
-      return <></>;
-    }
-
-    const { title, thumbnails, videoOwnerChannelTitle } = track.snippet;
-
-    const imageUrl = extractThumbnail(thumbnails);
+    const { album, name } = track;
 
     return (
       <Grid container={true} item={true} xs={12} key={track.id}>
         <Grid item={true} xs={2}>
           <Button onClick={this.handleOnTrackClick}>
-            <img src={imageUrl} alt={title} className={classes.image} id="gridRowTrack" />
+            <img src={album.images[0].url} alt={name} className={classes.carouselImage} id="gridRowTrack" />
             <div style={{ position: "absolute", width: 32, height: 32, marginTop: 8 }}>
               <Play id="ytPlaySvgIcon" style={{ color: "white", display: "none" }} />
             </div>
@@ -98,7 +72,7 @@ class TracksCardsClass extends React.PureComponent<Props> {
               }}
               variant="text">
               <Typography className={classes.typography} fontFamily="Poppins,sans-serif" fontSize={16} color="white">
-                {parseTitle(title)}
+                {name}
               </Typography>
             </Button>
           </Grid>
@@ -116,7 +90,7 @@ class TracksCardsClass extends React.PureComponent<Props> {
               className={classes.buttonOnHover}
               variant="text">
               <Typography className={classes.helperTypography} fontFamily="Poppins,sans-serif" fontSize={12}>
-                {videoOwnerChannelTitle}
+                {album.name}
               </Typography>
             </Button>
           </Grid>
@@ -126,13 +100,13 @@ class TracksCardsClass extends React.PureComponent<Props> {
   }
 }
 
-export const TracksCards = React.memo<OuterProps>((props) => {
+export const FeaturedTracks = React.memo<OuterProps>((props) => {
   const { setLoading } = useAppContext();
   const { setOpen, setTrack } = usePlayerContext();
-  const classes = useYoutubeTracksStyles();
+  const classes = useFeaturedPlaylistsStyles();
 
   return (
-    <TracksCardsClass
+    <FeaturedTracksClass
       {...props}
       setLoading={setLoading}
       classes={classes}

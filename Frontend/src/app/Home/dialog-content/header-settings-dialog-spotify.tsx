@@ -102,15 +102,17 @@ class HeaderSettingsDialogSpotifyClass extends React.PureComponent<Props, State>
       );
     }
 
-    const { images, display_name: displayName, email } = spotifyProfile;
+    const { images, display_name: displayName, email, external_urls: externalUrls } = spotifyProfile;
 
     if (!images) {
       // eslint-disable-next-line react/jsx-no-useless-fragment
       return <></>;
     }
 
+    const spotifyUrl = externalUrls.spotify.replace("https://", "");
+
     return (
-      <Grid container={true} style={{ overflow: "hidden" }}>
+      <Grid container={true} style={{ overflowX: "hidden" }}>
         <Grid item={true} xs={4} className={classes.contentStyles}>
           <img src={images[0].url} alt="me" className={classes.profilePicture} />
         </Grid>
@@ -123,8 +125,13 @@ class HeaderSettingsDialogSpotifyClass extends React.PureComponent<Props, State>
           </Grid>
           <br />
           <br />
+          <br />
+          <br />
           <Grid item={true} xs={12} className={classes.typographyStyles}>
             <Typography fontFamily="Poppins,sans-serif">Playlists: {playlistCount}</Typography>
+          </Grid>
+          <Grid item={true} xs={12} className={classes.typographyStyles}>
+            <Typography fontFamily="Poppins,sans-serif">Me: {spotifyUrl}</Typography>
           </Grid>
         </Grid>
       </Grid>

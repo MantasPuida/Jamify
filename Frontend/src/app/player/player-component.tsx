@@ -189,9 +189,11 @@ class PlayerClass extends React.PureComponent<Props> {
                 })
                 .then((value) => {
                   if (value.result.items && value.result.items[0].id?.videoId) {
+                    const img = extractThumbnail(value.result.items[0]?.snippet?.thumbnails);
+
                     const currentTrack: TrackObject = {
                       channelTitle: nextTrack.artist.name,
-                      thumbnail: nextTrack.cover_xl,
+                      thumbnail: img ?? "",
                       title: nextTrack.title,
                       videoId: value.result.items[0].id?.videoId
                     };
@@ -312,9 +314,11 @@ class PlayerClass extends React.PureComponent<Props> {
                 })
                 .then((value) => {
                   if (value.result.items && value.result.items[0].id?.videoId) {
+                    const img = extractThumbnail(value.result.items[0]?.snippet?.thumbnails);
+
                     const currentTrack: TrackObject = {
                       channelTitle: previousTrack.artist.name,
-                      thumbnail: previousTrack.cover_xl,
+                      thumbnail: img ?? "",
                       title: previousTrack.title,
                       videoId: value.result.items[0].id?.videoId
                     };
@@ -394,7 +398,7 @@ class PlayerClass extends React.PureComponent<Props> {
             style={{ display: "flex", alignItems: "center", marginTop: -10, width: "100%" }}>
             <Grid item={true} xs={8} style={{ paddingLeft: 8 }}>
               <Grid container={true} item={true} xs={12}>
-                <IconButton aria-label="previous song" style={{ marginTop: -8 }} onClick={this.handleOnNext}>
+                <IconButton aria-label="previous song" style={{ marginTop: -8 }} onClick={this.handleOnPrevious}>
                   <FastRewindRounded style={{ fontSize: "24px" }} htmlColor="#fff" />
                 </IconButton>
                 <IconButton
@@ -407,7 +411,7 @@ class PlayerClass extends React.PureComponent<Props> {
                     <PauseRounded sx={{ fontSize: "40px" }} htmlColor="#fff" />
                   )}
                 </IconButton>
-                <IconButton aria-label="next song" style={{ marginTop: -8 }} onClick={this.handleOnPrevious}>
+                <IconButton aria-label="next song" style={{ marginTop: -8 }} onClick={this.handleOnNext}>
                   <FastForwardRounded style={{ fontSize: "24px" }} htmlColor="#fff" />
                 </IconButton>
                 <Stack direction="column">

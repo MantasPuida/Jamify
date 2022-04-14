@@ -9,6 +9,7 @@ import { LastTick } from "../../utils/last-tick";
 import { useDeezerAuth } from "../../context/deezer-context";
 import { DeezerConstants } from "../../constants/constants-deezer";
 import { DashboardLandingPage } from "./dashboard-landing-page";
+import { useAppContext } from "../../context/app-context";
 
 interface OuterProps {
   error: boolean;
@@ -22,6 +23,7 @@ interface InnerProps {
   navigate: NavigateFunction;
   location: Location;
   setDeezerUserId: Function;
+  setIsOnline: Function;
 }
 
 type Props = InnerProps & OuterProps;
@@ -36,7 +38,7 @@ class DashboardClass extends React.PureComponent<Props> {
   };
 
   private handleLoginYoutube: ButtonProps["onClick"] = () => {
-    const { googleAuthObject, registerYoutubeToken, navigate } = this.props;
+    const { googleAuthObject, registerYoutubeToken, navigate, setIsOnline } = this.props;
 
     googleAuthObject
       ?.signIn()
@@ -45,7 +47,7 @@ class DashboardClass extends React.PureComponent<Props> {
 
         registerYoutubeToken(AccessToken);
         gapi.client.setToken({ access_token: AccessToken });
-
+        setIsOnline(true);
         navigate(AppRoutes.Home);
       })
       .catch(() => {
@@ -59,7 +61,7 @@ class DashboardClass extends React.PureComponent<Props> {
   };
 
   private handleLoginDeezer: ButtonProps["onClick"] = () => {
-    const { registerDeezerToken, navigate, setDeezerUserId } = this.props;
+    const { registerDeezerToken, navigate, setDeezerUserId, setIsOnline } = this.props;
 
     DZ.login(
       (response) => {
@@ -69,6 +71,7 @@ class DashboardClass extends React.PureComponent<Props> {
 
           registerDeezerToken(accessToken);
           setDeezerUserId(userID);
+          setIsOnline(true);
           navigate(AppRoutes.Home);
         } else {
           this.handleNotify();
@@ -100,6 +103,7 @@ class DashboardClass extends React.PureComponent<Props> {
 export const Dashboard = React.memo<OuterProps>((props) => {
   const { googleAuthObject, register: RegisterYoutubeToken } = useYoutubeAuth();
   const { register: RegisterDeezerToken, setDeezerUserId } = useDeezerAuth();
+  const { setIsOnline } = useAppContext();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -109,6 +113,7 @@ export const Dashboard = React.memo<OuterProps>((props) => {
       setDeezerUserId={setDeezerUserId}
       registerDeezerToken={RegisterDeezerToken}
       registerYoutubeToken={RegisterYoutubeToken}
+      setIsOnline={setIsOnline}
       navigate={navigate}
       location={location}
       {...props}

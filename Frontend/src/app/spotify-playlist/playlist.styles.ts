@@ -97,7 +97,10 @@ export const PlaylistStyles = (theme: AppTheme) =>
     artistTypography: {
       color: "rgba(255, 255, 255, .7)",
       textAlign: "start",
-      float: "right"
+      float: "right",
+      "&:hover": {
+        textDecoration: "solid underline rgba(255, 255, 255, .7) 1px"
+      }
     },
     artistTypographyIcon: {
       color: "rgba(255, 255, 255, .7)",

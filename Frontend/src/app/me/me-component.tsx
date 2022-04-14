@@ -2,7 +2,8 @@ import * as React from "react";
 import Spotify from "mdi-material-ui/Spotify";
 import MusicRestQuarter from "mdi-material-ui/MusicRestQuarter";
 import PlayCircleOutline from "mdi-material-ui/PlayCircleOutline";
-import { Avatar, Grid, Typography } from "@mui/material";
+import { FaDeezer } from "react-icons/fa";
+import { Grid, Typography } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper";
@@ -16,7 +17,6 @@ import { useDeezerAuth } from "../../context/deezer-context";
 import { PlaylistsResponseMe } from "../../types/deezer.types";
 import { useAppContext } from "../../context/app-context";
 import { useYoutubeAuth } from "../../context/youtube-context";
-import Deezer from "../../assets/svg/deezer-logo-white.svg";
 
 import "swiper/css";
 import "swiper/css/navigation";
@@ -183,7 +183,7 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
                 {playlistSource === "Spotify" && <Spotify style={{ color: "#1DB954" }} />}
                 {playlistSource === "Youtube" && <PlayCircleOutline style={{ color: "#FF0000" }} />}
                 {playlistSource === "Deezer" && (
-                  <Avatar src={Deezer} style={{ width: 20, height: 20, backgroundColor: "white", padding: 1 }} />
+                  <FaDeezer style={{ width: 20, height: 20, backgroundColor: "white", padding: 1 }} />
                 )}
                 {playlistSource === "Own" && <MusicRestQuarter style={{ color: "white" }} />}
               </Grid>

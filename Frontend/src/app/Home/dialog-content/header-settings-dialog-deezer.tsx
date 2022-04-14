@@ -39,6 +39,7 @@ interface ProfileData {
   userName: string;
   email: string;
   pictureUrl: string;
+  link: string;
 }
 
 interface State {
@@ -63,7 +64,8 @@ class HeaderSettingsDialogDeezerClass extends React.PureComponent<Props, State> 
         deezerProfile: {
           email: value.email,
           pictureUrl: value.picture_big,
-          userName: value.name
+          userName: value.name,
+          link: value.link
         },
         loading: false
       });
@@ -121,7 +123,8 @@ class HeaderSettingsDialogDeezerClass extends React.PureComponent<Props, State> 
       );
     }
 
-    const { email, pictureUrl, userName } = deezerProfile;
+    const { email, pictureUrl, userName, link } = deezerProfile;
+    const deezerLink = link.replace("https://www.", "");
 
     return (
       <Grid container={true}>
@@ -137,8 +140,13 @@ class HeaderSettingsDialogDeezerClass extends React.PureComponent<Props, State> 
           </Grid>
           <br />
           <br />
+          <br />
+          <br />
           <Grid item={true} xs={4} className={classes.typographyStyles}>
             <Typography fontFamily="Poppins,sans-serif">Playlists: {playlistCount}</Typography>
+          </Grid>
+          <Grid item={true} xs={12} className={classes.typographyStyles}>
+            <Typography fontFamily="Poppins,sans-serif">Me: {deezerLink}</Typography>
           </Grid>
         </Grid>
       </Grid>
