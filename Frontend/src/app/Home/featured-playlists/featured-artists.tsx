@@ -4,6 +4,8 @@ import { WithStyles } from "@mui/styles";
 import { NavigateFunction, useNavigate } from "react-router";
 import { FeaturedPlaylistsStyles, useFeaturedPlaylistsStyles } from "./featured.styles";
 import { useAppContext } from "../../../context/app-context";
+import { Artist as ArtistType } from "../../../types/deezer.types";
+import { AppRoutes } from "../../routes/routes";
 
 interface OuterProps {
   artist: SpotifyApi.ArtistObjectFull;
@@ -30,6 +32,26 @@ class FeaturedArtistsClass extends React.PureComponent<Props> {
   private handleOnClick: ButtonProps["onClick"] = (event) => {
     event.preventDefault();
     event.stopPropagation();
+
+    const { artist, navigate } = this.props;
+
+    DZ.api(`search?q=${artist.name}`, (response) => {
+      const { data } = response;
+      const filteredArtist = data.find((value) => value.artist.type === "artist" && value.artist.name === artist.name);
+
+      if (filteredArtist) {
+        navigate(AppRoutes.Artist, {
+          state: {
+            artist: {
+              ...filteredArtist.artist,
+              picture_xl: artist.images[0].url ?? filteredArtist.artist.picture_xl
+            } as ArtistType
+          }
+        });
+      } else {
+        navigate(AppRoutes.Artist, { state: { artist: data[0].artist as ArtistType } });
+      }
+    });
   };
 
   public render(): React.ReactNode {

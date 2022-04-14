@@ -2,7 +2,7 @@ import * as React from "react";
 import { Checkbox, CheckboxProps, CircularProgress, FormControlLabel, Grid } from "@mui/material";
 import SpotifyWebApi from "spotify-web-api-node";
 import { SourceType } from "../playlist-component";
-import { Album, PlaylistsResponse } from "../../../types/deezer.types";
+import { Album, OmittedPlaylistResponse } from "../../../types/deezer.types";
 import { Notify } from "../../notification/notification-component";
 
 interface PlaylistType {
@@ -12,7 +12,7 @@ interface PlaylistType {
   playlistDescription: string;
 }
 
-type DeezerPlaylistType = Album | PlaylistsResponse;
+type DeezerPlaylistType = Album | OmittedPlaylistResponse;
 
 interface OuterProps {
   playlist: SpotifyApi.PlaylistObjectSimplified;

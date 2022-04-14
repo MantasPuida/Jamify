@@ -1,3 +1,8 @@
+export type OmittedPlaylistResponse = Omit<
+  PlaylistsResponse,
+  "collaborative" | "creator" | "duration" | "fans" | "is_loved_track" | "time_add" | "time_mod"
+>;
+
 export interface ChartResponse {
   albums: Albums;
   artists: Artists;
@@ -149,7 +154,7 @@ export interface PlaylistsResponseMe {
 export interface PlaylistsResponse {
   checksum: string;
   collaborative: boolean;
-  creation_date: Date;
+  creation_date: string;
   creator: User;
   duration: number;
   fans: number;

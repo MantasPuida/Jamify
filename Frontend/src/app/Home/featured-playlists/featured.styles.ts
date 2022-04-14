@@ -108,6 +108,7 @@ export const FeaturedPlaylistsStyles = (theme: AppTheme) =>
 
     artistImage: {
       borderRadius: "50%",
+      aspectRatio: "1/1",
       minHeight: 100,
       minWidth: 100,
       maxHeight: 160,

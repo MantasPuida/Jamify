@@ -11,9 +11,9 @@ import { extractThumbnail } from "../../helpers/thumbnails";
 import { TrackType } from "./playlist-class";
 import { PlaylistType } from "../me/me-component";
 import { TrackActionComponent } from "./track-actions-component";
-import { Album, ArtistAlbumsData, PlaylistsResponse, PlaylistTracksData } from "../../types/deezer.types";
+import { Album, ArtistAlbumsData, OmittedPlaylistResponse, PlaylistTracksData } from "../../types/deezer.types";
 
-type DeezerPlaylistType = Album | PlaylistsResponse;
+type DeezerPlaylistType = Album | OmittedPlaylistResponse;
 type DeezerPlaylistTrackType = ArtistAlbumsData | PlaylistTracksData;
 
 interface OuterProps {
@@ -93,7 +93,7 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
         trackName: titleShort
       };
     } else if (deezerPlaylist.type === "playlist") {
-      const currentPlaylist = deezerPlaylist as PlaylistsResponse;
+      const currentPlaylist = deezerPlaylist as OmittedPlaylistResponse;
       const { artist, title, duration, id } = row as PlaylistTracksData;
       const resolvedDuration = this.resolveDuration(duration);
 
@@ -105,7 +105,7 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
         albumName: currentPlaylist.title,
         artistName: artist.name,
         duration: resolvedDuration,
-        imageUrl: currentPlaylist.picture_xl,
+        imageUrl: artist.picture_xl,
         trackId: id.toString(),
         trackName: title
       };

@@ -73,20 +73,15 @@ class HomeLandingPageClass extends React.PureComponent<Props, State> {
 export const HomeLandingPage = React.memo<OuterProps>((props) => {
   const { youtubeToken } = useYoutubeAuth();
   const { deezerToken } = useDeezerAuth();
-  const { spotifyToken, logout } = useSpotifyAuth();
+  const { spotifyToken } = useSpotifyAuth();
   const classes = useHomeLandingPageStyles();
   const { loading, setLoading } = useAppContext();
   const location = useLocation();
-  const { spotifyApi } = props;
 
   React.useEffect(() => {
     if (!spotifyToken && loading) {
       setLoading(false);
     }
-
-    spotifyApi.getMe().catch(() => {
-      logout();
-    });
   }, [location]);
 
   return (

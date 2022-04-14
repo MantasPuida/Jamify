@@ -23,7 +23,7 @@ import {
   Album,
   ArtistAlbumsData,
   ArtistAlbumsResponse,
-  PlaylistsResponse,
+  OmittedPlaylistResponse,
   PlaylistTracksData,
   PlaylistTracksResponse
 } from "../../types/deezer.types";
@@ -31,7 +31,7 @@ import { useAppContext } from "../../context/app-context";
 
 import "./fontFamily.css";
 
-type DeezerPlaylistType = Album | PlaylistsResponse;
+type DeezerPlaylistType = Album | OmittedPlaylistResponse;
 type DeezerPlaylistTrackType = ArtistAlbumsResponse | PlaylistTracksResponse;
 
 interface OuterProps {

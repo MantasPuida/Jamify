@@ -310,19 +310,37 @@ export const SettingsDialog = React.memo<OuterProps>((props) => {
         }
       } else if (!gapi || !gapi.client || !gapi.client.youtube || !gapi.client.youtube.playlists) {
         setTimeout(() => {
-          gapi.client.youtube.playlists
-            .list({
-              part: "snippet",
-              mine: true,
-              access_token: youtubeToken
-            })
-            .then((response) => {
-              const { pageInfo } = response.result;
-              setIsYoutubeConnected(true);
-              if (pageInfo && pageInfo.totalResults) {
-                setYoutubePlaylistCount(pageInfo.totalResults);
-              }
-            });
+          if (!gapi || !gapi.client || !gapi.client.youtube || !gapi.client.youtube.playlists) {
+            setTimeout(() => {
+              gapi.client.youtube.playlists
+                .list({
+                  part: "snippet",
+                  mine: true,
+                  access_token: youtubeToken
+                })
+                .then((response) => {
+                  const { pageInfo } = response.result;
+                  setIsYoutubeConnected(true);
+                  if (pageInfo && pageInfo.totalResults) {
+                    setYoutubePlaylistCount(pageInfo.totalResults);
+                  }
+                });
+            }, 1000);
+          } else {
+            gapi.client.youtube.playlists
+              .list({
+                part: "snippet",
+                mine: true,
+                access_token: youtubeToken
+              })
+              .then((response) => {
+                const { pageInfo } = response.result;
+                setIsYoutubeConnected(true);
+                if (pageInfo && pageInfo.totalResults) {
+                  setYoutubePlaylistCount(pageInfo.totalResults);
+                }
+              });
+          }
         }, 1000);
       } else if (gapi && gapi.client && gapi.client.youtube && gapi.client.youtube.playlists) {
         gapi.client.youtube.playlists

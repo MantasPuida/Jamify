@@ -9,6 +9,7 @@ import { useAppContext } from "../../../context/app-context";
 
 interface OuterProps {
   artist: Artist;
+  changeState: () => void;
 }
 
 interface InnerProps extends WithStyles<typeof DeezerStyles> {
@@ -20,9 +21,12 @@ type Props = InnerProps & OuterProps;
 
 class ArtistCardsClass extends React.PureComponent<Props> {
   componentDidMount() {
-    const { setLoading } = this.props;
+    const { setLoading, changeState } = this.props;
 
-    setLoading(false);
+    setTimeout(() => {
+      changeState();
+      setLoading(false);
+    }, 1000);
   }
 
   private handleOnClick: ButtonProps["onClick"] = (event) => {

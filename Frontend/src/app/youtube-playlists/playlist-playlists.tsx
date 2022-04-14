@@ -8,6 +8,8 @@ import { YoutubeTracksStyles, useYoutubeTracksStyles } from "./playlist.styles";
 import { useAppContext } from "../../context/app-context";
 import { extractThumbnail } from "../../helpers/thumbnails";
 import { LastTick } from "../../utils/last-tick";
+import { FeaturedPlaylistState } from "../Home/featured-playlists/featured-card";
+import { AppRoutes } from "../routes/routes";
 
 import "./carousel-items.css";
 
@@ -42,6 +44,10 @@ class YoutubePlaylistsClass extends React.PureComponent<Props> {
   private handleOnCardClick: React.MouseEventHandler = (event) => {
     event.preventDefault();
     event.stopPropagation();
+
+    const { navigate, playlist } = this.props;
+
+    navigate(AppRoutes.Playlist, { state: { youtubePlaylist: playlist, myOwn: false } as FeaturedPlaylistState });
   };
 
   public render(): React.ReactNode {

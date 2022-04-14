@@ -9,7 +9,7 @@ import PlayCircleOutline from "mdi-material-ui/PlayCircleOutline";
 import { SpotifyPlaylistCheckbox } from "./spotify-playlist-checkbox";
 import { YoutubePlaylistCheckbox } from "./youtube-playlist-checkbox";
 import { SourceType } from "../playlist-component";
-import { Album, TrackListData, PlaylistsResponseMe, PlaylistsResponse } from "../../../types/deezer.types";
+import { Album, TrackListData, PlaylistsResponseMe, OmittedPlaylistResponse } from "../../../types/deezer.types";
 import { DeezerPlaylistCheckbox } from "./deezer-playlist-checkbox";
 import { PlaylistApi } from "../../../api/api-endpoints";
 import { useUserContext } from "../../../context/user-context";
@@ -22,7 +22,7 @@ interface PlaylistType {
   playlistDescription: string;
 }
 
-type DeezerPlaylistType = Album | PlaylistsResponse;
+type DeezerPlaylistType = Album | OmittedPlaylistResponse;
 
 interface OuterProps {
   spotifyPlaylists?: SpotifyApi.ListOfUsersPlaylistsResponse;

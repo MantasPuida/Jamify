@@ -64,6 +64,53 @@ export const DeezerStyles = (theme: AppTheme) =>
       fontSiz: 25,
       fontWeight: 400,
       fontFamily: "Poppins,sans-serif"
+    },
+
+    dzCarouselItemText: {
+      marginLeft: 10
+    },
+    dzFeaturedText: {
+      textTransform: "none",
+      padding: "0px",
+      "&:hover": {
+        textDecoration: "solid underline white 2px"
+      }
+    },
+    dzImage: {
+      borderRadius: "1%",
+      minHeight: 250,
+      minWidth: 250
+    },
+
+    tracksHelperTypography: {
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      width: "100%",
+      WebkitLineClamp: 3,
+      maxWidth: 240,
+      display: "block",
+      color: "rgba(255, 255, 255, .7)"
+    },
+    tracksButtonOnHover: {
+      "&:hover": {
+        textDecoration: "solid underline rgba(255, 255, 255, .7) 1px"
+      }
+    },
+
+    tracksCarouselImage: {
+      borderRadius: "5%",
+      maxWidth: "96px"
+    },
+
+    tracksTypography: {
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      width: "100%",
+      WebkitLineClamp: 3,
+      display: "block",
+      maxWidth: 240
     }
   });
 

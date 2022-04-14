@@ -67,7 +67,6 @@ class FeaturedPlaylistsClass extends React.PureComponent<Props, State> {
     const { value, loading } = this.state;
 
     if (!featuredPlaylists || !featuredTracks || !featuredArtists) {
-      // eslint-disable-next-line react/jsx-no-useless-fragment
       return <BackdropLoader />;
     }
 
@@ -259,44 +258,30 @@ export const FeaturedPlaylists = React.memo<OuterProps>((props) => {
         })
         .then((value) => {
           setFeaturedPlaylists(value.body);
-        })
-        .catch(() => {
-          logout();
-        });
+          setTimeout(async () => {
+            const apiUrl =
+              "https://api.spotify.com/v1/recommendations?seed_artists=7dGJo4pcD2V6oG8kP0tJRR,4dpARuHxo51G3z768sgnrY,&seed_tracks=0c6xIDDpzE81m2q797ordA&market=ES&limit=50";
 
-      setTimeout(async () => {
-        const apiUrl =
-          "https://api.spotify.com/v1/recommendations?seed_artists=7dGJo4pcD2V6oG8kP0tJRR,4dpARuHxo51G3z768sgnrY,&seed_tracks=0c6xIDDpzE81m2q797ordA&market=ES&limit=50";
+            try {
+              const tracksResponse = await axios.get(apiUrl, {
+                headers: {
+                  Authorization: `Bearer ${spotifyToken}`
+                }
+              });
 
-        if (featuredPlaylists) {
-          try {
-            const response = await axios.get(apiUrl, {
-              headers: {
-                Authorization: `Bearer ${spotifyToken}`
-              }
-            });
+              setFeaturedTracks(tracksResponse.data as RecommendationsObject);
+              setTimeout(async () => {
+                const artists = tracksResponse.data.tracks.map((track) => track.artists[0].id);
 
-            setFeaturedTracks(response.data as RecommendationsObject);
-          } catch (error) {
-            logout();
-          }
-        }
-      }, 1000);
-
-      if (featuredTracks) {
-        setTimeout(async () => {
-          const artists = featuredTracks.tracks.map((track) => track.artists[0].id);
-
-          await spotifyApi
-            .getArtists(artists)
-            .then((response) => {
-              setFeaturedArtists(response.body);
-            })
-            .catch(() => {
+                await spotifyApi.getArtists(artists).then((artistsResponse) => {
+                  setFeaturedArtists(artistsResponse.body);
+                });
+              }, 1000);
+            } catch (error) {
               logout();
-            });
-        }, 1000);
-      }
+            }
+          }, 1000);
+        });
     }
   }, [location.pathname]);
 

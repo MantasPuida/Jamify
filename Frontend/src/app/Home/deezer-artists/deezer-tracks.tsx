@@ -2,38 +2,34 @@ import * as React from "react";
 import { Button, ButtonProps, Grid, Typography } from "@mui/material";
 import Play from "mdi-material-ui/Play";
 import { WithStyles } from "@mui/styles";
-import { FeaturedPlaylistsStyles, useFeaturedPlaylistsStyles } from "./featured.styles";
-import { TrackObjectSimplified } from "../../../types/spotify.types";
+import { DeezerStyles, useDeezerStyles } from "./deezer.styles";
 import { useAppContext } from "../../../context/app-context";
 import { TrackObject, usePlayerContext } from "../../../context/player-context";
 import { LastTick } from "../../../utils/last-tick";
+import { Track } from "../../../types/deezer.types";
 
 interface OuterProps {
-  track: TrackObjectSimplified;
-  shouldSetLoading: boolean;
+  track: Track;
   changeState: () => void;
 }
 
-interface InnerProps extends WithStyles<typeof FeaturedPlaylistsStyles> {
+interface InnerProps extends WithStyles<typeof DeezerStyles> {
   setPlayerOpen: Function;
   setPlayerTrack: Function;
-  isOpen: boolean;
   setLoading: Function;
+  isOpen: boolean;
 }
 
 type Props = InnerProps & OuterProps;
 
-class FeaturedTracksClass extends React.PureComponent<Props> {
+class DeezerTracksClass extends React.PureComponent<Props> {
   componentDidMount() {
-    const { shouldSetLoading, setLoading, changeState } = this.props;
-
-    if (shouldSetLoading) {
-      setLoading(false);
-    }
+    const { setLoading, changeState } = this.props;
 
     setTimeout(() => {
       LastTick(() => {
         changeState();
+        setLoading(false);
       });
     }, 1000);
   }
@@ -47,15 +43,15 @@ class FeaturedTracksClass extends React.PureComponent<Props> {
     gapi.client.youtube.search
       .list({
         part: "snippet",
-        q: `${track.name} ${track.artists.join(", ") ?? ""}`
+        q: `${track.title} ${track.artist.name ?? ""}`
       })
       .then((value) => {
         if (value.result.items && value.result.items[0].id?.videoId) {
           const currentTrack: TrackObject = {
             videoId: value.result.items[0].id.videoId,
-            title: track.name ?? "",
-            thumbnail: track.album.images[0].url ?? "",
-            channelTitle: track.album.name ?? ""
+            title: track.title_short ?? "",
+            thumbnail: track.album.cover_xl ?? "",
+            channelTitle: track.album.title ?? ""
           };
 
           if (!isOpen) {
@@ -69,13 +65,16 @@ class FeaturedTracksClass extends React.PureComponent<Props> {
   public render(): React.ReactNode {
     const { track, classes } = this.props;
 
-    const { album, name } = track;
-
     return (
       <Grid container={true} item={true} xs={12} key={track.id}>
         <Grid item={true} xs={2}>
           <Button onClick={this.handleOnTrackClick}>
-            <img src={album.images[0].url} alt={name} className={classes.carouselImage} id="gridRowTrack" />
+            <img
+              src={track.album.cover_xl}
+              alt={track.title}
+              className={classes.tracksCarouselImage}
+              id="gridRowTrack"
+            />
             <div style={{ position: "absolute", width: 32, height: 32, marginTop: 8 }}>
               <Play id="ytPlaySvgIcon" style={{ color: "white", display: "none" }} />
             </div>
@@ -95,8 +94,12 @@ class FeaturedTracksClass extends React.PureComponent<Props> {
                 color: "transparent"
               }}
               variant="text">
-              <Typography className={classes.typography} fontFamily="Poppins,sans-serif" fontSize={16} color="white">
-                {name}
+              <Typography
+                className={classes.tracksTypography}
+                fontFamily="Poppins,sans-serif"
+                fontSize={16}
+                color="white">
+                {track.title_short}
               </Typography>
             </Button>
           </Grid>
@@ -111,10 +114,10 @@ class FeaturedTracksClass extends React.PureComponent<Props> {
                 paddingTop: 0,
                 paddingBottom: 0
               }}
-              className={classes.buttonOnHover}
+              className={classes.tracksButtonOnHover}
               variant="text">
-              <Typography className={classes.helperTypography} fontFamily="Poppins,sans-serif" fontSize={12}>
-                {album.name}
+              <Typography className={classes.tracksHelperTypography} fontFamily="Poppins,sans-serif" fontSize={12}>
+                {track.album.title}
               </Typography>
             </Button>
           </Grid>
@@ -124,13 +127,13 @@ class FeaturedTracksClass extends React.PureComponent<Props> {
   }
 }
 
-export const FeaturedTracks = React.memo<OuterProps>((props) => {
+export const DeezerTracks = React.memo<OuterProps>((props) => {
   const { setLoading } = useAppContext();
-  const { setOpen, setTrack, isOpen } = usePlayerContext();
-  const classes = useFeaturedPlaylistsStyles();
+  const { isOpen, setOpen, setTrack } = usePlayerContext();
+  const classes = useDeezerStyles();
 
   return (
-    <FeaturedTracksClass
+    <DeezerTracksClass
       {...props}
       isOpen={isOpen}
       setLoading={setLoading}

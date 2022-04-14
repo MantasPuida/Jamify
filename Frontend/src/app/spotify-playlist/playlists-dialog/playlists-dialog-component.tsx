@@ -24,7 +24,13 @@ import { useSpotifyAuth } from "../../../context/spotify-context";
 import { DialogContentDialog } from "./dialog-component";
 import { PlaylistApi } from "../../../api/api-endpoints";
 import { SourceType } from "../playlist-component";
-import { Album, PlaylistsResponseMe, TrackListData, PlaylistsResponse, Tracks } from "../../../types/deezer.types";
+import {
+  Album,
+  PlaylistsResponseMe,
+  TrackListData,
+  OmittedPlaylistResponse,
+  Tracks
+} from "../../../types/deezer.types";
 import { useDeezerAuth } from "../../../context/deezer-context";
 
 import "../fontFamily.css";
@@ -38,7 +44,7 @@ interface PlaylistType {
   playlistDescription: string;
 }
 
-type DeezerPlaylistType = Album | PlaylistsResponse;
+type DeezerPlaylistType = Album | OmittedPlaylistResponse;
 
 interface OuterProps {
   dialogOpen: boolean;

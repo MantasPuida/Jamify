@@ -1,7 +1,7 @@
 import { Checkbox, CheckboxProps, FormControlLabel, Grid } from "@mui/material";
 import * as React from "react";
 import { SourceType } from "../playlist-component";
-import { Album, PlaylistsResponse } from "../../../types/deezer.types";
+import { Album, OmittedPlaylistResponse } from "../../../types/deezer.types";
 import { Notify } from "../../notification/notification-component";
 
 interface PlaylistType {
@@ -11,7 +11,7 @@ interface PlaylistType {
   playlistDescription: string;
 }
 
-type DeezerPlaylistType = Album | PlaylistsResponse;
+type DeezerPlaylistType = Album | OmittedPlaylistResponse;
 
 interface OuterProps {
   playlist: gapi.client.youtube.Playlist;

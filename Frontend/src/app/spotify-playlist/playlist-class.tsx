@@ -13,10 +13,10 @@ import { useSpotifyAuth } from "../../context/spotify-context";
 import { PlaylistApi } from "../../api/api-endpoints";
 import { useUserContext } from "../../context/user-context";
 import { PlaylistType } from "../me/me-component";
-import { ArtistAlbumsResponse, Album, PlaylistsResponse, PlaylistTracksResponse } from "../../types/deezer.types";
+import { ArtistAlbumsResponse, Album, OmittedPlaylistResponse, PlaylistTracksResponse } from "../../types/deezer.types";
 
 type SpotifyPlaylistTracksResponse = SpotifyApi.PlaylistTrackResponse;
-type DeezerPlaylistType = Album | PlaylistsResponse;
+type DeezerPlaylistType = Album | OmittedPlaylistResponse;
 
 interface InnerProps extends WithStyles<typeof HomeLandingPageStyles> {
   playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType | DeezerPlaylistType;
@@ -124,7 +124,7 @@ export const Playlist = React.memo<OuterProps>((props) => {
           setDeezerAlbumTracks(response);
         });
       } else if (deezerAlbum.type === "playlist") {
-        const playlistAlbum = deezerAlbum as PlaylistsResponse;
+        const playlistAlbum = deezerAlbum as OmittedPlaylistResponse;
         DZ.api(`playlist/${playlistAlbum.id}/tracks`, (response) => {
           setDeezerPlaylistTracks(response);
         });

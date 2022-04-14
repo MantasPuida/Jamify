@@ -39,7 +39,7 @@ import {
 import { PlaylistStyles, usePlaylistStyles } from "./playlist.styles";
 import { extractThumbnail } from "../../helpers/thumbnails";
 import { PlaylistType } from "../me/me-component";
-import { Album, PlaylistsResponse, ArtistAlbumsResponse, PlaylistTracksResponse } from "../../types/deezer.types";
+import { Album, OmittedPlaylistResponse, ArtistAlbumsResponse, PlaylistTracksResponse } from "../../types/deezer.types";
 import { Notify } from "../notification/notification-component";
 import { AppRoutes } from "../routes/routes";
 import { useDeezerAuth } from "../../context/deezer-context";
@@ -69,7 +69,7 @@ interface TrackType {
 }
 
 type SpotifyPlaylistTracksResponse = SpotifyApi.PlaylistTrackResponse;
-type DeezerPlaylistType = Album | PlaylistsResponse;
+type DeezerPlaylistType = Album | OmittedPlaylistResponse;
 type PlaylistTracksType =
   | SpotifyPlaylistTracksResponse
   | gapi.client.youtube.PlaylistItemListResponse
@@ -146,7 +146,7 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
     } else if (sourceType === SourceType.Deezer) {
       const deezerPlaylist = playlist as DeezerPlaylistType;
       if (deezerPlaylist.type === "playlist") {
-        const customPlaylist = deezerPlaylist as PlaylistsResponse;
+        const customPlaylist = deezerPlaylist as OmittedPlaylistResponse;
         playlistName = customPlaylist.title;
       } else {
         const customPlaylist = deezerPlaylist as Album;
@@ -279,7 +279,7 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
             });
         });
       } else if (currentPlaylist.type === "playlist") {
-        const currentDzPlaylist = playlist as PlaylistsResponse;
+        const currentDzPlaylist = playlist as OmittedPlaylistResponse;
 
         DZ.api(`playlist/${currentDzPlaylist.id}/tracks`, (response) => {
           const data = response as PlaylistTracksResponse;
@@ -637,7 +637,7 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
     } else if (sourceType === SourceType.Deezer) {
       const deezerPlaylist = playlist as DeezerPlaylistType;
       if (deezerPlaylist.type === "playlist") {
-        const customPlaylist = deezerPlaylist as PlaylistsResponse;
+        const customPlaylist = deezerPlaylist as OmittedPlaylistResponse;
         playlistImage = customPlaylist.picture_xl;
         playlistName = customPlaylist.title;
         shareUrl = customPlaylist.link;

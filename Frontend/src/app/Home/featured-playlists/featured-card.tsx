@@ -27,7 +27,12 @@ interface InnerProps extends WithStyles<typeof FeaturedPlaylistsStyles> {
 export interface FeaturedPlaylistState {
   youtubePlaylist?: gapi.client.youtube.Playlist;
   spotifyPlaylist?: SpotifyApi.PlaylistObjectSimplified;
-  deezerAlbum?: Album | PlaylistsResponse;
+  deezerAlbum?:
+    | Album
+    | Omit<
+        PlaylistsResponse,
+        "collaborative" | "creator" | "duration" | "fans" | "is_loved_track" | "time_add" | "time_mod"
+      >;
   ownPlaylist?: PlaylistType;
   myOwn?: boolean;
 }

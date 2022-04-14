@@ -2,7 +2,7 @@ import * as React from "react";
 import { Checkbox, CheckboxProps, CircularProgress, FormControlLabel, Grid } from "@mui/material";
 import { useLocation } from "react-router";
 import { SourceType } from "../playlist-component";
-import { Album, PlaylistsResponse } from "../../../types/deezer.types";
+import { Album, OmittedPlaylistResponse } from "../../../types/deezer.types";
 import { PlaylistApi } from "../../../api/api-endpoints";
 import { Notify } from "../../notification/notification-component";
 import { useUserContext } from "../../../context/user-context";
@@ -14,7 +14,7 @@ interface PlaylistType {
   playlistDescription: string;
 }
 
-type DeezerPlaylistType = Album | PlaylistsResponse;
+type DeezerPlaylistType = Album | OmittedPlaylistResponse;
 
 interface OuterProps {
   artists?: string;
