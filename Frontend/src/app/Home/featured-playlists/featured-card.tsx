@@ -16,6 +16,7 @@ import { useAppContext } from "../../../context/app-context";
 interface OuterProps {
   playlist: SpotifyApi.PlaylistObjectSimplified;
   shouldSetLoading: boolean;
+  changeState: () => void;
 }
 
 interface InnerProps extends WithStyles<typeof FeaturedPlaylistsStyles> {
@@ -26,7 +27,12 @@ interface InnerProps extends WithStyles<typeof FeaturedPlaylistsStyles> {
 export interface FeaturedPlaylistState {
   youtubePlaylist?: gapi.client.youtube.Playlist;
   spotifyPlaylist?: SpotifyApi.PlaylistObjectSimplified;
-  deezerAlbum?: Album | PlaylistsResponse;
+  deezerAlbum?:
+    | Album
+    | Omit<
+        PlaylistsResponse,
+        "collaborative" | "creator" | "duration" | "fans" | "is_loved_track" | "time_add" | "time_mod"
+      >;
   ownPlaylist?: PlaylistType;
   myOwn?: boolean;
 }
@@ -35,11 +41,15 @@ type Props = InnerProps & OuterProps;
 
 class FeaturedCardClass extends React.PureComponent<Props> {
   componentDidMount() {
-    const { setLoading, shouldSetLoading } = this.props;
+    const { setLoading, shouldSetLoading, changeState } = this.props;
 
     if (shouldSetLoading) {
       setLoading(false);
     }
+
+    setTimeout(() => {
+      changeState();
+    }, 1000);
   }
 
   private handleOnCardClick: React.MouseEventHandler = (event) => {

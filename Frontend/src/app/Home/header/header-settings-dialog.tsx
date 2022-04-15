@@ -8,11 +8,15 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Typography
+  Typography,
+  IconButton,
+  Tooltip,
+  IconButtonProps
 } from "@mui/material";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate, NavigateFunction } from "react-router";
 import Spotify from "mdi-material-ui/Spotify";
 import PlayCircleOutline from "mdi-material-ui/PlayCircleOutline";
+import LogoutVariant from "mdi-material-ui/LogoutVariant";
 import SpotifyWebApi from "spotify-web-api-node";
 import { WithStyles } from "@mui/styles";
 import { useDeezerAuth } from "../../../context/deezer-context";
@@ -23,12 +27,10 @@ import { HeaderSettingsDialogYouTube } from "../dialog-content/header-settings-d
 import { HeaderSettingsDialogDeezer } from "../dialog-content/header-settings-dialog-deezer";
 import { HeaderSettingsStyles, useHeaderSettingsStyles } from "./header-settings.styles";
 import { DeezerIcon } from "./deezer-icon-svg";
-// import { PlaylistApi } from "../../../api/api-endpoints";
-import { useUserContext } from "../../../context/user-context";
-// import { PlaylistType } from "../../me/me-component";
+import { useYoutubeApiContext } from "../../../context/youtube-api-context";
 
 import "./fontFamily.css";
-import { useYoutubeApiContext } from "../../../context/youtube-api-context";
+import { useAppContext } from "../../../context/app-context";
 
 interface OuterProps {
   handleDialogClose: ButtonProps["onClick"];
@@ -47,6 +49,15 @@ interface InnerProps extends WithStyles<typeof HeaderSettingsStyles> {
   youtubePlaylistCount: number;
   spotifyPlaylistCount: number;
   deezerPlaylistCount: number;
+  dzLogout: () => void;
+  spLogout: () => void;
+  ytLogout: () => void;
+  setIsSpotifyConnected: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsYoutubeConnected: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsDeezerConnected: React.Dispatch<React.SetStateAction<boolean>>;
+  googleAuthObject: gapi.auth2.GoogleAuthBase | undefined;
+  navigate: NavigateFunction;
+  setLoading: Function;
 }
 
 type Props = InnerProps & OuterProps;
@@ -59,6 +70,79 @@ class SettingsDialogClass extends React.PureComponent<Props> {
     const { setValue } = this.props;
 
     setValue(newValue);
+  };
+
+  private handleOnClickLogout: IconButtonProps["onClick"] = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const {
+      handleDialogClose,
+      value,
+      spotifyApi,
+      spLogout,
+      navigate,
+      setIsSpotifyConnected,
+      ytLogout,
+      googleAuthObject,
+      setIsYoutubeConnected,
+      setIsDeezerConnected,
+      dzLogout,
+      setLoading
+    } = this.props;
+
+    const currentValue = value as BottomNavigationValues;
+
+    setLoading(true);
+
+    if (currentValue === "Spotify") {
+      if (handleDialogClose) {
+        handleDialogClose(event);
+      }
+
+      spotifyApi.resetCredentials();
+      setTimeout(() => {
+        const logoutWindow = window.open("https://accounts.spotify.com/logout", "_self");
+
+        if (logoutWindow) {
+          setTimeout(() => {
+            window.close();
+          }, 2000);
+        }
+
+        setIsSpotifyConnected(false);
+        spLogout();
+        navigate("/", { replace: true });
+        window.location.reload();
+      }, 500);
+    } else if (currentValue === "YouTube") {
+      if (handleDialogClose) {
+        handleDialogClose(event);
+      }
+
+      setTimeout(() => {
+        if (googleAuthObject) {
+          googleAuthObject.signOut();
+          googleAuthObject.disconnect();
+        }
+
+        setIsYoutubeConnected(false);
+        ytLogout();
+        navigate("/", { replace: true });
+        window.location.reload();
+      }, 500);
+    } else if (currentValue === "Deezer") {
+      if (handleDialogClose) {
+        handleDialogClose(event);
+      }
+
+      setTimeout(() => {
+        setIsDeezerConnected(false);
+        dzLogout();
+        navigate("/", { replace: true });
+        window.location.reload();
+      }, 500);
+    }
   };
 
   public render(): React.ReactNode {
@@ -76,16 +160,74 @@ class SettingsDialogClass extends React.PureComponent<Props> {
       classes
     } = this.props;
 
+    const shouldRenderSp = isSpotifyConnected && (value as BottomNavigationValues) === "Spotify";
+    const shouldRenderYt = isYoutubeConnected && (value as BottomNavigationValues) === "YouTube";
+    const shouldRenderDz = isDeezerConnected && (value as BottomNavigationValues) === "Deezer";
+
     return (
       <Dialog
         open={isDialogOpen}
         onClose={handleDialogClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description">
-        <DialogTitle id="alert-dialog-title">
-          <Typography fontFamily="Poppins,sans-serif" style={{ color: "black" }} fontSize={24}>
+        <DialogTitle id="alert-dialog-title" style={{ textAlignLast: "end" }}>
+          <Typography fontFamily="Poppins,sans-serif" style={{ color: "black", float: "left" }} fontSize={24}>
             {value} Profile
           </Typography>
+          {shouldRenderSp && (
+            <Tooltip
+              title="Logout"
+              componentsProps={{
+                tooltip: {
+                  sx: {
+                    backgroundColor: "black",
+                    color: "white",
+                    fontFamily: "Poppins, sans-serif",
+                    fontSize: 12
+                  }
+                }
+              }}>
+              <IconButton size="large" style={{ padding: 1 }} onClick={this.handleOnClickLogout}>
+                <LogoutVariant style={{ color: "black" }} />
+              </IconButton>
+            </Tooltip>
+          )}
+          {shouldRenderYt && (
+            <Tooltip
+              title="Logout"
+              componentsProps={{
+                tooltip: {
+                  sx: {
+                    backgroundColor: "black",
+                    color: "white",
+                    fontFamily: "Poppins, sans-serif",
+                    fontSize: 12
+                  }
+                }
+              }}>
+              <IconButton size="large" style={{ padding: 1 }} onClick={this.handleOnClickLogout}>
+                <LogoutVariant style={{ color: "black" }} />
+              </IconButton>
+            </Tooltip>
+          )}
+          {shouldRenderDz && (
+            <Tooltip
+              title="Logout"
+              componentsProps={{
+                tooltip: {
+                  sx: {
+                    backgroundColor: "black",
+                    color: "white",
+                    fontFamily: "Poppins, sans-serif",
+                    fontSize: 12
+                  }
+                }
+              }}>
+              <IconButton size="large" style={{ padding: 1 }} onClick={this.handleOnClickLogout}>
+                <LogoutVariant style={{ color: "black" }} />
+              </IconButton>
+            </Tooltip>
+          )}
         </DialogTitle>
         <DialogContent className={classes.dialogContentStyles}>
           {(value as BottomNavigationValues) === "Spotify" && (
@@ -93,14 +235,14 @@ class SettingsDialogClass extends React.PureComponent<Props> {
               isSpotifyConnected={isSpotifyConnected}
               handleDialogClose={handleDialogClose}
               spotifyApi={spotifyApi}
-              playlistCount={youtubePlaylistCount}
+              playlistCount={spotifyPlaylistCount}
             />
           )}
           {(value as BottomNavigationValues) === "YouTube" && (
             <HeaderSettingsDialogYouTube
               isYoutubeConnected={isYoutubeConnected}
               handleDialogClose={handleDialogClose}
-              playlistCount={spotifyPlaylistCount}
+              playlistCount={youtubePlaylistCount}
             />
           )}
           {(value as BottomNavigationValues) === "Deezer" && (
@@ -125,22 +267,22 @@ class SettingsDialogClass extends React.PureComponent<Props> {
 
 export const SettingsDialog = React.memo<OuterProps>((props) => {
   const { minePlaylist } = useYoutubeApiContext();
+  const [isSpotifyConnected, setIsSpotifyConnected] = React.useState<boolean>(false);
+  const [isYoutubeConnected, setIsYoutubeConnected] = React.useState<boolean>(false);
+  const [isDeezerConnected, setIsDeezerConnected] = React.useState<boolean>(false);
   const [deezerPlaylistCount, setDeezerPlaylistCount] = React.useState<number>(0);
   const [spotifyPlaylistCount, setSpotifyPlaylistCount] = React.useState<number>(0);
+  const [youtubePlaylistCount, setYoutubePlaylistCount] = React.useState<number>(0);
   const [value, setValue] = React.useState<BottomNavigationValues>("Spotify");
   const classes = useHeaderSettingsStyles();
-  const { deezerToken } = useDeezerAuth();
-  const { youtubeToken } = useYoutubeAuth();
-  const { spotifyToken } = useSpotifyAuth();
-  const { userId } = useUserContext();
+  const { deezerToken, logout: dzLogout } = useDeezerAuth();
+  const { youtubeToken, logout: ytLogout, googleAuthObject } = useYoutubeAuth();
+  const { spotifyToken, logout: spLogout } = useSpotifyAuth();
+  const { setLoading } = useAppContext();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const { spotifyApi } = props;
-
-  let isYoutubeConnected: boolean = false;
-  let isDeezerConnected: boolean = false;
-  let isSpotifyConnected: boolean = false;
-  let youtubePlaylistCount: number = 0;
 
   React.useEffect(() => {
     if (deezerToken) {
@@ -148,44 +290,116 @@ export const SettingsDialog = React.memo<OuterProps>((props) => {
         setDeezerPlaylistCount(response.total);
       });
     }
+  }, [location.pathname, deezerToken]);
 
+  React.useEffect(() => {
     if (spotifyToken) {
       spotifyApi.getUserPlaylists().then((response) => {
         setSpotifyPlaylistCount(response.body.total);
       });
     }
+  }, [location.pathname, spotifyToken]);
 
-    if (userId) {
-      // const { PlaylistApiEndpoints } = PlaylistApi;
+  React.useEffect(() => {
+    if (youtubeToken) {
+      if (minePlaylist) {
+        setIsYoutubeConnected(true);
+        const { pageInfo } = minePlaylist.result;
+        if (pageInfo && pageInfo.totalResults) {
+          setYoutubePlaylistCount(pageInfo.totalResults);
+        }
+      } else if (!gapi || !gapi.client || !gapi.client.youtube || !gapi.client.youtube.playlists) {
+        setTimeout(() => {
+          if (!gapi || !gapi.client || !gapi.client.youtube || !gapi.client.youtube.playlists) {
+            setTimeout(() => {
+              gapi.client.youtube.playlists
+                .list({
+                  part: "snippet",
+                  mine: true,
+                  access_token: youtubeToken
+                })
+                .then((response) => {
+                  const { pageInfo } = response.result;
+                  setIsYoutubeConnected(true);
+                  if (pageInfo && pageInfo.totalResults) {
+                    setYoutubePlaylistCount(pageInfo.totalResults);
+                  }
+                });
+            }, 1000);
+          } else {
+            gapi.client.youtube.playlists
+              .list({
+                part: "snippet",
+                mine: true,
+                access_token: youtubeToken
+              })
+              .then((response) => {
+                const { pageInfo } = response.result;
+                setIsYoutubeConnected(true);
+                if (pageInfo && pageInfo.totalResults) {
+                  setYoutubePlaylistCount(pageInfo.totalResults);
+                }
+              });
+          }
+        }, 1000);
+      } else if (gapi && gapi.client && gapi.client.youtube && gapi.client.youtube.playlists) {
+        gapi.client.youtube.playlists
+          .list({
+            part: "snippet",
+            mine: true,
+            access_token: youtubeToken
+          })
+          .then((response) => {
+            setIsYoutubeConnected(true);
+            const { pageInfo } = response.result;
+            if (pageInfo && pageInfo.totalResults) {
+              setYoutubePlaylistCount(pageInfo.totalResults);
+            }
+          });
+      }
     }
-  }, [location.pathname]);
+  }, [youtubeToken]);
 
-  if (deezerToken) {
-    isDeezerConnected = true;
-  }
-
-  if (youtubeToken && minePlaylist) {
-    isYoutubeConnected = true;
-    const { pageInfo } = minePlaylist.result;
-    if (pageInfo && pageInfo.totalResults) {
-      youtubePlaylistCount = pageInfo.totalResults;
+  React.useEffect(() => {
+    if (spotifyToken) {
+      try {
+        spotifyApi.getMe().then((me) => {
+          if (me.statusCode === 200) {
+            setIsSpotifyConnected(true);
+          }
+        });
+      } catch {
+        setIsSpotifyConnected(false);
+        spLogout();
+      }
     }
-  }
+  }, [spotifyToken]);
 
-  if (spotifyToken) {
-    isSpotifyConnected = true;
-  }
+  React.useEffect(() => {
+    if (deezerToken) {
+      setIsDeezerConnected(true);
+    }
+  }, [deezerToken]);
 
   return (
     <SettingsDialogClass
       value={value}
       setValue={setValue}
+      dzLogout={dzLogout}
+      ytLogout={ytLogout}
+      spLogout={spLogout}
+      setIsSpotifyConnected={setIsSpotifyConnected}
+      setIsYoutubeConnected={setIsYoutubeConnected}
+      setIsDeezerConnected={setIsDeezerConnected}
+      googleAuthObject={googleAuthObject}
       isDeezerConnected={isDeezerConnected}
       isYoutubeConnected={isYoutubeConnected}
       isSpotifyConnected={isSpotifyConnected}
       deezerPlaylistCount={deezerPlaylistCount}
       youtubePlaylistCount={youtubePlaylistCount}
       spotifyPlaylistCount={spotifyPlaylistCount}
+      setLoading={setLoading}
+      navigate={navigate}
       classes={classes}
       {...props}
     />

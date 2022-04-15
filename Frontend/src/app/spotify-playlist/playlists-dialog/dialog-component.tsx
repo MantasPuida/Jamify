@@ -1,11 +1,15 @@
 import * as React from "react";
 import ChevronDown from "mdi-material-ui/ChevronDown";
 import SpotifyWebApi from "spotify-web-api-node";
-import { Accordion, AccordionSummary, AccordionDetails, Typography, FormGroup } from "@mui/material";
+import Spotify from "mdi-material-ui/Spotify";
+import { FaDeezer } from "react-icons/fa";
+import { Accordion, AccordionSummary, AccordionDetails, Typography, FormGroup, Grid } from "@mui/material";
+import MusicRestQuarter from "mdi-material-ui/MusicRestQuarter";
+import PlayCircleOutline from "mdi-material-ui/PlayCircleOutline";
 import { SpotifyPlaylistCheckbox } from "./spotify-playlist-checkbox";
 import { YoutubePlaylistCheckbox } from "./youtube-playlist-checkbox";
 import { SourceType } from "../playlist-component";
-import { Album, TrackListData, PlaylistsResponseMe, PlaylistsResponse } from "../../../types/deezer.types";
+import { Album, TrackListData, PlaylistsResponseMe, OmittedPlaylistResponse } from "../../../types/deezer.types";
 import { DeezerPlaylistCheckbox } from "./deezer-playlist-checkbox";
 import { PlaylistApi } from "../../../api/api-endpoints";
 import { useUserContext } from "../../../context/user-context";
@@ -18,7 +22,7 @@ interface PlaylistType {
   playlistDescription: string;
 }
 
-type DeezerPlaylistType = Album | PlaylistsResponse;
+type DeezerPlaylistType = Album | OmittedPlaylistResponse;
 
 interface OuterProps {
   spotifyPlaylists?: SpotifyApi.ListOfUsersPlaylistsResponse;
@@ -81,7 +85,14 @@ class DialogContentDialogClass extends React.PureComponent<Props, State> {
             onChange={this.handleChange("spotify")}
             style={{ minWidth: 250 }}>
             <AccordionSummary expandIcon={<ChevronDown />} aria-controls="spotifybh-content" id="spotifybh-header">
-              <Typography style={{ float: "left", flexShrink: 0, width: "80%" }}>Spotify Playlist</Typography>
+              <Grid container={true}>
+                <Grid item={true} xs={10}>
+                  <Typography style={{ float: "left", flexShrink: 0, width: "80%" }}>Spotify Playlist</Typography>
+                </Grid>
+                <Grid item={true} xs={2}>
+                  <Spotify style={{ color: "#1DB954" }} />
+                </Grid>
+              </Grid>
             </AccordionSummary>
             <AccordionDetails style={{ maxHeight: 260, overflow: "auto" }}>
               <FormGroup>
@@ -103,7 +114,14 @@ class DialogContentDialogClass extends React.PureComponent<Props, State> {
         {youtubePlaylists && (
           <Accordion expanded={expanded === "youtube"} onChange={this.handleChange("youtube")}>
             <AccordionSummary expandIcon={<ChevronDown />} aria-controls="youtubebh-content" id="youtubebh-header">
-              <Typography style={{ float: "left", flexShrink: 0, width: "80%" }}>Youtube Playlist</Typography>
+              <Grid container={true}>
+                <Grid item={true} xs={10}>
+                  <Typography style={{ float: "left", flexShrink: 0, width: "80%" }}>Youtube Playlist</Typography>
+                </Grid>
+                <Grid item={true} xs={2}>
+                  <PlayCircleOutline style={{ color: "#FF0000" }} />
+                </Grid>
+              </Grid>
             </AccordionSummary>
             <AccordionDetails style={{ maxHeight: 260, overflow: "auto" }}>
               <FormGroup>
@@ -125,7 +143,14 @@ class DialogContentDialogClass extends React.PureComponent<Props, State> {
         {deezerPlaylists && (
           <Accordion expanded={expanded === "deezer"} onChange={this.handleChange("deezer")}>
             <AccordionSummary expandIcon={<ChevronDown />} aria-controls="deezerbh-content" id="deezerbh-header">
-              <Typography style={{ float: "left", flexShrink: 0, width: "80%" }}>Deezer Playlist</Typography>
+              <Grid container={true}>
+                <Grid item={true} xs={10}>
+                  <Typography style={{ float: "left", flexShrink: 0, width: "80%" }}>Deezer Playlist</Typography>
+                </Grid>
+                <Grid item={true} xs={2}>
+                  <FaDeezer style={{ width: 24, height: 24, color: "white" }} />
+                </Grid>
+              </Grid>
             </AccordionSummary>
             <AccordionDetails style={{ maxHeight: 260, overflow: "auto" }}>
               <FormGroup>
@@ -148,7 +173,14 @@ class DialogContentDialogClass extends React.PureComponent<Props, State> {
         {ownPlaylists && (
           <Accordion expanded={expanded === "own"} onChange={this.handleChange("own")}>
             <AccordionSummary expandIcon={<ChevronDown />} aria-controls="ownbh-content" id="ownbh-header">
-              <Typography style={{ float: "left", flexShrink: 0, width: "80%" }}>Universal Playlist</Typography>
+              <Grid container={true}>
+                <Grid item={true} xs={10}>
+                  <Typography style={{ float: "left", flexShrink: 0, width: "80%" }}>Universal Playlist</Typography>
+                </Grid>
+                <Grid item={true} xs={2}>
+                  <MusicRestQuarter style={{ color: "black" }} />
+                </Grid>
+              </Grid>
             </AccordionSummary>
             <AccordionDetails style={{ maxHeight: 260, overflow: "auto" }}>
               <FormGroup>

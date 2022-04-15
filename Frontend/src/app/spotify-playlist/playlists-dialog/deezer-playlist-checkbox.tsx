@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Checkbox, CheckboxProps, CircularProgress, FormControlLabel, Grid } from "@mui/material";
 import { SourceType } from "../playlist-component";
-import { Album, PlaylistsResponse, TrackListData, Tracks } from "../../../types/deezer.types";
+import { Album, OmittedPlaylistResponse, TrackListData, Tracks } from "../../../types/deezer.types";
 import { useDeezerAuth } from "../../../context/deezer-context";
 import { Notify } from "../../notification/notification-component";
 
@@ -12,10 +12,10 @@ interface PlaylistType {
   playlistDescription: string;
 }
 
-type DeezerPlaylistType = Album | PlaylistsResponse;
+type DeezerPlaylistType = Album | OmittedPlaylistResponse;
 
 interface OuterProps {
-  playlist: PlaylistsResponse;
+  playlist: OmittedPlaylistResponse;
   trackName: string;
   imageUrl: string;
   sourceType: SourceType;

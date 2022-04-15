@@ -1,17 +1,49 @@
 import * as React from "react";
-import { Button, Grid, Typography } from "@mui/material";
+import { Button, Grid, Typography, ButtonProps } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import Play from "mdi-material-ui/Play";
+import { useLocation } from "react-router";
 import memoizeOne from "memoize-one";
-import { Artist, ArtistResponse } from "../../types/deezer.types";
+import { Albums, Artist, ArtistAlbumsResponse, ArtistResponse, PlaylistTracksResponse } from "../../types/deezer.types";
 import { ArtistStyles, useArtistStyles } from "./artist.styles";
+import { TrackObject, usePlayerContext } from "../../context/player-context";
 
 interface OuterProps {
   chartArtist: Artist;
   artistData?: ArtistResponse;
 }
 
-interface InnerProps extends WithStyles<typeof ArtistStyles> {}
+interface TrackType {
+  trackId: string;
+  trackName: string;
+  imageUrl: string;
+  artists: string;
+  duration: string;
+  album: string;
+}
+
+type SpotifyPlaylistTracksResponse = SpotifyApi.PlaylistTrackResponse;
+
+type PlaylistTracksType =
+  | SpotifyPlaylistTracksResponse
+  | gapi.client.youtube.PlaylistItemListResponse
+  | TrackType[]
+  | ArtistAlbumsResponse
+  | PlaylistTracksResponse;
+
+interface QueueType {
+  queue: PlaylistTracksType | undefined;
+  source: "spotify" | "youtube" | "deezer" | "own";
+}
+
+interface InnerProps extends WithStyles<typeof ArtistStyles> {
+  albumList?: Albums;
+  queue: QueueType | undefined;
+  setQueue: React.Dispatch<React.SetStateAction<QueueType | undefined>>;
+  setOpen: Function;
+  setTrack: Function;
+  isOpen: boolean;
+}
 
 type Props = InnerProps & OuterProps;
 
@@ -19,6 +51,50 @@ class TopArtistComponentClass extends React.PureComponent<Props> {
   private normalizeNumber: (value: number) => string = memoizeOne((value) =>
     value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
   );
+
+  private handleOnClick: ButtonProps["onClick"] = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const { albumList, queue, setQueue, setOpen, setTrack, isOpen, chartArtist } = this.props;
+
+    const currentAlbum = albumList?.data[0];
+
+    if (currentAlbum) {
+      DZ.api(`album/${currentAlbum.id}/tracks`, (response) => {
+        const data = response as ArtistAlbumsResponse;
+        const firstRecord = data.data[0];
+
+        if (queue?.queue !== data) {
+          setQueue({
+            queue: data,
+            source: "deezer"
+          });
+        }
+
+        gapi.client.youtube.search
+          .list({
+            part: "snippet",
+            q: `${firstRecord.title} ${firstRecord.artist.name ?? ""}`
+          })
+          .then((value) => {
+            if (value.result.items && value.result.items[0].id?.videoId) {
+              const currentTrack: TrackObject = {
+                videoId: value.result.items[0].id.videoId,
+                title: firstRecord.title_short ?? "",
+                thumbnail: chartArtist.picture_xl ?? "",
+                channelTitle: currentAlbum.title ?? ""
+              };
+
+              if (!isOpen) {
+                setOpen(true);
+              }
+              setTrack(currentTrack);
+            }
+          });
+      });
+    }
+  };
 
   public render(): React.ReactNode {
     const { chartArtist, artistData, classes } = this.props;
@@ -54,6 +130,7 @@ class TopArtistComponentClass extends React.PureComponent<Props> {
           </Grid>
           <Grid item={true} style={{ width: "100%", marginTop: 40 }}>
             <Button
+              onClick={this.handleOnClick}
               style={{
                 textTransform: "none",
                 justifyContent: "left",
@@ -77,6 +154,27 @@ class TopArtistComponentClass extends React.PureComponent<Props> {
 
 export const TopArtistComponent = React.memo<OuterProps>((props) => {
   const classes = useArtistStyles();
+  const location = useLocation();
+  const [albumList, setAlbumList] = React.useState<Albums>();
+  const { queue, setQueue, setOpen, setTrack, isOpen } = usePlayerContext();
 
-  return <TopArtistComponentClass classes={classes} {...props} />;
+  const { chartArtist } = props;
+
+  React.useEffect(() => {}, [location]);
+  DZ.api(`artist/${chartArtist.id}/albums&limit=50`, (response) => {
+    setAlbumList(response as Albums);
+  });
+
+  return (
+    <TopArtistComponentClass
+      queue={queue}
+      setQueue={setQueue}
+      setOpen={setOpen}
+      setTrack={setTrack}
+      isOpen={isOpen}
+      albumList={albumList}
+      classes={classes}
+      {...props}
+    />
+  );
 });

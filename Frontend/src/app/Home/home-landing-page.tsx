@@ -1,3 +1,4 @@
+/* eslint-disable no-unneeded-ternary */
 import * as React from "react";
 import { Grid } from "@mui/material";
 import { WithStyles } from "@mui/styles";
@@ -22,18 +23,47 @@ interface InnerProps extends WithStyles<typeof HomeLandingPageStyles> {
   youtubeToken: string | null;
 }
 
+interface State {
+  forceUpdateYt: boolean;
+  forceUpdateSp: boolean;
+}
+
 type Props = InnerProps & OuterProps;
 
-class HomeLandingPageClass extends React.PureComponent<Props> {
+class HomeLandingPageClass extends React.PureComponent<Props, State> {
+  public state: State = { forceUpdateYt: false, forceUpdateSp: false };
+
+  componentDidUpdate(prevProps: Props) {
+    const { youtubeToken, spotifyToken } = this.props;
+
+    if (!prevProps.youtubeToken && youtubeToken) {
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ forceUpdateYt: true });
+    }
+
+    if (!prevProps.spotifyToken && spotifyToken) {
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ forceUpdateSp: true });
+    }
+  }
+
   public render(): React.ReactNode {
     const { classes, spotifyApi, spotifyToken, youtubeToken, deezerToken } = this.props;
-
-    const shouldSetLoading = Boolean(youtubeToken || deezerToken);
+    const { forceUpdateYt, forceUpdateSp } = this.state;
 
     return (
       <Grid container={true} item={true} xs={12} className={classes.homeGrid}>
-        {spotifyToken && <FeaturedPlaylists spotifyApi={spotifyApi} shouldSetLoading={!shouldSetLoading} />}
-        {youtubeToken && <YoutubePlaylists shouldSetLoading={!deezerToken} />}
+        {spotifyToken && (
+          <FeaturedPlaylists
+            spotifyApi={spotifyApi}
+            shouldSetLoading={forceUpdateSp ? forceUpdateSp : !youtubeToken && !deezerToken}
+          />
+        )}
+        {youtubeToken && (
+          <YoutubePlaylists
+            shouldSetLoading={forceUpdateYt ? forceUpdateYt : !deezerToken || (!deezerToken && !spotifyToken)}
+          />
+        )}
         {deezerToken && <DeezerArtists />}
       </Grid>
     );

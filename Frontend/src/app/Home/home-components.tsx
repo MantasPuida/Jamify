@@ -26,7 +26,7 @@ class HomeClass extends React.PureComponent<Props> {
 }
 
 export const Home = React.memo<OuterProps>((props) => {
-  const { spotifyToken } = useSpotifyAuth();
+  const { spotifyToken, logout } = useSpotifyAuth();
   const { deezerToken, deezerUserId } = useDeezerAuth();
   const { youtubeToken, googleAuthObject } = useYoutubeAuth();
   const { setUserId } = useUserContext();
@@ -61,24 +61,30 @@ export const Home = React.memo<OuterProps>((props) => {
     const { spotifyApi } = props;
 
     if (spotifyToken) {
-      spotifyApi.getMe().then((me) => {
-        const { id, display_name: name, email } = me.body;
+      spotifyApi
+        .getMe()
+        .then((me) => {
+          const { id, display_name: name, email } = me.body;
 
-        handleOnLogin(
-          {
-            DeezerUniqueIdentifier: "",
-            SpotifyUniqueIdentifier: id,
-            YoutubeUniqueIdentifier: "",
-            DeezerEmail: "",
-            DeezerName: "",
-            SpotifyEmail: email,
-            SpotifyName: name ?? "",
-            YoutubeEmail: "",
-            YoutubeName: ""
-          },
-          setUserId
-        );
-      });
+          handleOnLogin(
+            {
+              DeezerUniqueIdentifier: "",
+              SpotifyUniqueIdentifier: id,
+              YoutubeUniqueIdentifier: "",
+              DeezerEmail: "",
+              DeezerName: "",
+              SpotifyEmail: email,
+              SpotifyName: name ?? "",
+              YoutubeEmail: "",
+              YoutubeName: ""
+            },
+            setUserId
+          );
+        })
+        .catch(() => {
+          logout();
+          setLoading(false);
+        });
     }
 
     if (deezerToken && deezerUserId) {

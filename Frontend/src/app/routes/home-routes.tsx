@@ -8,7 +8,6 @@ import { MeComponent } from "../me/me-class";
 import { useSpotifyAuth } from "../../context/spotify-context";
 import { SpotifyConstants } from "../../constants/constants-spotify";
 import { Search } from "../search/search-component";
-import { Playlist } from "../spotify-playlist/playlist-class";
 import { Helpers } from "../../utils/helpers";
 import { HeaderComponent } from "../Home/header/header-component";
 import { usePlayerContext } from "../../context/player-context";
@@ -19,6 +18,7 @@ import { BackdropLoader } from "../loader/loader-backdrop";
 import { RelativeExploreRoutes } from "../explore/explore-relative-routes";
 import { useYoutubeApiContext } from "../../context/youtube-api-context";
 import { useYoutubeAuth } from "../../context/youtube-context";
+import { RelativePlaylistsRoutes } from "../spotify-playlist/relative-playlists.routes";
 
 interface Props {
   spotifyApi: SpotifyWebApi;
@@ -41,7 +41,7 @@ function HomeRoutesClass(props: Props) {
           <Route path={`${AppRoutes.Explore}/*`} element={<RelativeExploreRoutes spotifyApi={spotifyApi} />} />
           <Route path={AppRoutes.Me} element={<MeComponent spotifyApi={spotifyApi} />} />
           <Route path={AppRoutes.Search} element={<Search spotifyApi={spotifyApi} />} />
-          <Route path={AppRoutes.Playlist} element={<Playlist spotifyApi={spotifyApi} />} />
+          <Route path={`${AppRoutes.Playlist}/*`} element={<RelativePlaylistsRoutes spotifyApi={spotifyApi} />} />
           <Route path={AppRoutes.Artist} element={<Artist spotifyApi={spotifyApi} />} />
           <Route path="*" element={<NotFound />} />;
         </Routes>
@@ -59,23 +59,29 @@ const HomeRoutes = (): JSX.Element => {
   const { spotifyToken, register } = useSpotifyAuth();
   const { loading, setLoading, setIsOnline } = useAppContext();
   const { youtubeToken } = useYoutubeAuth();
-  const { setMinePlaylist } = useYoutubeApiContext();
+  const { setMinePlaylist, minePlaylist } = useYoutubeApiContext();
 
   React.useEffect(() => {
-    setTimeout(() => {
-      if (youtubeToken) {
-        gapi.client.youtube.playlists
-          .list({
-            part: "snippet",
-            mine: true,
-            access_token: youtubeToken
-          })
-          .then((response) => {
-            setMinePlaylist(response);
-          });
-      }
-    }, 1000);
-  }, [youtubeToken]);
+    if (!minePlaylist) {
+      setTimeout(() => {
+        if (youtubeToken) {
+          gapi.client.youtube.playlists
+            .list({
+              part: "snippet",
+              mine: true,
+              access_token: youtubeToken
+            })
+            .then((response) => {
+              setMinePlaylist(response);
+            });
+        }
+      }, 1000);
+    }
+  }, [location]);
+
+  if (location.pathname === AppRoutes.Me) {
+    setLoading(true);
+  }
 
   React.useEffect(() => {
     setLoading(true);

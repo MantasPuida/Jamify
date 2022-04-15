@@ -7,7 +7,7 @@ import { SourceType } from "./playlist-component";
 import { PlaylistApi } from "../../api/api-endpoints";
 import { useUserContext } from "../../context/user-context";
 import { PlaylistsDialogComponent } from "./playlists-dialog/playlists-dialog-component";
-import { Album, TrackListData, PlaylistsResponse } from "../../types/deezer.types";
+import { Album, TrackListData, OmittedPlaylistResponse } from "../../types/deezer.types";
 import { useDeezerAuth } from "../../context/deezer-context";
 import { useAppContext } from "../../context/app-context";
 
@@ -26,7 +26,7 @@ interface TrackType {
   trackSource: string;
 }
 
-type DeezerPlaylistType = Album | PlaylistsResponse;
+type DeezerPlaylistType = Album | OmittedPlaylistResponse;
 
 interface OuterProps {
   myOwn?: boolean;
@@ -157,7 +157,7 @@ class TrackActionComponentClass extends React.PureComponent<Props, State> {
           const deezerPlaylist = playlist as DeezerPlaylistType;
 
           if (deezerPlaylist.type === "playlist") {
-            const currentPlaylist = deezerPlaylist as PlaylistsResponse;
+            const currentPlaylist = deezerPlaylist as OmittedPlaylistResponse;
             DZ.api(`playlist/${currentPlaylist.id}/tracks`, (response) => {
               const removableTrack = response.data.filter((value) => value.title.includes(trackName));
 
@@ -207,7 +207,7 @@ class TrackActionComponentClass extends React.PureComponent<Props, State> {
       <>
         <IconButton onClick={this.handleOnIconClick} style={{ padding: 0, color: "rgba(255, 255, 255, .7)" }}>
           {isMine ? (
-            <CardsHeart id="DotsSvgIcon" style={{ display: "none", color: "red" }} />
+            <CardsHeart id="DotsSvgIcon" style={{ color: "red" }} />
           ) : (
             <CardsHeartOutline id="DotsSvgIcon" style={{ display: "none", color: "red" }} />
           )}

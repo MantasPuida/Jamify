@@ -2,30 +2,30 @@ import * as React from "react";
 import { Button, ButtonProps, Grid, Typography } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import { NavigateFunction, useNavigate } from "react-router";
-import { Artist } from "../../../types/deezer.types";
-import { DeezerStyles, useDeezerStyles } from "./deezer.styles";
-import { AppRoutes } from "../../routes/routes";
+import { FeaturedPlaylistsStyles, useFeaturedPlaylistsStyles } from "./featured.styles";
 import { useAppContext } from "../../../context/app-context";
+import { Artist as ArtistType } from "../../../types/deezer.types";
+import { AppRoutes } from "../../routes/routes";
 
 interface OuterProps {
-  artist: Artist;
+  artist: SpotifyApi.ArtistObjectFull;
   changeState: () => void;
 }
 
-interface InnerProps extends WithStyles<typeof DeezerStyles> {
+interface InnerProps extends WithStyles<typeof FeaturedPlaylistsStyles> {
   navigate: NavigateFunction;
   setLoading: Function;
 }
 
 type Props = InnerProps & OuterProps;
 
-class ArtistCardsClass extends React.PureComponent<Props> {
+class FeaturedArtistsClass extends React.PureComponent<Props> {
   componentDidMount() {
     const { setLoading, changeState } = this.props;
 
+    setLoading(false);
     setTimeout(() => {
       changeState();
-      setLoading(false);
     }, 1000);
   }
 
@@ -33,21 +33,39 @@ class ArtistCardsClass extends React.PureComponent<Props> {
     event.preventDefault();
     event.stopPropagation();
 
-    const { navigate, artist } = this.props;
+    const { artist, navigate } = this.props;
 
-    navigate(AppRoutes.Artist, { state: { artist } });
+    DZ.api(`search?q=${artist.name}`, (response) => {
+      const { data } = response;
+      const filteredArtist = data.find((value) => value.artist.type === "artist" && value.artist.name === artist.name);
+
+      if (filteredArtist) {
+        navigate(AppRoutes.Artist, {
+          state: {
+            artist: {
+              ...filteredArtist.artist,
+              picture_xl: artist.images[0].url ?? filteredArtist.artist.picture_xl
+            } as ArtistType
+          }
+        });
+      } else {
+        navigate(AppRoutes.Artist, { state: { artist: data[0].artist as ArtistType } });
+      }
+    });
   };
 
   public render(): React.ReactNode {
     const { artist, classes } = this.props;
 
+    const { images, name, id } = artist;
+
     return (
-      <Grid container={true}>
+      <Grid container={true} key={id}>
         <Grid container={true} item={true} xs={12} style={{ justifyContent: "center" }}>
           <Grid item={true} xs={12}>
             <Button style={{ padding: 0, backgroundColor: "transparent" }} onClick={this.handleOnClick}>
               <div id="tintImg" className="tint-img">
-                <img src={artist.picture_xl} alt={artist.name} className={classes.image} />
+                <img src={images[0].url} alt={name} className={classes.artistImage} />
               </div>
             </Button>
           </Grid>
@@ -60,7 +78,7 @@ class ArtistCardsClass extends React.PureComponent<Props> {
                 fontFamily="Poppins,sans-serif"
                 textTransform="none"
                 color="white">
-                {artist.name}
+                {name}
               </Typography>
             </Button>
           </Grid>
@@ -70,10 +88,10 @@ class ArtistCardsClass extends React.PureComponent<Props> {
   }
 }
 
-export const ArtistCards = React.memo<OuterProps>((props) => {
-  const classes = useDeezerStyles();
+export const FeaturedArtists = React.memo<OuterProps>((props) => {
+  const classes = useFeaturedPlaylistsStyles();
   const navigate = useNavigate();
   const { setLoading } = useAppContext();
 
-  return <ArtistCardsClass setLoading={setLoading} classes={classes} navigate={navigate} {...props} />;
+  return <FeaturedArtistsClass setLoading={setLoading} classes={classes} navigate={navigate} {...props} />;
 });

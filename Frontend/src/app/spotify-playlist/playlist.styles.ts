@@ -17,7 +17,8 @@ export const PlaylistStyles = (theme: AppTheme) =>
     playlistGridText: {
       paddingLeft: theme.spacing(5),
       flexFlow: "column",
-      justifyContent: "center"
+      justifyContent: "center",
+      width: "100%"
     },
     optionalGridText: {
       marginTop: theme.spacing(5)
@@ -37,7 +38,8 @@ export const PlaylistStyles = (theme: AppTheme) =>
       color: "transparent",
       padding: 0,
       textTransform: "none",
-      width: "85%"
+      width: "70%",
+      maxWidth: "80%"
     },
     hover: {
       "&:hover img#rowTrackImage": {
@@ -95,12 +97,38 @@ export const PlaylistStyles = (theme: AppTheme) =>
     artistTypography: {
       color: "rgba(255, 255, 255, .7)",
       textAlign: "start",
+      float: "right",
+      "&:hover": {
+        textDecoration: "solid underline rgba(255, 255, 255, .7) 1px"
+      }
+    },
+    artistTypographyNoHover: {
+      color: "rgba(255, 255, 255, .7)",
+      textAlign: "start",
       float: "right"
     },
     artistTypographyIcon: {
       color: "rgba(255, 255, 255, .7)",
       textAlign: "left",
       float: "left"
+    },
+
+    typography: {
+      height: "100%",
+      marginTop: 4,
+      textAlign: "left",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      WebkitLineClamp: 3,
+      display: "block",
+      "&:hover": {
+        textDecoration: "solid underline rgba(255, 255, 255, .7) 1px"
+      }
+    },
+
+    root: {
+      padding: theme.spacing(2)
     }
   });
 

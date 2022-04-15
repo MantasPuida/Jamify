@@ -2,38 +2,35 @@ import * as React from "react";
 import { Button, ButtonProps, Grid, Typography } from "@mui/material";
 import Play from "mdi-material-ui/Play";
 import { WithStyles } from "@mui/styles";
-import { YoutubeTracksStyles, useYoutubeTracksStyles } from "./playlist.styles";
-
-import "./fontFamily.css";
-import { TrackObject, usePlayerContext } from "../../context/player-context";
-import { parseTitle } from "../../helpers/title-parser";
-import { extractThumbnail } from "../../helpers/thumbnails";
-import { useAppContext } from "../../context/app-context";
+import { DeezerStyles, useDeezerStyles } from "./deezer.styles";
+import { useAppContext } from "../../../context/app-context";
+import { TrackObject, usePlayerContext } from "../../../context/player-context";
+import { LastTick } from "../../../utils/last-tick";
+import { Track } from "../../../types/deezer.types";
 
 interface OuterProps {
-  track: gapi.client.youtube.PlaylistItem;
-  shouldSetLoading: boolean;
-  changeLoading: () => void;
+  track: Track;
+  changeState: () => void;
 }
 
-interface InnerProps extends WithStyles<typeof YoutubeTracksStyles> {
+interface InnerProps extends WithStyles<typeof DeezerStyles> {
   setPlayerOpen: Function;
   setPlayerTrack: Function;
   setLoading: Function;
+  isOpen: boolean;
 }
 
 type Props = InnerProps & OuterProps;
 
-class TracksCardsClass extends React.PureComponent<Props> {
+class DeezerTracksClass extends React.PureComponent<Props> {
   componentDidMount() {
-    const { shouldSetLoading, setLoading, changeLoading } = this.props;
-
-    if (shouldSetLoading) {
-      setLoading(false);
-    }
+    const { setLoading, changeState } = this.props;
 
     setTimeout(() => {
-      changeLoading();
+      LastTick(() => {
+        changeState();
+        setLoading(false);
+      });
     }, 1000);
   }
 
@@ -41,43 +38,43 @@ class TracksCardsClass extends React.PureComponent<Props> {
     event.preventDefault();
     event.stopPropagation();
 
-    const { setPlayerOpen, setPlayerTrack, track } = this.props;
+    const { track, isOpen, setPlayerOpen, setPlayerTrack } = this.props;
 
-    if (track.snippet) {
-      const { snippet } = track;
+    gapi.client.youtube.search
+      .list({
+        part: "snippet",
+        q: `${track.title} ${track.artist.name ?? ""}`
+      })
+      .then((value) => {
+        if (value.result.items && value.result.items[0].id?.videoId) {
+          const currentTrack: TrackObject = {
+            videoId: value.result.items[0].id.videoId,
+            title: track.title_short ?? "",
+            thumbnail: track.album.cover_xl ?? "",
+            channelTitle: track.album.title ?? ""
+          };
 
-      if (snippet.videoOwnerChannelTitle && snippet.thumbnails && snippet.title && snippet.resourceId?.videoId) {
-        setPlayerOpen(true);
-
-        const currentTrack: TrackObject = {
-          channelTitle: snippet.videoOwnerChannelTitle,
-          thumbnail: extractThumbnail(snippet.thumbnails)!,
-          title: snippet.title,
-          videoId: snippet.resourceId.videoId
-        };
-
-        setPlayerTrack(currentTrack);
-      }
-    }
+          if (!isOpen) {
+            setPlayerOpen(true);
+          }
+          setPlayerTrack(currentTrack);
+        }
+      });
   };
 
   public render(): React.ReactNode {
     const { track, classes } = this.props;
 
-    if (!track.id || !track.snippet || !track.snippet.thumbnails || !track.snippet.title) {
-      // eslint-disable-next-line react/jsx-no-useless-fragment
-      return <></>;
-    }
-
-    const { title, thumbnails, videoOwnerChannelTitle } = track.snippet;
-
-    const imageUrl = extractThumbnail(thumbnails);
-
     return (
       <Grid container={true} item={true} xs={12} key={track.id}>
         <Grid item={true} xs={2}>
           <Button onClick={this.handleOnTrackClick}>
-            <img src={imageUrl} alt={title} className={classes.image} id="gridRowTrack" />
+            <img
+              src={track.album.cover_xl}
+              alt={track.title}
+              className={classes.tracksCarouselImage}
+              id="gridRowTrack"
+            />
             <div style={{ position: "absolute", width: 32, height: 32, marginTop: 8 }}>
               <Play id="ytPlaySvgIcon" style={{ color: "white", display: "none" }} />
             </div>
@@ -97,8 +94,12 @@ class TracksCardsClass extends React.PureComponent<Props> {
                 color: "transparent"
               }}
               variant="text">
-              <Typography className={classes.typography} fontFamily="Poppins,sans-serif" fontSize={16} color="white">
-                {parseTitle(title)}
+              <Typography
+                className={classes.tracksTypography}
+                fontFamily="Poppins,sans-serif"
+                fontSize={16}
+                color="white">
+                {track.title_short}
               </Typography>
             </Button>
           </Grid>
@@ -113,10 +114,10 @@ class TracksCardsClass extends React.PureComponent<Props> {
                 paddingTop: 0,
                 paddingBottom: 0
               }}
-              className={classes.buttonOnHover}
+              className={classes.tracksButtonOnHover}
               variant="text">
-              <Typography className={classes.helperTypography} fontFamily="Poppins,sans-serif" fontSize={12}>
-                {videoOwnerChannelTitle}
+              <Typography className={classes.tracksHelperTypography} fontFamily="Poppins,sans-serif" fontSize={12}>
+                {track.album.title}
               </Typography>
             </Button>
           </Grid>
@@ -126,14 +127,15 @@ class TracksCardsClass extends React.PureComponent<Props> {
   }
 }
 
-export const TracksCards = React.memo<OuterProps>((props) => {
+export const DeezerTracks = React.memo<OuterProps>((props) => {
   const { setLoading } = useAppContext();
-  const { setOpen, setTrack } = usePlayerContext();
-  const classes = useYoutubeTracksStyles();
+  const { isOpen, setOpen, setTrack } = usePlayerContext();
+  const classes = useDeezerStyles();
 
   return (
-    <TracksCardsClass
+    <DeezerTracksClass
       {...props}
+      isOpen={isOpen}
       setLoading={setLoading}
       classes={classes}
       setPlayerOpen={setOpen}
