@@ -52,6 +52,13 @@ class YoutubePlaylistsClass extends React.PureComponent<Props, State> {
     this.fetchYoutubeTracks();
   }
 
+  componentWillUnmount() {
+    const { setLoading } = this.props;
+
+    setLoading(false);
+    this.setState({ loading: false, attempts: this.maxAttempts });
+  }
+
   private fetchYoutubeTracks = async () => {
     const { attempts } = this.state;
     const todaysHits = "RDCLAK5uy_lqkZ7XVUPH7IZbFwDY6zkjEM6nSCiov0E";

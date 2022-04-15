@@ -424,7 +424,6 @@ class PlayerClass extends React.PureComponent<Props> {
                     alignItems="center"
                     style={{ justifyContent: "end", paddingLeft: 16 }}>
                     <Slider
-                      id="customSliderId"
                       aria-label="Volume"
                       defaultValue={volume * 100}
                       size="small"

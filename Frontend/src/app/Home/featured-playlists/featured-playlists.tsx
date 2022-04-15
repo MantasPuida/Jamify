@@ -204,7 +204,6 @@ class FeaturedPlaylistsClass extends React.PureComponent<Props, State> {
           <Grid item={true} xs={12} style={{ marginRight: 200, maxHeight: 200 }}>
             <TabPanel value={value} index={2}>
               <Swiper
-                id="artist-custom-swiper"
                 slidesPerView={6}
                 className="mySwiper"
                 centeredSlides={false}

@@ -1,6 +1,7 @@
 import * as React from "react";
 import Play from "mdi-material-ui/Play";
 import { Button, ButtonProps, TableCell, TableRow, Typography } from "@mui/material";
+import { NavigateFunction, useNavigate } from "react-router";
 import SpotifyWebApi from "spotify-web-api-node";
 import { WithStyles } from "@mui/styles";
 import { TrackObject, usePlayerContext } from "../../context/player-context";
@@ -12,6 +13,8 @@ import { TrackType } from "./playlist-class";
 import { PlaylistType } from "../me/me-component";
 import { TrackActionComponent } from "./track-actions-component";
 import { Album, ArtistAlbumsData, OmittedPlaylistResponse, PlaylistTracksData } from "../../types/deezer.types";
+import { AppRoutes } from "../routes/routes";
+import { FeaturedPlaylistState } from "../Home/featured-playlists/featured-card";
 
 type DeezerPlaylistType = Album | OmittedPlaylistResponse;
 type DeezerPlaylistTrackType = ArtistAlbumsData | PlaylistTracksData;
@@ -34,6 +37,7 @@ interface OuterProps {
 interface InnerProps extends WithStyles<typeof PlaylistStyles> {
   setTrack: Function;
   setOpen: Function;
+  navigate: NavigateFunction;
 }
 
 interface State {
@@ -281,6 +285,52 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
     }
   };
 
+  private handleOnAlbumClick: ButtonProps["onClick"] = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const { row, sourceType, spotifyApi, navigate, myOwn: isMine } = this.props;
+
+    if (sourceType === SourceType.Spotify) {
+      const spotifyRow = row as SpotifyApi.PlaylistTrackObject;
+
+      spotifyApi.searchPlaylists(spotifyRow.track.album.name).then((response) => {
+        if (response.body.playlists && response.body.playlists?.items.length > 0) {
+          const playlist = response.body.playlists.items[0];
+
+          navigate(AppRoutes.Playlist, { state: { spotifyPlaylist: playlist, myOwn: false } as FeaturedPlaylistState });
+        }
+      });
+    } else if (sourceType === SourceType.Deezer && !isMine) {
+      const deezerRow = row as DeezerPlaylistTrackType;
+
+      DZ.api(`search/album?q=${deezerRow.title}`, (response) => {
+        if (response.error) {
+          // eslint-disable-next-line no-console
+          console.error(response.error);
+        } else {
+          const { data } = response;
+
+          if (data && data.length > 0) {
+            const album = data[0];
+
+            navigate(AppRoutes.Playlist, { state: { deezerAlbum: album, myOwn: false } as FeaturedPlaylistState });
+          }
+        }
+      });
+    } else if (sourceType === SourceType.Own) {
+      const ownRow = row as TrackType;
+
+      spotifyApi.searchPlaylists(ownRow.album).then((response) => {
+        if (response.body.playlists && response.body.playlists?.items.length > 0) {
+          const playlist = response.body.playlists.items[0];
+
+          navigate(AppRoutes.Playlist, { state: { spotifyPlaylist: playlist, myOwn: false } as FeaturedPlaylistState });
+        }
+      });
+    }
+  };
+
   private convertMilliseconds = (milliseconds: number): string => {
     const minutes = Math.floor(milliseconds / 60000);
     const seconds = ((milliseconds % 60000) / 1000).toFixed(0);
@@ -346,7 +396,7 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
         </TableCell>
         {sourceType !== SourceType.Youtube && (
           <TableCell style={{ minWidth: 500 }}>
-            <Button className={classes.buttonTextHover} variant="text">
+            <Button className={classes.buttonTextHover} onClick={this.handleOnAlbumClick} variant="text">
               <Typography fontFamily="Poppins, sans-serif" fontSize={16} className={classes.artistTypography}>
                 {albumName}
               </Typography>
@@ -363,7 +413,7 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
             myOwn={myOwn}
             artists={artistName}
           />
-          <Typography fontFamily="Poppins, sans-serif" fontSize={16} className={classes.artistTypography}>
+          <Typography fontFamily="Poppins, sans-serif" fontSize={16} className={classes.artistTypographyNoHover}>
             {duration}
           </Typography>
         </TableCell>
@@ -375,6 +425,9 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
 export const TracksTableContent = React.memo<OuterProps>((props) => {
   const { setTrack, setOpen } = usePlayerContext();
   const classes = usePlaylistStyles();
+  const navigate = useNavigate();
 
-  return <TracksTableContentClass {...props} setTrack={setTrack} setOpen={setOpen} classes={classes} />;
+  return (
+    <TracksTableContentClass navigate={navigate} {...props} setTrack={setTrack} setOpen={setOpen} classes={classes} />
+  );
 });

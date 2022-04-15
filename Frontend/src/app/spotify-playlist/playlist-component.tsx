@@ -3,6 +3,7 @@
 import * as React from "react";
 import Play from "mdi-material-ui/Play";
 import DotsVertical from "mdi-material-ui/DotsVertical";
+import LinkVariant from "mdi-material-ui/LinkVariant";
 import { WithStyles } from "@mui/styles";
 import { useNavigate, NavigateFunction } from "react-router";
 import clsx from "clsx";
@@ -36,6 +37,7 @@ import {
   TwitterIcon,
   WhatsappIcon
 } from "react-share";
+import { CopyToClipboard } from "react-copy-to-clipboard";
 import { PlaylistStyles, usePlaylistStyles } from "./playlist.styles";
 import { extractThumbnail } from "../../helpers/thumbnails";
 import { PlaylistType } from "../me/me-component";
@@ -627,7 +629,7 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
 
         playlistImage = thumbnail;
         playlistName = snippet.title ?? "My playlist";
-        shareUrl = `https://www.youtube.com/playlist?list=${YoutubePlaylist.id}`;
+        shareUrl = `youtube.com/playlist?list=${YoutubePlaylist.id}`;
       }
     } else if (sourceType === SourceType.Own) {
       const ownPlaylist = playlist as PlaylistType;
@@ -649,6 +651,14 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
         shareUrl = customPlaylist.link;
         playlistDescription = "";
       }
+    }
+
+    if (shareUrl.startsWith("https://")) {
+      shareUrl = shareUrl.substring(8);
+    }
+
+    if (shareUrl.startsWith("www.")) {
+      shareUrl = shareUrl.substring(4);
     }
 
     return (
@@ -736,19 +746,48 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
                   Play
                 </Typography>
               </Button>
-              {myOwn && (
-                <>
-                  <IconButton
-                    aria-label="more"
-                    id="long-button"
-                    aria-controls={open ? "long-menu" : undefined}
-                    aria-expanded={open ? "true" : undefined}
-                    aria-haspopup="true"
-                    onClick={this.handleOnDotsClick}>
-                    <DotsVertical style={{ color: "white" }} />
-                  </IconButton>
-                  <Menu
-                    id="long-menu"
+              <>
+                <IconButton
+                  aria-label="more"
+                  id="long-button"
+                  aria-controls={open ? "long-menu" : undefined}
+                  aria-expanded={open ? "true" : undefined}
+                  aria-haspopup="true"
+                  onClick={this.handleOnDotsClick}>
+                  <DotsVertical style={{ color: "white" }} />
+                </IconButton>
+                <Menu
+                  id="long-menu"
+                  anchorOrigin={{
+                    vertical: "center",
+                    horizontal: "right"
+                  }}
+                  transformOrigin={{
+                    vertical: "center",
+                    horizontal: "left"
+                  }}
+                  MenuListProps={{
+                    "aria-labelledby": "long-button"
+                  }}
+                  anchorEl={anchorEl}
+                  open={open}
+                  onClose={this.handleClose}>
+                  {myOwn && (
+                    <MenuItem onClick={this.handleOnRenameClick}>
+                      <Typography fontFamily="Poppins, sans-serif" fontWeight={500} fontSize={15}>
+                        Rename Playlist
+                      </Typography>
+                    </MenuItem>
+                  )}
+                  <MenuItem onClick={this.handleOnPopover}>
+                    <Typography fontFamily="Poppins, sans-serif" fontWeight={500} fontSize={15}>
+                      Share Playlist
+                    </Typography>
+                  </MenuItem>
+                  <Popover
+                    open={Boolean(popoverAnchorEl)}
+                    anchorEl={popoverAnchorEl}
+                    onClose={this.handleOnPopoverClose}
                     anchorOrigin={{
                       vertical: "center",
                       horizontal: "right"
@@ -757,84 +796,61 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
                       vertical: "center",
                       horizontal: "left"
                     }}
-                    MenuListProps={{
-                      "aria-labelledby": "long-button"
-                    }}
-                    anchorEl={anchorEl}
-                    open={open}
-                    onClose={this.handleClose}>
-                    <MenuItem onClick={this.handleOnRenameClick}>
-                      <Typography fontFamily="Poppins, sans-serif" fontWeight={500} fontSize={15}>
-                        Rename Playlist
-                      </Typography>
-                    </MenuItem>
-                    <MenuItem onClick={this.handleOnPopover}>
-                      <Typography fontFamily="Poppins, sans-serif" fontWeight={500} fontSize={15}>
-                        Share Playlist
-                      </Typography>
-                    </MenuItem>
-                    <Popover
-                      open={Boolean(popoverAnchorEl)}
-                      anchorEl={popoverAnchorEl}
-                      onClose={this.handleOnPopoverClose}
-                      anchorOrigin={{
-                        vertical: "center",
-                        horizontal: "right"
-                      }}
-                      transformOrigin={{
-                        vertical: "center",
-                        horizontal: "left"
-                      }}
-                      sx={{
-                        ".css-3bmhjh-MuiPaper-root-MuiPopover-paper": {
-                          marginLeft: 3
-                        }
+                    sx={{
+                      ".css-3bmhjh-MuiPaper-root-MuiPopover-paper": {
+                        marginLeft: 3
+                      }
+                    }}>
+                    <Grid
+                      container={true}
+                      style={{
+                        maxWidth: sourceType === SourceType.Deezer ? 440 : sourceType === SourceType.Youtube ? 660 : 550
                       }}>
-                      <Grid
-                        container={true}
-                        style={{
-                          maxWidth:
-                            sourceType === SourceType.Deezer ? 440 : sourceType === SourceType.Youtube ? 660 : 550
-                        }}>
-                        <Grid item={true} xs={12} style={{ textAlignLast: "center" }}>
-                          <EmailShareButton url={shareUrl}>
-                            <EmailIcon size={32} round={true} style={{ paddingLeft: 24, paddingTop: 6 }} />
-                          </EmailShareButton>
-                          <FacebookShareButton url={shareUrl}>
-                            <FacebookIcon size={32} round={true} style={{ paddingLeft: 24, paddingTop: 6 }} />
-                          </FacebookShareButton>
-                          <TwitterShareButton url={shareUrl}>
-                            <TwitterIcon size={32} round={true} style={{ paddingLeft: 24, paddingTop: 6 }} />
-                          </TwitterShareButton>
-                          <LinkedinShareButton url={shareUrl}>
-                            <LinkedinIcon size={32} round={true} style={{ paddingLeft: 24, paddingTop: 6 }} />
-                          </LinkedinShareButton>
-                          <RedditShareButton url={shareUrl}>
-                            <RedditIcon size={32} round={true} style={{ paddingLeft: 24, paddingTop: 6 }} />
-                          </RedditShareButton>
-                          <WhatsappShareButton url={shareUrl}>
-                            <WhatsappIcon size={32} round={true} style={{ paddingLeft: 24, paddingTop: 6 }} />
-                          </WhatsappShareButton>
-                        </Grid>
-                        <Grid item={true} xs={12} style={{ textAlign: "center" }}>
-                          <Typography
-                            fontFamily="Poppins, sans-serif"
-                            fontWeight={500}
-                            fontSize={15}
-                            style={{ padding: 12 }}>
-                            {shareUrl}
-                          </Typography>
-                        </Grid>
+                      <Grid item={true} xs={12} style={{ textAlignLast: "center" }}>
+                        <EmailShareButton url={shareUrl}>
+                          <EmailIcon size={32} round={true} style={{ paddingLeft: 24, paddingTop: 6 }} />
+                        </EmailShareButton>
+                        <FacebookShareButton url={shareUrl}>
+                          <FacebookIcon size={32} round={true} style={{ paddingLeft: 24, paddingTop: 6 }} />
+                        </FacebookShareButton>
+                        <TwitterShareButton url={shareUrl}>
+                          <TwitterIcon size={32} round={true} style={{ paddingLeft: 24, paddingTop: 6 }} />
+                        </TwitterShareButton>
+                        <LinkedinShareButton url={shareUrl}>
+                          <LinkedinIcon size={32} round={true} style={{ paddingLeft: 24, paddingTop: 6 }} />
+                        </LinkedinShareButton>
+                        <RedditShareButton url={shareUrl}>
+                          <RedditIcon size={32} round={true} style={{ paddingLeft: 24, paddingTop: 6 }} />
+                        </RedditShareButton>
+                        <WhatsappShareButton url={shareUrl}>
+                          <WhatsappIcon size={32} round={true} style={{ paddingLeft: 24, paddingTop: 6 }} />
+                        </WhatsappShareButton>
+                        <CopyToClipboard text={shareUrl} onCopy={() => Notify("Copied To Clipboard", "success")}>
+                          <IconButton style={{ padding: 12, float: "right" }}>
+                            <LinkVariant />
+                          </IconButton>
+                        </CopyToClipboard>
                       </Grid>
-                    </Popover>
+                      <Grid item={true} xs={12} style={{ textAlign: "center" }}>
+                        <Typography
+                          fontFamily="Poppins, sans-serif"
+                          fontWeight={500}
+                          fontSize={15}
+                          style={{ padding: 12 }}>
+                          {shareUrl}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                  </Popover>
+                  {myOwn && (
                     <MenuItem onClick={this.handleOnDelete}>
                       <Typography fontFamily="Poppins, sans-serif" color="red" fontWeight={500} fontSize={15}>
                         Delete Playlist
                       </Typography>
                     </MenuItem>
-                  </Menu>
-                </>
-              )}
+                  )}
+                </Menu>
+              </>
             </Grid>
           </Grid>
         </Grid>

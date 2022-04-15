@@ -102,6 +102,11 @@ export const PlaylistStyles = (theme: AppTheme) =>
         textDecoration: "solid underline rgba(255, 255, 255, .7) 1px"
       }
     },
+    artistTypographyNoHover: {
+      color: "rgba(255, 255, 255, .7)",
+      textAlign: "start",
+      float: "right"
+    },
     artistTypographyIcon: {
       color: "rgba(255, 255, 255, .7)",
       textAlign: "left",
