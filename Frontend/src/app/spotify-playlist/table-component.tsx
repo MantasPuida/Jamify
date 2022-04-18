@@ -367,7 +367,7 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
             fontWeight={200}
             fontFamily="Poppins,sans-serif"
             color="white"
-            style={{ float: "left", paddingTop: sourceType !== SourceType.Youtube ? 8 : 0 }}>
+            style={{ float: "left", paddingTop: sourceType !== SourceType.Youtube ? 8 : 0, paddingRight: 4 }}>
             {trackIndex}
           </Typography>
           <Button style={{ padding: 0, color: "transparent" }} onClick={this.handleOnTrackClick}>

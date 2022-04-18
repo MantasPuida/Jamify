@@ -30,6 +30,7 @@ export const PlayerStyles = () =>
     volumeSlider: {
       color: "#fff",
       width: 54,
+      marginLeft: 16,
       "& .MuiSlider-track": {
         border: "none"
       },

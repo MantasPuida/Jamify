@@ -10,6 +10,7 @@ import {
   useMediaQuery,
   useTheme
 } from "@mui/material";
+import Flags from "country-flag-icons/react/3x2";
 import { WithStyles } from "@mui/styles";
 import { SettingsStyles, useSettingsStyles } from "./settings.styles";
 import deezerIcon from "../../../assets/dashboard/Deezer_Icon_Black.png";
@@ -40,6 +41,7 @@ interface ProfileData {
   email: string;
   pictureUrl: string;
   link: string;
+  country: string;
 }
 
 interface State {
@@ -62,6 +64,7 @@ class HeaderSettingsDialogDeezerClass extends React.PureComponent<Props, State> 
     DZ.api(`/user/me?access_token=${token}`, (value) => {
       this.setState({
         deezerProfile: {
+          country: value.country,
           email: value.email,
           pictureUrl: value.picture_big,
           userName: value.name,
@@ -123,8 +126,11 @@ class HeaderSettingsDialogDeezerClass extends React.PureComponent<Props, State> 
       );
     }
 
-    const { email, pictureUrl, userName, link } = deezerProfile;
-    const deezerLink = link.replace("https://www.", "");
+    const { email, pictureUrl, userName, link, country } = deezerProfile;
+    let deezerLink = "";
+    if (link) {
+      deezerLink = link.replace("https://www.", "");
+    }
 
     return (
       <Grid container={true}>
@@ -141,12 +147,32 @@ class HeaderSettingsDialogDeezerClass extends React.PureComponent<Props, State> 
           <br />
           <br />
           <br />
-          <br />
+          <Grid item={true} xs={12} className={classes.typographyStyles}>
+            <Typography fontFamily="Poppins,sans-serif" style={{ float: "left" }}>
+              Country: {country}
+            </Typography>
+            {country === "LT" && <Flags.LT title={country} style={{ maxWidth: 20, paddingLeft: 8, marginTop: 4 }} />}
+          </Grid>
           <Grid item={true} xs={4} className={classes.typographyStyles}>
             <Typography fontFamily="Poppins,sans-serif">Playlists: {playlistCount}</Typography>
           </Grid>
           <Grid item={true} xs={12} className={classes.typographyStyles}>
-            <Typography fontFamily="Poppins,sans-serif">Me: {deezerLink}</Typography>
+            <Typography fontFamily="Poppins,sans-serif" style={{ float: "left", paddingRight: 8 }}>
+              Me:
+            </Typography>
+            <Button
+              variant="text"
+              style={{ padding: 0 }}
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                window.open(link, "_blank");
+              }}>
+              <Typography fontFamily="Poppins,sans-serif" style={{ textTransform: "none" }}>
+                {deezerLink}
+              </Typography>
+            </Button>
           </Grid>
         </Grid>
       </Grid>

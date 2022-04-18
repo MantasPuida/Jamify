@@ -54,6 +54,8 @@ export function handleOnLogin(userData: PlaylistApi.UserData, setUserId: Functio
           youtubeName
         } = user;
 
+        setUserId(userId);
+
         if (
           (spId && spId !== spotifyUniqueIdentifier) ||
           (dzId && dzId !== deezerUniqueIdentifier) ||
@@ -80,7 +82,6 @@ export function handleOnLogin(userData: PlaylistApi.UserData, setUserId: Functio
             userId
           );
         }
-        setUserId(userId);
       } else {
         postUser(userData).then((response) => {
           const responseData = response.data as User;

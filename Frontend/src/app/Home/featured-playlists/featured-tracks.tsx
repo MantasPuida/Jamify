@@ -7,11 +7,13 @@ import { TrackObjectSimplified } from "../../../types/spotify.types";
 import { useAppContext } from "../../../context/app-context";
 import { TrackObject, usePlayerContext } from "../../../context/player-context";
 import { LastTick } from "../../../utils/last-tick";
+import { ArtistsMapped } from "./artists-mapped";
 
 interface OuterProps {
   track: TrackObjectSimplified;
   shouldSetLoading: boolean;
   changeState: () => void;
+  loading: boolean;
 }
 
 interface InnerProps extends WithStyles<typeof FeaturedPlaylistsStyles> {
@@ -67,22 +69,27 @@ class FeaturedTracksClass extends React.PureComponent<Props> {
   };
 
   public render(): React.ReactNode {
-    const { track, classes } = this.props;
+    const { track, classes, loading } = this.props;
 
-    const { album, name } = track;
+    if (loading) {
+      // eslint-disable-next-line react/jsx-no-useless-fragment
+      return <></>;
+    }
+
+    const { name, artists, album } = track;
 
     return (
       <Grid container={true} item={true} xs={12} key={track.id}>
-        <Grid item={true} xs={2}>
-          <Button onClick={this.handleOnTrackClick}>
+        <Grid item={true} xs={4}>
+          <Button onClick={this.handleOnTrackClick} style={{ width: 140 }}>
             <img src={album.images[0].url} alt={name} className={classes.carouselImage} id="gridRowTrack" />
             <div style={{ position: "absolute", width: 32, height: 32, marginTop: 8 }}>
               <Play id="ytPlaySvgIcon" style={{ color: "white", display: "none" }} />
             </div>
           </Button>
         </Grid>
-        <Grid container={true} item={true} xs={10} style={{ textAlign: "left" }}>
-          <Grid item={true} xs={10}>
+        <Grid container={true} item={true} xs={8} style={{ textAlign: "left" }}>
+          <Grid item={true} xs={10} style={{ marginTop: 12 }}>
             <Button
               onClick={this.handleOnTrackClick}
               style={{
@@ -100,23 +107,10 @@ class FeaturedTracksClass extends React.PureComponent<Props> {
               </Typography>
             </Button>
           </Grid>
-          <Grid item={true} xs={10}>
-            <Button
-              style={{
-                textAlign: "left",
-                textTransform: "none",
-                justifyContent: "left",
-                maxWidth: 425,
-                color: "transparent",
-                paddingTop: 0,
-                paddingBottom: 0
-              }}
-              className={classes.buttonOnHover}
-              variant="text">
-              <Typography className={classes.helperTypography} fontFamily="Poppins,sans-serif" fontSize={12}>
-                {album.name}
-              </Typography>
-            </Button>
+          <Grid item={true} xs={10} style={{ marginBottom: 12 }}>
+            {artists.map((artist, artistIndex) => (
+              <ArtistsMapped artist={artist} arrayLength={artists.length} artistIndex={artistIndex} key={artist.id} />
+            ))}
           </Grid>
         </Grid>
       </Grid>

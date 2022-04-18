@@ -16,6 +16,7 @@ export const ArtistStyles = (theme: AppTheme) =>
     },
     artistGridText: {
       paddingLeft: theme.spacing(5),
+      paddingTop: theme.spacing(4),
       flexFlow: "column",
       justifyContent: "center"
     },

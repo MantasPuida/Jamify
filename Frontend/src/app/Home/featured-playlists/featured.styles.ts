@@ -94,7 +94,8 @@ export const FeaturedPlaylistsStyles = (theme: AppTheme) =>
 
     carouselImage: {
       borderRadius: "5%",
-      maxWidth: "96px"
+      maxWidth: "140px",
+      maxHeight: "80px"
     },
 
     artistText: {
@@ -107,12 +108,11 @@ export const FeaturedPlaylistsStyles = (theme: AppTheme) =>
     },
 
     artistImage: {
-      borderRadius: "50%",
       aspectRatio: "1/1",
+      borderRadius: "50%",
       minHeight: 100,
       minWidth: 100,
-      maxHeight: 160,
-      maxWidth: 160,
+      maxWidth: 250,
       [theme.breakpoints.down("md")]: {
         maxWidth: 120
       },

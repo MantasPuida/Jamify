@@ -11,6 +11,7 @@ import { Artist as ArtistType } from "../../types/deezer.types";
 interface OuterProps {
   artist: gapi.client.youtube.Channel;
   changeLoading: () => void;
+  loading: boolean;
 }
 
 interface InnerProps extends WithStyles<typeof YoutubeTracksStyles> {
@@ -63,7 +64,12 @@ class PlaylistArtistsClass extends React.PureComponent<Props> {
   };
 
   public render(): React.ReactNode {
-    const { artist, classes } = this.props;
+    const { artist, classes, loading } = this.props;
+
+    if (loading) {
+      // eslint-disable-next-line react/jsx-no-useless-fragment
+      return <></>;
+    }
 
     if (!artist.id || !artist.snippet || !artist.snippet.thumbnails || !artist.snippet.title) {
       // eslint-disable-next-line react/jsx-no-useless-fragment

@@ -15,6 +15,7 @@ import { FeaturedPlaylistState } from "../featured-playlists/featured-card";
 interface OuterProps {
   playlist: Playlist;
   changeState: () => void;
+  loading: boolean;
 }
 
 interface InnerProps extends WithStyles<typeof DeezerStyles> {
@@ -43,7 +44,12 @@ class DeezerPlaylistsClass extends React.PureComponent<Props> {
   };
 
   public render(): React.ReactNode {
-    const { classes, playlist } = this.props;
+    const { classes, playlist, loading } = this.props;
+
+    if (loading) {
+      // eslint-disable-next-line react/jsx-no-useless-fragment
+      return <></>;
+    }
 
     return (
       <Grid container={true} item={true} xs={12} key={playlist.id}>

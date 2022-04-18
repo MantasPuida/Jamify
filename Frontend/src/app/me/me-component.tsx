@@ -157,6 +157,12 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
       return <></>;
     }
 
+    const shouldRenderSpotify = playlistSource === "Spotify" && spotifyPlaylists && spotifyPlaylists.items.length > 0;
+    const shouldRenderYoutube =
+      playlistSource === "Youtube" && youtubePlaylists && youtubePlaylists.items && youtubePlaylists.items.length > 0;
+    const shouldRenderOwn = playlistSource === "Own" && ownPlaylist && ownPlaylist.length > 0;
+    const shouldRenderDeezer = playlistSource === "Deezer" && deezerPlaylists && deezerPlaylists.data.length > 0;
+
     return (
       <Grid container={true}>
         <Grid item={true} xs={12} className={classes.homeGrid}>
@@ -170,22 +176,54 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
                 </Grid>
               )}
               <Grid item={true}>
-                <Typography
-                  fontSize={25}
-                  fontWeight={400}
-                  fontFamily="Poppins,sans-serif"
-                  color="white"
-                  style={{ float: "left" }}>
-                  {playlistSource} Playlists
-                </Typography>
+                {shouldRenderSpotify && (
+                  <Typography
+                    fontSize={25}
+                    fontWeight={400}
+                    fontFamily="Poppins,sans-serif"
+                    color="white"
+                    style={{ float: "left" }}>
+                    {playlistSource} Playlists
+                  </Typography>
+                )}
+                {shouldRenderYoutube && (
+                  <Typography
+                    fontSize={25}
+                    fontWeight={400}
+                    fontFamily="Poppins,sans-serif"
+                    color="white"
+                    style={{ float: "left" }}>
+                    {playlistSource} Playlists
+                  </Typography>
+                )}
+                {shouldRenderOwn && (
+                  <Typography
+                    fontSize={25}
+                    fontWeight={400}
+                    fontFamily="Poppins,sans-serif"
+                    color="white"
+                    style={{ float: "left" }}>
+                    {playlistSource} Playlists
+                  </Typography>
+                )}
+                {shouldRenderDeezer && (
+                  <Typography
+                    fontSize={25}
+                    fontWeight={400}
+                    fontFamily="Poppins,sans-serif"
+                    color="white"
+                    style={{ float: "left" }}>
+                    {playlistSource} Playlists
+                  </Typography>
+                )}
               </Grid>
               <Grid item={true} style={{ paddingLeft: 8, marginTop: 6 }}>
-                {playlistSource === "Spotify" && <Spotify style={{ color: "#1DB954" }} />}
-                {playlistSource === "Youtube" && <PlayCircleOutline style={{ color: "#FF0000" }} />}
-                {playlistSource === "Deezer" && (
-                  <FaDeezer style={{ width: 20, height: 20, backgroundColor: "white", padding: 1 }} />
+                {shouldRenderSpotify && <Spotify style={{ color: "#1DB954" }} />}
+                {shouldRenderYoutube && <PlayCircleOutline style={{ color: "#FF0000" }} />}
+                {shouldRenderDeezer && (
+                  <FaDeezer style={{ width: 20, height: 20, backgroundColor: "white", padding: 1, borderRadius: 50 }} />
                 )}
-                {playlistSource === "Own" && <MusicRestQuarter style={{ color: "white" }} />}
+                {shouldRenderOwn && <MusicRestQuarter style={{ color: "white" }} />}
               </Grid>
             </Grid>
             <Grid item={true} xs={12}>
@@ -223,7 +261,6 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
                           youtubePlaylist={playlist}
                           key={playlist.id}
                         />
-                        ;
                       </SwiperSlide>
                     );
                   })}

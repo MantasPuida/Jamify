@@ -5,12 +5,13 @@ export const YoutubeTracksStyles = (theme: AppTheme) =>
   createStyles({
     youtubeTracksGrid: {
       backgroundColor: "black",
-      padding: "32px 0 24px 0",
+      padding: "64px 0 24px 0",
       margin: "0 150px"
     },
     image: {
       borderRadius: "5%",
-      maxWidth: "96px"
+      maxWidth: "140px",
+      maxHeight: "80px"
     },
     typography: {
       textOverflow: "ellipsis",
@@ -73,9 +74,9 @@ export const YoutubeTracksStyles = (theme: AppTheme) =>
 
     ytArtistImage: {
       borderRadius: "50%",
-      minHeight: 100,
-      minWidth: 100,
-      maxWidth: 160,
+      minHeight: 220,
+      minWidth: 220,
+      maxWidth: 220,
       [theme.breakpoints.down("md")]: {
         maxWidth: 120
       },

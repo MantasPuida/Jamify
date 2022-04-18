@@ -17,6 +17,7 @@ interface OuterProps {
   playlist: gapi.client.youtube.Playlist;
   shouldSetLoading: boolean;
   changeLoading: () => void;
+  loading: boolean;
 }
 
 interface InnerProps extends WithStyles<typeof YoutubeTracksStyles> {
@@ -51,7 +52,12 @@ class YoutubePlaylistsClass extends React.PureComponent<Props> {
   };
 
   public render(): React.ReactNode {
-    const { classes, playlist } = this.props;
+    const { classes, playlist, loading } = this.props;
+
+    if (loading) {
+      // eslint-disable-next-line react/jsx-no-useless-fragment
+      return <></>;
+    }
 
     if (!playlist?.snippet?.thumbnails || !playlist?.snippet?.title) {
       // eslint-disable-next-line react/jsx-no-useless-fragment

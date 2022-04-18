@@ -102,7 +102,7 @@ class SettingsDialogClass extends React.PureComponent<Props> {
 
       spotifyApi.resetCredentials();
       setTimeout(() => {
-        const logoutWindow = window.open("https://accounts.spotify.com/logout", "_self");
+        const logoutWindow = window.open("https://accounts.spotify.com/logout", "_blank");
 
         if (logoutWindow) {
           setTimeout(() => {

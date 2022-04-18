@@ -75,6 +75,12 @@ class PlayerClass extends React.PureComponent<Props> {
     return `${minute}:${secondLeft <= 9 ? `0${secondLeft}` : secondLeft}`;
   });
 
+  private formatSongDuration: (value: number) => string = memoizeOne((value) => {
+    const minute = Math.floor(value / 60);
+    const secondLeft = value - minute * 60;
+    return `${minute}:${secondLeft <= 9 ? `0${secondLeft}` : secondLeft}`;
+  });
+
   private handleSliderOnChange: SliderProps["onChange"] = (_, value) => {
     const { setPosition } = this.props;
 
@@ -416,13 +422,9 @@ class PlayerClass extends React.PureComponent<Props> {
                 </IconButton>
                 <Stack direction="column">
                   <Typography color="#aaa" style={{ paddingLeft: 16 }} fontSize={12}>
-                    {this.formatDuration(position)} / {this.formatDuration(duration)}
+                    {this.formatDuration(position)} / {this.formatSongDuration(duration)}
                   </Typography>
-                  <Stack
-                    spacing={2}
-                    direction="row"
-                    alignItems="center"
-                    style={{ justifyContent: "end", paddingLeft: 16 }}>
+                  <Stack spacing={2} direction="row" alignItems="center" style={{ justifyContent: "end" }}>
                     <Slider
                       aria-label="Volume"
                       defaultValue={volume * 100}
@@ -440,7 +442,7 @@ class PlayerClass extends React.PureComponent<Props> {
               item={true}
               xs={4}
               style={{ display: "flex", alignItems: "center", justifyContent: "end", width: "100%", marginTop: -8 }}>
-              <Grid item={true} xs={10} style={{ textAlign: "end", paddingRight: 8 }}>
+              <Grid item={true} xs={10} style={{ textAlign: "end", paddingRight: 8, marginRight: -40 }}>
                 <Typography color="white" noWrap={true}>
                   {parseTitle(title)}
                 </Typography>
@@ -448,7 +450,7 @@ class PlayerClass extends React.PureComponent<Props> {
                   {channelTitle}
                 </Typography>
               </Grid>
-              <Grid item={true} xs={2} style={{ textAlign: "end", paddingRight: 8 }}>
+              <Grid item={true} xs={2} style={{ textAlign: "end", paddingRight: 2 }}>
                 <img alt="alt" src={thumbnail} width={68} height={68} style={{ objectFit: "scale-down" }} />
               </Grid>
             </Grid>

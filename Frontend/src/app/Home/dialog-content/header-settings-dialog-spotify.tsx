@@ -9,6 +9,7 @@ import {
   useMediaQuery,
   useTheme
 } from "@mui/material";
+import Flags from "country-flag-icons/react/3x2";
 import { useLocation, Location } from "react-router";
 import SpotifyWebApi from "spotify-web-api-node";
 import { WithStyles } from "@mui/styles";
@@ -102,7 +103,7 @@ class HeaderSettingsDialogSpotifyClass extends React.PureComponent<Props, State>
       );
     }
 
-    const { images, display_name: displayName, email, external_urls: externalUrls } = spotifyProfile;
+    const { images, display_name: displayName, email, external_urls: externalUrls, country } = spotifyProfile;
 
     if (!images) {
       // eslint-disable-next-line react/jsx-no-useless-fragment
@@ -126,12 +127,32 @@ class HeaderSettingsDialogSpotifyClass extends React.PureComponent<Props, State>
           <br />
           <br />
           <br />
-          <br />
+          <Grid item={true} xs={12} className={classes.typographyStyles}>
+            <Typography fontFamily="Poppins,sans-serif" style={{ float: "left" }}>
+              Country: {country}
+            </Typography>
+            {country === "LT" && <Flags.LT title={country} style={{ maxWidth: 20, paddingLeft: 8, marginTop: 4 }} />}
+          </Grid>
           <Grid item={true} xs={12} className={classes.typographyStyles}>
             <Typography fontFamily="Poppins,sans-serif">Playlists: {playlistCount}</Typography>
           </Grid>
           <Grid item={true} xs={12} className={classes.typographyStyles}>
-            <Typography fontFamily="Poppins,sans-serif">Me: {spotifyUrl}</Typography>
+            <Typography fontFamily="Poppins,sans-serif" style={{ float: "left", paddingRight: 8 }}>
+              Me:
+            </Typography>
+            <Button
+              variant="text"
+              style={{ padding: 0 }}
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                window.open(externalUrls.spotify, "_blank");
+              }}>
+              <Typography fontFamily="Poppins,sans-serif" style={{ textTransform: "none" }}>
+                {spotifyUrl}
+              </Typography>
+            </Button>
           </Grid>
         </Grid>
       </Grid>

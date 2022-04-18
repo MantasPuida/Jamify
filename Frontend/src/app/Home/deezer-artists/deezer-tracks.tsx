@@ -11,6 +11,7 @@ import { Track } from "../../../types/deezer.types";
 interface OuterProps {
   track: Track;
   changeState: () => void;
+  loading: boolean;
 }
 
 interface InnerProps extends WithStyles<typeof DeezerStyles> {
@@ -63,12 +64,17 @@ class DeezerTracksClass extends React.PureComponent<Props> {
   };
 
   public render(): React.ReactNode {
-    const { track, classes } = this.props;
+    const { track, classes, loading } = this.props;
+
+    if (loading) {
+      // eslint-disable-next-line react/jsx-no-useless-fragment
+      return <></>;
+    }
 
     return (
       <Grid container={true} item={true} xs={12} key={track.id}>
-        <Grid item={true} xs={2}>
-          <Button onClick={this.handleOnTrackClick}>
+        <Grid item={true} xs={4}>
+          <Button onClick={this.handleOnTrackClick} style={{ width: 140 }}>
             <img
               src={track.album.cover_xl}
               alt={track.title}
@@ -80,8 +86,8 @@ class DeezerTracksClass extends React.PureComponent<Props> {
             </div>
           </Button>
         </Grid>
-        <Grid container={true} item={true} xs={10} style={{ textAlign: "left" }}>
-          <Grid item={true} xs={10}>
+        <Grid container={true} item={true} xs={8} style={{ textAlign: "left" }}>
+          <Grid item={true} xs={10} style={{ marginTop: 12 }}>
             <Button
               onClick={this.handleOnTrackClick}
               style={{
@@ -103,7 +109,7 @@ class DeezerTracksClass extends React.PureComponent<Props> {
               </Typography>
             </Button>
           </Grid>
-          <Grid item={true} xs={10}>
+          <Grid item={true} xs={10} style={{ marginBottom: 12 }}>
             <Button
               style={{
                 textAlign: "left",
