@@ -35,7 +35,7 @@ interface OuterProps {
   trackName: string;
   playlist: SpotifyApi.PlaylistObjectSimplified | gapi.client.youtube.Playlist | PlaylistType | DeezerPlaylistType;
   imageUrl: string;
-  artists?: string;
+  artists?: string | string[];
   deezerTrack?: TrackListData;
 }
 
@@ -203,6 +203,16 @@ class TrackActionComponentClass extends React.PureComponent<Props, State> {
       deezerTrack
     } = this.props;
 
+    let resolvedArtists = "";
+
+    if (artists) {
+      if (Array.isArray(artists)) {
+        resolvedArtists = artists.join(", ");
+      } else {
+        resolvedArtists = artists;
+      }
+    }
+
     return (
       <>
         <IconButton onClick={this.handleOnIconClick} style={{ padding: 0, color: "rgba(255, 255, 255, .7)" }}>
@@ -222,7 +232,7 @@ class TrackActionComponentClass extends React.PureComponent<Props, State> {
             userId={userId}
             currentPlaylist={playlist}
             sourceType={sourceType}
-            artists={artists}
+            artists={resolvedArtists}
             deezerTrack={deezerTrack}
           />
         )}

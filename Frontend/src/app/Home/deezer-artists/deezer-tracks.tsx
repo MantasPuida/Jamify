@@ -2,11 +2,13 @@ import * as React from "react";
 import { Button, ButtonProps, Grid, Typography } from "@mui/material";
 import Play from "mdi-material-ui/Play";
 import { WithStyles } from "@mui/styles";
+import { useNavigate, NavigateFunction } from "react-router";
 import { DeezerStyles, useDeezerStyles } from "./deezer.styles";
 import { useAppContext } from "../../../context/app-context";
 import { TrackObject, usePlayerContext } from "../../../context/player-context";
 import { LastTick } from "../../../utils/last-tick";
 import { Track } from "../../../types/deezer.types";
+import { AppRoutes } from "../../routes/routes";
 
 interface OuterProps {
   track: Track;
@@ -19,6 +21,7 @@ interface InnerProps extends WithStyles<typeof DeezerStyles> {
   setPlayerTrack: Function;
   setLoading: Function;
   isOpen: boolean;
+  navigate: NavigateFunction;
 }
 
 type Props = InnerProps & OuterProps;
@@ -61,6 +64,15 @@ class DeezerTracksClass extends React.PureComponent<Props> {
           setPlayerTrack(currentTrack);
         }
       });
+  };
+
+  private handleOnArtistClick: ButtonProps["onClick"] = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const { track, navigate } = this.props;
+
+    navigate(AppRoutes.Artist, { state: { artist: track.artist } });
   };
 
   public render(): React.ReactNode {
@@ -111,6 +123,7 @@ class DeezerTracksClass extends React.PureComponent<Props> {
           </Grid>
           <Grid item={true} xs={10} style={{ marginBottom: 12 }}>
             <Button
+              onClick={this.handleOnArtistClick}
               style={{
                 textAlign: "left",
                 textTransform: "none",
@@ -123,7 +136,7 @@ class DeezerTracksClass extends React.PureComponent<Props> {
               className={classes.tracksButtonOnHover}
               variant="text">
               <Typography className={classes.tracksHelperTypography} fontFamily="Poppins,sans-serif" fontSize={12}>
-                {track.album.title}
+                {track.artist.name}
               </Typography>
             </Button>
           </Grid>
@@ -137,10 +150,12 @@ export const DeezerTracks = React.memo<OuterProps>((props) => {
   const { setLoading } = useAppContext();
   const { isOpen, setOpen, setTrack } = usePlayerContext();
   const classes = useDeezerStyles();
+  const navigate = useNavigate();
 
   return (
     <DeezerTracksClass
       {...props}
+      navigate={navigate}
       isOpen={isOpen}
       setLoading={setLoading}
       classes={classes}

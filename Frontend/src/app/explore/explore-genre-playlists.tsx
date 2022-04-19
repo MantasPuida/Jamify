@@ -70,7 +70,7 @@ class ExplorePlaylistsClass extends React.PureComponent<InnerProps, State> {
               fontWeight={400}
               fontFamily="Poppins,sans-serif"
               color="white"
-              style={{ float: "left" }}>
+              style={{ float: "left", paddingBottom: 16, paddingTop: 16 }}>
               Playlists
             </Typography>
           </Grid>
@@ -109,7 +109,7 @@ class ExplorePlaylistsClass extends React.PureComponent<InnerProps, State> {
               fontWeight={400}
               fontFamily="Poppins,sans-serif"
               color="white"
-              style={{ float: "left" }}>
+              style={{ float: "left", paddingBottom: 16, paddingTop: 16 }}>
               Artists
             </Typography>
           </Grid>

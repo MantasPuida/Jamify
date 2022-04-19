@@ -47,7 +47,7 @@ interface InnerProps extends WithStyles<typeof HeaderSettingsStyles> {
   isSpotifyConnected: boolean;
   isYoutubeConnected: boolean;
   youtubePlaylistCount: number;
-  spotifyPlaylistCount: number;
+  spotifyPlaylistCount?: number;
   deezerPlaylistCount: number;
   dzLogout: () => void;
   spLogout: () => void;
@@ -160,7 +160,8 @@ class SettingsDialogClass extends React.PureComponent<Props> {
       classes
     } = this.props;
 
-    const shouldRenderSp = isSpotifyConnected && (value as BottomNavigationValues) === "Spotify";
+    const shouldRenderSp =
+      isSpotifyConnected && (value as BottomNavigationValues) === "Spotify" && spotifyPlaylistCount;
     const shouldRenderYt = isYoutubeConnected && (value as BottomNavigationValues) === "YouTube";
     const shouldRenderDz = isDeezerConnected && (value as BottomNavigationValues) === "Deezer";
 
@@ -235,7 +236,7 @@ class SettingsDialogClass extends React.PureComponent<Props> {
               isSpotifyConnected={isSpotifyConnected}
               handleDialogClose={handleDialogClose}
               spotifyApi={spotifyApi}
-              playlistCount={spotifyPlaylistCount}
+              playlistCount={spotifyPlaylistCount ?? 0}
             />
           )}
           {(value as BottomNavigationValues) === "YouTube" && (
@@ -271,7 +272,7 @@ export const SettingsDialog = React.memo<OuterProps>((props) => {
   const [isYoutubeConnected, setIsYoutubeConnected] = React.useState<boolean>(false);
   const [isDeezerConnected, setIsDeezerConnected] = React.useState<boolean>(false);
   const [deezerPlaylistCount, setDeezerPlaylistCount] = React.useState<number>(0);
-  const [spotifyPlaylistCount, setSpotifyPlaylistCount] = React.useState<number>(0);
+  const [spotifyPlaylistCount, setSpotifyPlaylistCount] = React.useState<number>();
   const [youtubePlaylistCount, setYoutubePlaylistCount] = React.useState<number>(0);
   const [value, setValue] = React.useState<BottomNavigationValues>("Spotify");
   const classes = useHeaderSettingsStyles();

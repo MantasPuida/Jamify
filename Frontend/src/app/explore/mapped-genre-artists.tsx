@@ -51,7 +51,7 @@ class MappedGenreArtistsClass extends React.PureComponent<Props> {
             </div>
           </Button>
         </Grid>
-        <Grid item={true} xs={12} style={{ maxWidth: "84%", textAlign: "center" }}>
+        <Grid item={true} xs={12} style={{ maxWidth: "67%", textAlign: "center" }}>
           <Button variant="text" className={classes.genreName} onClick={this.handleOnClick}>
             <Typography color="white" fontSize={20} fontWeight={200} fontFamily="Poppins,sans-serif">
               {artist.name}

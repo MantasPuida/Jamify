@@ -9,6 +9,7 @@ export const PlaylistStyles = (theme: AppTheme) =>
       margin: "0 150px",
       display: "block"
     },
+    headerHelperTypography: {},
     playlistImage: {
       maxWidth: "50%",
       float: "left",
@@ -25,6 +26,16 @@ export const PlaylistStyles = (theme: AppTheme) =>
     },
     buttonTextHover: {
       padding: 0,
+      color: "transparent",
+      textTransform: "none",
+      justifyContent: "left",
+      "&:hover": {
+        textDecoration: "solid underline rgba(255, 255, 255, .7) 1px"
+      }
+    },
+    buttonTextOnHoverMinWidth: {
+      padding: 0,
+      minWidth: 0,
       color: "transparent",
       textTransform: "none",
       justifyContent: "left",
@@ -97,6 +108,7 @@ export const PlaylistStyles = (theme: AppTheme) =>
     artistTypography: {
       color: "rgba(255, 255, 255, .7)",
       textAlign: "start",
+      paddingRight: 6,
       float: "right",
       "&:hover": {
         textDecoration: "solid underline rgba(255, 255, 255, .7) 1px"

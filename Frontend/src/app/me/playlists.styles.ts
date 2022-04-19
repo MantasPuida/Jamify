@@ -14,9 +14,8 @@ export const SpotifyPlaylistsStyles = () =>
     },
     image: {
       borderRadius: "1%",
-      maxWidth: "160px",
-      maxHeight: "160px",
-      aspectRatio: "1/1",
+      maxWidth: 225,
+      maxHeight: 225,
       objectFit: "scale-down",
       border: "1px solid #101010",
       height: "100%"

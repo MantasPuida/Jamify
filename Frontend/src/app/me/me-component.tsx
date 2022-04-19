@@ -221,7 +221,7 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
                 {shouldRenderSpotify && <Spotify style={{ color: "#1DB954" }} />}
                 {shouldRenderYoutube && <PlayCircleOutline style={{ color: "#FF0000" }} />}
                 {shouldRenderDeezer && (
-                  <FaDeezer style={{ width: 20, height: 20, backgroundColor: "white", padding: 1, borderRadius: 50 }} />
+                  <FaDeezer style={{ width: 20, height: 20, color: "white", padding: 1, marginTop: 2 }} />
                 )}
                 {shouldRenderOwn && <MusicRestQuarter style={{ color: "white" }} />}
               </Grid>
@@ -280,7 +280,6 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
                           ownPlaylist={playlist}
                           key={playlist.playlistId}
                         />
-                        ;
                       </SwiperSlide>
                     );
                   })}
@@ -300,7 +299,6 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
                           deezerPlaylist={playlist}
                           key={playlist.id}
                         />
-                        ;
                       </SwiperSlide>
                     );
                   })}
