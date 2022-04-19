@@ -1,25 +1,29 @@
 import * as React from "react";
 import { Button, ButtonProps, Grid, Typography } from "@mui/material";
 import Play from "mdi-material-ui/Play";
+import { useNavigate, NavigateFunction } from "react-router";
 import { WithStyles } from "@mui/styles";
 import { YoutubeTracksStyles, useYoutubeTracksStyles } from "./playlist.styles";
-
-import "./fontFamily.css";
 import { TrackObject, usePlayerContext } from "../../context/player-context";
 import { parseTitle } from "../../helpers/title-parser";
 import { extractThumbnail } from "../../helpers/thumbnails";
 import { useAppContext } from "../../context/app-context";
+import { AppRoutes } from "../routes/routes";
+
+import "./fontFamily.css";
 
 interface OuterProps {
   track: gapi.client.youtube.PlaylistItem;
   shouldSetLoading: boolean;
   changeLoading: () => void;
+  loading: boolean;
 }
 
 interface InnerProps extends WithStyles<typeof YoutubeTracksStyles> {
   setPlayerOpen: Function;
   setPlayerTrack: Function;
   setLoading: Function;
+  navigate: NavigateFunction;
 }
 
 type Props = InnerProps & OuterProps;
@@ -61,8 +65,44 @@ class TracksCardsClass extends React.PureComponent<Props> {
     }
   };
 
+  private handleOnArtistClick: ButtonProps["onClick"] = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const { navigate, track } = this.props;
+
+    if (track.snippet?.videoOwnerChannelTitle) {
+      const { videoOwnerChannelTitle } = track.snippet;
+
+      DZ.api(`search?q=${videoOwnerChannelTitle}`, (response) => {
+        const { data } = response;
+        const filteredArtist = data.find(
+          (value) => value.artist.type === "artist" && value.artist.name === videoOwnerChannelTitle
+        );
+
+        if (filteredArtist) {
+          navigate(AppRoutes.Artist, {
+            state: {
+              artist: {
+                ...filteredArtist.artist,
+                picture_xl: filteredArtist.artist.picture_xl
+              }
+            }
+          });
+        } else {
+          navigate(AppRoutes.Artist, { state: { artist: data[0].artist } });
+        }
+      });
+    }
+  };
+
   public render(): React.ReactNode {
-    const { track, classes } = this.props;
+    const { track, classes, loading } = this.props;
+
+    if (loading) {
+      // eslint-disable-next-line react/jsx-no-useless-fragment
+      return <></>;
+    }
 
     if (!track.id || !track.snippet || !track.snippet.thumbnails || !track.snippet.title) {
       // eslint-disable-next-line react/jsx-no-useless-fragment
@@ -75,16 +115,16 @@ class TracksCardsClass extends React.PureComponent<Props> {
 
     return (
       <Grid container={true} item={true} xs={12} key={track.id}>
-        <Grid item={true} xs={2}>
-          <Button onClick={this.handleOnTrackClick}>
+        <Grid item={true} xs={4}>
+          <Button onClick={this.handleOnTrackClick} style={{ width: 140 }}>
             <img src={imageUrl} alt={title} className={classes.image} id="gridRowTrack" />
             <div style={{ position: "absolute", width: 32, height: 32, marginTop: 8 }}>
               <Play id="ytPlaySvgIcon" style={{ color: "white", display: "none" }} />
             </div>
           </Button>
         </Grid>
-        <Grid container={true} item={true} xs={10} style={{ textAlign: "left" }}>
-          <Grid item={true} xs={10}>
+        <Grid container={true} item={true} xs={8} style={{ textAlign: "left" }}>
+          <Grid item={true} xs={10} style={{ marginTop: 12 }}>
             <Button
               onClick={this.handleOnTrackClick}
               style={{
@@ -102,8 +142,9 @@ class TracksCardsClass extends React.PureComponent<Props> {
               </Typography>
             </Button>
           </Grid>
-          <Grid item={true} xs={10}>
+          <Grid item={true} xs={10} style={{ marginBottom: 12 }}>
             <Button
+              onClick={this.handleOnArtistClick}
               style={{
                 textAlign: "left",
                 textTransform: "none",
@@ -130,10 +171,12 @@ export const TracksCards = React.memo<OuterProps>((props) => {
   const { setLoading } = useAppContext();
   const { setOpen, setTrack } = usePlayerContext();
   const classes = useYoutubeTracksStyles();
+  const navigate = useNavigate();
 
   return (
     <TracksCardsClass
       {...props}
+      navigate={navigate}
       setLoading={setLoading}
       classes={classes}
       setPlayerOpen={setOpen}

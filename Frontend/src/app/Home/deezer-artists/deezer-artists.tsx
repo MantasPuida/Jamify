@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 import * as React from "react";
-import { Grid, Tab, Tabs, TabsProps, Typography } from "@mui/material";
+import { Grid, Skeleton, Tab, Tabs, TabsProps, Typography } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import { Grid as SwiperGrid, Navigation } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -10,13 +10,14 @@ import { DeezerStyles, useDeezerStyles } from "./deezer.styles";
 import { ChartResponse } from "../../../types/deezer.types";
 import { ArtistCards } from "./artist-cards";
 import { TabPanel } from "../featured-playlists/tabs-panels";
-import { BackdropLoader } from "../../loader/loader-backdrop";
 import { DeezerPlaylists } from "./deezer-playlists";
+import { DeezerTracks } from "./deezer-tracks";
 
+import "./styles.css";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/grid";
-import { DeezerTracks } from "./deezer-tracks";
+import { Notify } from "../../notification/notification-component";
 
 interface InnerProps extends WithStyles<typeof DeezerStyles> {
   chartResponse?: ChartResponse;
@@ -63,155 +64,203 @@ class DeezerArtistsClass extends React.PureComponent<InnerProps, State> {
     }
 
     return (
-      <>
-        {loading && <BackdropLoader />}
-        <Grid container={true} item={true} xs={12} className={classes.deezerGrid}>
-          <Grid container={true} item={true} xs={12}>
-            <Grid item={true} xs={12}>
-              <Typography className={classes.artistTitle} fontFamily="Poppins,sans-serif" color="white">
-                Top {normalizedText}
-              </Typography>
-            </Grid>
-            <Grid item={true}>
-              <Typography className={classes.artistHelperTitle} fontFamily="Poppins,sans-serif" color="white">
-                Most-streamed artists
-              </Typography>
-            </Grid>
-            <Grid item={true} style={{ paddingLeft: 8, marginTop: 6 }}>
-              <FaDeezer style={{ width: 24, height: 24, color: "white" }} />
-            </Grid>
-            <Grid item={true} style={{ marginTop: -16, paddingLeft: 16 }}>
-              <Tabs
-                TabIndicatorProps={{
-                  style: {
-                    backgroundImage: "linear-gradient(to left, #43C6AC, #191654)"
-                  }
-                }}
-                value={value}
-                onChange={this.handleChange}>
-                <Tab
-                  classes={{
-                    root: classes.tabRootStyles
-                  }}
-                  label={<span style={{ color: "white" }}>Playlists</span>}
-                  {...this.a11yProps(0)}
-                />
-                <Tab
-                  classes={{
-                    root: classes.tabRootStyles
-                  }}
-                  label={<span style={{ color: "white" }}>Tracks</span>}
-                  {...this.a11yProps(1)}
-                />
-                <Tab
-                  classes={{
-                    root: classes.tabRootStyles
-                  }}
-                  label={<span style={{ color: "white" }}>Artists</span>}
-                  {...this.a11yProps(2)}
-                />
-              </Tabs>
-            </Grid>
+      <Grid container={true} item={true} xs={12} className={classes.deezerGrid}>
+        <Grid container={true} item={true} xs={12}>
+          <Grid item={true} xs={12}>
+            <Typography className={classes.artistTitle} fontFamily="Poppins,sans-serif" color="white">
+              Top {normalizedText}
+            </Typography>
           </Grid>
-          <Grid item={true} xs={12} style={{ marginRight: 200 }}>
-            <TabPanel value={value} index={2}>
-              <Swiper
-                slidesPerView={6}
-                className="mySwiper"
-                centeredSlides={false}
-                navigation={true}
-                breakpoints={{
-                  0: {
-                    slidesPerView: 2
-                  },
-                  300: {
-                    slidesPerView: 0
-                  },
-                  768: {
-                    slidesPerView: 5
-                  },
-                  1024: {
-                    slidesPerView: 6
-                  }
-                }}
-                modules={[Navigation]}
-                style={{ maxWidth: "85%", marginLeft: -20 }}>
-                {chartResponse?.artists.data.map((artist) => {
-                  if (artist.name === "Justinas Jarutis" || artist.name === "Andrius Mamontovas") {
-                    return null;
-                  }
-
-                  if (artist.picture_xl && artist.id) {
-                    return (
-                      <SwiperSlide style={{ backgroundColor: "black" }} key={artist.id}>
-                        <ArtistCards artist={artist} changeState={this.changeLoadingState} />
-                      </SwiperSlide>
-                    );
-                  }
-
-                  // eslint-disable-next-line react/jsx-no-useless-fragment
-                  return <></>;
-                })}
-              </Swiper>
-            </TabPanel>
+          <Grid item={true}>
+            <Typography className={classes.artistHelperTitle} fontFamily="Poppins,sans-serif" color="white">
+              Most-streamed artists
+            </Typography>
           </Grid>
-          <Grid item={true} xs={12} style={{ marginRight: 200 }}>
-            <TabPanel value={value} index={1}>
-              <Swiper
-                slidesPerView={4}
-                grid={{
-                  rows: 4
-                }}
-                className="mySwiper"
-                centeredSlides={false}
-                navigation={true}
-                modules={[SwiperGrid, Navigation]}
-                draggable={false}
-                freeMode={false}
-                grabCursor={false}
-                noSwiping={true}
-                style={{ maxWidth: "85%", marginLeft: -15, paddingLeft: 10 }}>
-                {chartResponse?.tracks.data.map((track) => (
-                  <SwiperSlide style={{ backgroundColor: "black" }} key={track.id}>
-                    <DeezerTracks track={track} changeState={this.changeLoadingState} />
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </TabPanel>
+          <Grid item={true} style={{ paddingLeft: 8, marginTop: 6 }}>
+            <FaDeezer style={{ width: 24, height: 24, color: "white" }} />
           </Grid>
-          <Grid item={true} xs={12} style={{ marginRight: 200 }}>
-            <TabPanel value={value} index={0}>
-              <Swiper
-                slidesPerView={5}
-                className="mySwiper"
-                centeredSlides={false}
-                navigation={true}
-                breakpoints={{
-                  0: {
-                    slidesPerView: 2
-                  },
-                  300: {
-                    slidesPerView: 3
-                  },
-                  768: {
-                    slidesPerView: 4
-                  },
-                  1024: {
-                    slidesPerView: 5
-                  }
+          <Grid item={true} style={{ marginTop: -16, paddingLeft: 16 }}>
+            <Tabs
+              TabIndicatorProps={{
+                style: {
+                  color: "#191654"
+                }
+              }}
+              value={value}
+              onChange={this.handleChange}>
+              <Tab
+                classes={{
+                  root: classes.tabRootStyles
                 }}
-                modules={[Navigation]}
-                style={{ maxWidth: "85%", marginLeft: -20, paddingLeft: 15 }}>
-                {chartResponse?.playlists.data.map((x) => (
-                  <SwiperSlide style={{ backgroundColor: "black" }} key={x.id}>
-                    <DeezerPlaylists playlist={x} changeState={this.changeLoadingState} />
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </TabPanel>
+                label={<span style={{ color: "white" }}>Playlists</span>}
+                {...this.a11yProps(0)}
+              />
+              <Tab
+                classes={{
+                  root: classes.tabRootStyles
+                }}
+                label={<span style={{ color: "white" }}>Tracks</span>}
+                {...this.a11yProps(1)}
+              />
+              <Tab
+                classes={{
+                  root: classes.tabRootStyles
+                }}
+                label={<span style={{ color: "white" }}>Artists</span>}
+                {...this.a11yProps(2)}
+              />
+            </Tabs>
           </Grid>
         </Grid>
-      </>
+        <Grid item={true} xs={12} style={{ marginRight: 200 }}>
+          <TabPanel value={value} index={2}>
+            <Swiper
+              slidesPerView={8}
+              className="mySwiper"
+              id="my-custom-identifier-artists"
+              centeredSlides={false}
+              slidesPerGroup={4}
+              navigation={true}
+              breakpoints={{
+                0: {
+                  slidesPerView: 2
+                },
+                300: {
+                  slidesPerView: 3
+                },
+                768: {
+                  slidesPerView: 5
+                },
+                1024: {
+                  slidesPerView: 8
+                }
+              }}
+              modules={[Navigation]}
+              style={{ maxWidth: "85%", marginLeft: -20 }}>
+              {chartResponse?.artists.data.map((artist) => {
+                if (artist.name === "Justinas Jarutis" || artist.name === "Andrius Mamontovas") {
+                  return null;
+                }
+
+                if (artist.picture_xl && artist.id) {
+                  return (
+                    <SwiperSlide style={{ backgroundColor: "black" }} key={artist.id}>
+                      <>
+                        {loading && (
+                          <Grid container={true} item={true} xs={12} style={{ marginRight: 50 }}>
+                            <Skeleton variant="circular" sx={{ bgcolor: "grey.900", width: 160, height: 160 }} />
+                            <Skeleton sx={{ bgcolor: "grey.900", marginTop: 1, marginLeft: "18px" }} width="60%" />
+                          </Grid>
+                        )}
+                        <ArtistCards loading={loading} artist={artist} changeState={this.changeLoadingState} />
+                      </>
+                    </SwiperSlide>
+                  );
+                }
+
+                // eslint-disable-next-line react/jsx-no-useless-fragment
+                return <></>;
+              })}
+            </Swiper>
+          </TabPanel>
+        </Grid>
+        <Grid item={true} xs={12} style={{ marginRight: 200 }}>
+          <TabPanel value={value} index={1}>
+            <Swiper
+              slidesPerView={4}
+              grid={{
+                rows: 4
+              }}
+              className="mySwiper"
+              id="my-custom-identifier-tracks"
+              centeredSlides={false}
+              slidesPerGroup={3}
+              navigation={true}
+              modules={[SwiperGrid, Navigation]}
+              draggable={false}
+              freeMode={false}
+              grabCursor={false}
+              noSwiping={true}
+              style={{ maxWidth: "85%", marginLeft: -15, paddingLeft: 10 }}>
+              {chartResponse?.tracks.data.map((track) => (
+                <SwiperSlide style={{ backgroundColor: "black" }} key={track.id}>
+                  <>
+                    {loading && (
+                      <Grid container={true} item={true} xs={12} key={track.id}>
+                        <Grid item={true} xs={2}>
+                          <Skeleton sx={{ bgcolor: "grey.900", width: 96, height: 96 }} />
+                        </Grid>
+                        <Grid container={true} item={true} xs={10} style={{ textAlign: "left" }}>
+                          <Grid item={true} xs={10}>
+                            <Typography
+                              style={{ marginLeft: 24, marginTop: 22 }}
+                              fontFamily="Poppins,sans-serif"
+                              fontSize={16}
+                              color="white">
+                              <Skeleton sx={{ bgcolor: "grey.900" }} width={240} />
+                            </Typography>
+                          </Grid>
+                          <Grid item={true} xs={10}>
+                            <Typography
+                              style={{ marginLeft: 24, marginTop: -12 }}
+                              fontFamily="Poppins,sans-serif"
+                              fontSize={16}
+                              color="white">
+                              <Skeleton sx={{ bgcolor: "grey.900" }} width={240} />
+                            </Typography>
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                    )}
+                    <DeezerTracks loading={loading} track={track} changeState={this.changeLoadingState} />
+                  </>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </TabPanel>
+        </Grid>
+        <Grid item={true} xs={12} style={{ marginRight: 200 }}>
+          <TabPanel value={value} index={0}>
+            <Swiper
+              slidesPerView={5}
+              className="mySwiper"
+              id="my-custom-identifier-playlists"
+              centeredSlides={false}
+              slidesPerGroup={4}
+              navigation={true}
+              breakpoints={{
+                0: {
+                  slidesPerView: 2
+                },
+                300: {
+                  slidesPerView: 3
+                },
+                768: {
+                  slidesPerView: 4
+                },
+                1024: {
+                  slidesPerView: 5
+                }
+              }}
+              modules={[Navigation]}
+              style={{ maxWidth: "85%", marginLeft: -20, paddingLeft: 15 }}>
+              {chartResponse?.playlists.data.map((x) => (
+                <SwiperSlide style={{ backgroundColor: "black" }} key={x.id}>
+                  <>
+                    {loading && (
+                      <Grid container={true} item={true} xs={12} style={{ marginRight: 50 }}>
+                        <Skeleton sx={{ bgcolor: "grey.900", width: 330, height: 330 }} />
+                        <Skeleton sx={{ bgcolor: "grey.900", marginTop: -4 }} width="60%" />
+                      </Grid>
+                    )}
+                    <DeezerPlaylists loading={loading} playlist={x} changeState={this.changeLoadingState} />
+                  </>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </TabPanel>
+        </Grid>
+      </Grid>
     );
   }
 }
@@ -223,7 +272,11 @@ export const DeezerArtists = React.memo(() => {
 
   React.useEffect(() => {
     DZ.api("/chart?limit=40", (response) => {
-      setChartResponse(response as ChartResponse);
+      if (response.error && response.error.message) {
+        Notify(response.error.message, "error");
+      } else {
+        setChartResponse(response as ChartResponse);
+      }
     });
   }, [location]);
 

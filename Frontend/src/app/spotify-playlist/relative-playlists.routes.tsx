@@ -3,6 +3,7 @@ import { Route, Routes, useLocation, useNavigate } from "react-router";
 import SpotifyWebApi from "spotify-web-api-node";
 import { useAppContext } from "../../context/app-context";
 import { FeaturedPlaylistState } from "../Home/featured-playlists/featured-card";
+import { AppRoutes } from "../routes/routes";
 import { Playlist } from "./playlist-class";
 
 interface OuterProps {
@@ -52,6 +53,12 @@ export const RelativePlaylistsRoutes = React.memo<OuterProps>((props) => {
       return null;
     }
   }
+
+  React.useEffect(() => {
+    if (location.pathname === AppRoutes.Playlist) {
+      navigate(AppRoutes.Home);
+    }
+  }, [location.pathname]);
 
   React.useEffect(() => {
     navigate(locationId, { state: locationState });

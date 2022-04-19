@@ -36,6 +36,11 @@ export const Artist = React.memo<OuterProps>((props) => {
   const locationState = location.state as { artist: ArtistType };
   const { artist } = locationState;
 
+  if (!artist.id) {
+    // eslint-disable-next-line react/jsx-no-useless-fragment
+    return <></>;
+  }
+
   React.useEffect(() => {
     DZ.api(`artist/${artist.id}`, (response) => {
       setArtistData(response);

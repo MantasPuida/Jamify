@@ -12,6 +12,7 @@ import {
   Typography
 } from "@mui/material";
 import { WithStyles } from "@mui/styles";
+import clsx from "clsx";
 import { PlaylistStyles, usePlaylistStyles } from "./playlist.styles";
 // eslint-disable-next-line import/no-cycle
 import { TracksTableContent } from "./table-component";
@@ -63,6 +64,7 @@ class TracksComponentClass extends React.PureComponent<Props> {
     const { playlistTracks, classes, sourceType, spotifyApi, playlist, myOwn } = this.props;
 
     let minus = 0;
+    const isYoutube = sourceType === SourceType.Youtube;
 
     return (
       <Grid container={true} className={classes.playlistsGrid}>
@@ -76,9 +78,7 @@ class TracksComponentClass extends React.PureComponent<Props> {
                       <Typography className={classes.headerTypography}>Track</Typography>
                     </TableCell>
                     <TableCell>
-                      <Typography className={classes.headerTypography}>
-                        {sourceType === SourceType.Youtube ? "Channel" : "Artist"}
-                      </Typography>
+                      <Typography className={classes.headerTypography}>Artist</Typography>
                     </TableCell>
                     {sourceType !== SourceType.Youtube && (
                       <TableCell>
@@ -86,7 +86,10 @@ class TracksComponentClass extends React.PureComponent<Props> {
                       </TableCell>
                     )}
                     <TableCell className={classes.playlistLastTableCell}>
-                      <Typography className={classes.headerTypography}>Duration</Typography>
+                      <Typography
+                        className={clsx({ [classes.headerHelperTypography]: isYoutube }, classes.headerTypography)}>
+                        Duration
+                      </Typography>
                     </TableCell>
                   </TableRow>
                 </TableHead>

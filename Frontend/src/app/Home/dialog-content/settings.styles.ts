@@ -57,11 +57,20 @@ export const SettingsStyles = (theme: AppTheme) =>
       whiteSpace: "nowrap"
     },
 
-    typographyBreak: {
-      minWidth: 370,
+    customTypographyStyles: {
       maxHeight: "24px",
+      maxWidth: "100%",
       paddingLeft: 16,
-      overflowWrap: "break-word"
+      [theme.breakpoints.down("sm")]: {
+        paddingLeft: 0,
+        paddingTop: 2
+      }
+    },
+
+    typographyBreak: {
+      maxWidth: 290,
+      overflowWrap: "break-word",
+      textTransform: "none"
     }
   });
 

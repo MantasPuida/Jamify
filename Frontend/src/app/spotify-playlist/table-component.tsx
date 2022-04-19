@@ -15,6 +15,7 @@ import { TrackActionComponent } from "./track-actions-component";
 import { Album, ArtistAlbumsData, OmittedPlaylistResponse, PlaylistTracksData } from "../../types/deezer.types";
 import { AppRoutes } from "../routes/routes";
 import { FeaturedPlaylistState } from "../Home/featured-playlists/featured-card";
+import { ArtistNameComponent } from "./artist-name-component";
 
 type DeezerPlaylistType = Album | OmittedPlaylistResponse;
 type DeezerPlaylistTrackType = ArtistAlbumsData | PlaylistTracksData;
@@ -44,7 +45,7 @@ interface State {
   trackId: string;
   trackName: string;
   imageUrl: string;
-  artistName: string;
+  artistName: string | string[];
   albumName: string;
   duration: string;
 }
@@ -185,19 +186,13 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
   };
 
   private resolveSpotifyTrack = (spotifyRow: SpotifyApi.PlaylistTrackObject) => {
-    const artists = spotifyRow.track.artists.map((artist, index) => {
-      const { length } = spotifyRow.track.artists;
-      if (length > 1 && index < length - 1) {
-        return `${artist.name}, `;
-      }
-      return artist.name;
-    });
+    const artists = spotifyRow.track.artists.map((artist) => artist.name);
 
     this.state = {
       trackId: spotifyRow.track.id,
       trackName: spotifyRow.track.name,
       imageUrl: spotifyRow.track.album.images[0].url,
-      artistName: artists.join(""),
+      artistName: artists,
       albumName: spotifyRow.track.album.name,
       duration: this.convertMilliseconds(spotifyRow.track.duration_ms)
     };
@@ -367,7 +362,7 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
             fontWeight={200}
             fontFamily="Poppins,sans-serif"
             color="white"
-            style={{ float: "left", paddingTop: sourceType !== SourceType.Youtube ? 8 : 0 }}>
+            style={{ float: "left", paddingTop: sourceType !== SourceType.Youtube ? 8 : 0, paddingRight: 4 }}>
             {trackIndex}
           </Typography>
           <Button style={{ padding: 0, color: "transparent" }} onClick={this.handleOnTrackClick}>
@@ -388,11 +383,13 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
           </Button>
         </TableCell>
         <TableCell className={classes.artistTableCell}>
-          <Button className={classes.buttonTextHover} variant="text">
-            <Typography fontFamily="Poppins, sans-serif" fontSize={16} className={classes.artistTypography}>
-              {artistName}
-            </Typography>
-          </Button>
+          {Array.isArray(artistName) &&
+            artistName.map((artistNameMap, index) => {
+              const comma = index !== artistName.length - 1 ? ", " : "";
+
+              return <ArtistNameComponent artistName={`${artistNameMap}${comma}`} sourceType={sourceType} />;
+            })}
+          {typeof artistName === "string" && <ArtistNameComponent artistName={artistName} sourceType={sourceType} />}
         </TableCell>
         {sourceType !== SourceType.Youtube && (
           <TableCell style={{ minWidth: 500 }}>

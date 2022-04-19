@@ -5,7 +5,7 @@ export const DeezerStyles = (theme: AppTheme) =>
   createStyles({
     deezerGrid: {
       backgroundColor: "black",
-      padding: "32px 0 24px 0",
+      padding: "64px 0 24px 0",
       margin: "0 150px",
       [theme.breakpoints.down("md")]: {
         margin: "0 50px"
@@ -27,7 +27,7 @@ export const DeezerStyles = (theme: AppTheme) =>
       borderRadius: "50%",
       minHeight: 100,
       minWidth: 100,
-      maxWidth: 160,
+      maxWidth: 250,
       [theme.breakpoints.down("md")]: {
         maxWidth: 120
       },
@@ -49,6 +49,7 @@ export const DeezerStyles = (theme: AppTheme) =>
     artistHelperTitle: {
       fontSize: 25,
       fontWeight: 400,
+      paddingBottom: 16,
       [theme.breakpoints.down("md")]: {
         fontSize: 20,
         fontWeight: 400,
@@ -100,7 +101,8 @@ export const DeezerStyles = (theme: AppTheme) =>
 
     tracksCarouselImage: {
       borderRadius: "5%",
-      maxWidth: "96px"
+      maxWidth: "140px",
+      maxHeight: "80px"
     },
 
     tracksTypography: {

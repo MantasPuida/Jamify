@@ -10,6 +10,7 @@ import { useAppContext } from "../../../context/app-context";
 interface OuterProps {
   artist: Artist;
   changeState: () => void;
+  loading: boolean;
 }
 
 interface InnerProps extends WithStyles<typeof DeezerStyles> {
@@ -39,13 +40,20 @@ class ArtistCardsClass extends React.PureComponent<Props> {
   };
 
   public render(): React.ReactNode {
-    const { artist, classes } = this.props;
+    const { artist, classes, loading } = this.props;
+
+    if (loading) {
+      // eslint-disable-next-line react/jsx-no-useless-fragment
+      return <></>;
+    }
 
     return (
       <Grid container={true}>
         <Grid container={true} item={true} xs={12} style={{ justifyContent: "center" }}>
           <Grid item={true} xs={12}>
-            <Button style={{ padding: 0, backgroundColor: "transparent" }} onClick={this.handleOnClick}>
+            <Button
+              style={{ padding: 0, backgroundColor: "transparent", width: 220, height: 220 }}
+              onClick={this.handleOnClick}>
               <div id="tintImg" className="tint-img">
                 <img src={artist.picture_xl} alt={artist.name} className={classes.image} />
               </div>

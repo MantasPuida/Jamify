@@ -1,7 +1,7 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable react/no-unescaped-entities */
 import * as React from "react";
-import { Grid, Tab, Tabs, Typography, TabsProps } from "@mui/material";
+import { Grid, Tab, Tabs, Typography, TabsProps, Skeleton } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import PlayCircleOutline from "mdi-material-ui/PlayCircleOutline";
 import { Grid as SwiperGrid, Navigation } from "swiper";
@@ -9,7 +9,6 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { useYoutubeTracksStyles, YoutubeTracksStyles } from "./playlist.styles";
 import { TracksCards } from "./playlist-cards";
 import { useAppContext } from "../../context/app-context";
-import { BackdropLoader } from "../loader/loader-backdrop";
 import { TabPanel } from "../Home/featured-playlists/tabs-panels";
 import { YoutubePlaylistsCards } from "./playlist-playlists";
 
@@ -197,152 +196,199 @@ class YoutubePlaylistsClass extends React.PureComponent<Props, State> {
     }
 
     return (
-      <>
-        {loading && <BackdropLoader />}
-        <Grid container={true} item={true} xs={12} className={classes.youtubeTracksGrid}>
-          <Grid container={true} item={true} xs={12}>
-            <Grid item={true} xs={12}>
-              <Typography fontSize={45} fontWeight={900} fontFamily="Poppins,sans-serif" color="white">
-                Recommended {normalizedText}
-              </Typography>
-            </Grid>
-            <Grid item={true}>
-              <Typography fontSize={25} fontWeight={400} fontFamily="Poppins,sans-serif" color="white">
-                Today's Hits
-              </Typography>
-            </Grid>
-            <Grid item={true} style={{ paddingLeft: 8, marginTop: 6 }}>
-              <PlayCircleOutline style={{ color: "#FF0000" }} />
-            </Grid>
-            <Grid item={true} style={{ marginTop: -16, paddingLeft: 16 }}>
-              <Tabs
-                TabIndicatorProps={{
-                  style: {
-                    backgroundColor: "#FF0000"
-                  }
-                }}
-                value={value}
-                onChange={this.handleChange}>
-                <Tab
-                  classes={{
-                    root: classes.tabRootStyles
-                  }}
-                  label={<span style={{ color: "white" }}>Playlists</span>}
-                  {...this.a11yProps(0)}
-                />
-                <Tab
-                  classes={{
-                    root: classes.tabRootStyles
-                  }}
-                  label={<span style={{ color: "white" }}>Tracks</span>}
-                  {...this.a11yProps(1)}
-                />
-                <Tab
-                  classes={{
-                    root: classes.tabRootStyles
-                  }}
-                  label={<span style={{ color: "white" }}>Artists</span>}
-                  {...this.a11yProps(2)}
-                />
-              </Tabs>
-            </Grid>
+      <Grid container={true} item={true} xs={12} className={classes.youtubeTracksGrid}>
+        <Grid container={true} item={true} xs={12}>
+          <Grid item={true} xs={12}>
+            <Typography fontSize={45} fontWeight={900} fontFamily="Poppins,sans-serif" color="white">
+              Recommended {normalizedText}
+            </Typography>
           </Grid>
-          <Grid item={true} xs={12} style={{ marginRight: 200 }}>
-            <TabPanel value={value} index={1}>
-              <Swiper
-                slidesPerView={4}
-                grid={{
-                  rows: 4
-                }}
-                className="mySwiper"
-                centeredSlides={false}
-                navigation={true}
-                modules={[SwiperGrid, Navigation]}
-                draggable={false}
-                freeMode={false}
-                grabCursor={false}
-                noSwiping={true}
-                style={{ maxWidth: "85%", marginLeft: -15, paddingLeft: 10 }}>
-                {tracks.items.map((track) => (
-                  <SwiperSlide style={{ backgroundColor: "black" }} key={track.id}>
-                    <TracksCards
-                      track={track}
-                      shouldSetLoading={shouldSetLoading}
-                      changeLoading={this.changeLoadingState}
-                    />
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </TabPanel>
+          <Grid item={true} style={{ paddingBottom: 16 }}>
+            <Typography fontSize={25} fontWeight={400} fontFamily="Poppins,sans-serif" color="white">
+              Today's Hits
+            </Typography>
           </Grid>
-          <Grid item={true} xs={12} style={{ marginRight: 200 }}>
-            <TabPanel value={value} index={0}>
-              <Swiper
-                slidesPerView={5}
-                className="mySwiper"
-                centeredSlides={false}
-                navigation={true}
-                breakpoints={{
-                  0: {
-                    slidesPerView: 2
-                  },
-                  300: {
-                    slidesPerView: 3
-                  },
-                  768: {
-                    slidesPerView: 4
-                  },
-                  1024: {
-                    slidesPerView: 5
-                  }
-                }}
-                modules={[Navigation]}
-                style={{ maxWidth: "85%", marginLeft: -20, paddingLeft: 15 }}>
-                {playlists.items.map((x) => (
-                  <SwiperSlide style={{ backgroundColor: "black" }} key={x.id}>
-                    <YoutubePlaylistsCards
-                      playlist={x}
-                      shouldSetLoading={shouldSetLoading}
-                      changeLoading={this.changeLoadingState}
-                    />
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </TabPanel>
+          <Grid item={true} style={{ paddingLeft: 8, marginTop: 6 }}>
+            <PlayCircleOutline style={{ color: "#FF0000" }} />
           </Grid>
-          <Grid item={true} xs={12} style={{ marginRight: 200 }}>
-            <TabPanel value={value} index={2}>
-              <Swiper
-                slidesPerView={6}
-                className="mySwiper"
-                centeredSlides={false}
-                navigation={true}
-                breakpoints={{
-                  0: {
-                    slidesPerView: 2
-                  },
-                  300: {
-                    slidesPerView: 0
-                  },
-                  768: {
-                    slidesPerView: 5
-                  },
-                  1024: {
-                    slidesPerView: 6
-                  }
+          <Grid item={true} style={{ marginTop: -16, paddingLeft: 16 }}>
+            <Tabs
+              TabIndicatorProps={{
+                style: {
+                  backgroundColor: "#FF0000"
+                }
+              }}
+              value={value}
+              onChange={this.handleChange}>
+              <Tab
+                classes={{
+                  root: classes.tabRootStyles
                 }}
-                modules={[Navigation]}
-                style={{ maxWidth: "85%", marginLeft: -20 }}>
-                {artists.items.map((artist) => (
-                  <SwiperSlide style={{ backgroundColor: "black" }} key={artist.id}>
-                    <PlaylistArtists artist={artist} changeLoading={this.changeLoadingState} />
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </TabPanel>
+                label={<span style={{ color: "white" }}>Playlists</span>}
+                {...this.a11yProps(0)}
+              />
+              <Tab
+                classes={{
+                  root: classes.tabRootStyles
+                }}
+                label={<span style={{ color: "white" }}>Tracks</span>}
+                {...this.a11yProps(1)}
+              />
+              <Tab
+                classes={{
+                  root: classes.tabRootStyles
+                }}
+                label={<span style={{ color: "white" }}>Artists</span>}
+                {...this.a11yProps(2)}
+              />
+            </Tabs>
           </Grid>
         </Grid>
-      </>
+        <Grid item={true} xs={12} style={{ marginRight: 200 }}>
+          <TabPanel value={value} index={1}>
+            <Swiper
+              slidesPerView={4}
+              slidesPerGroup={3}
+              grid={{
+                rows: 4
+              }}
+              className="mySwiper"
+              centeredSlides={false}
+              navigation={true}
+              modules={[SwiperGrid, Navigation]}
+              draggable={false}
+              freeMode={false}
+              grabCursor={false}
+              noSwiping={true}
+              style={{ maxWidth: "85%", marginLeft: -15, paddingLeft: 10 }}>
+              {tracks.items.map((track) => (
+                <SwiperSlide style={{ backgroundColor: "black" }} key={track.id}>
+                  <>
+                    {loading && (
+                      <Grid container={true} item={true} xs={12} key={track.id}>
+                        <Grid item={true} xs={2}>
+                          <Skeleton sx={{ bgcolor: "grey.900", width: 96, height: 96 }} />
+                        </Grid>
+                        <Grid container={true} item={true} xs={10} style={{ textAlign: "left" }}>
+                          <Grid item={true} xs={10}>
+                            <Typography
+                              style={{ marginLeft: 24, marginTop: 22 }}
+                              fontFamily="Poppins,sans-serif"
+                              fontSize={16}
+                              color="white">
+                              <Skeleton sx={{ bgcolor: "grey.900" }} width={240} />
+                            </Typography>
+                          </Grid>
+                          <Grid item={true} xs={10}>
+                            <Typography
+                              style={{ marginLeft: 24, marginTop: -12 }}
+                              fontFamily="Poppins,sans-serif"
+                              fontSize={16}
+                              color="white">
+                              <Skeleton sx={{ bgcolor: "grey.900" }} width={240} />
+                            </Typography>
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                    )}
+                    <TracksCards
+                      track={track}
+                      loading={loading}
+                      shouldSetLoading={shouldSetLoading}
+                      changeLoading={this.changeLoadingState}
+                    />
+                  </>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </TabPanel>
+        </Grid>
+        <Grid item={true} xs={12} style={{ marginRight: 200 }}>
+          <TabPanel value={value} index={0}>
+            <Swiper
+              slidesPerView={5}
+              slidesPerGroup={4}
+              className="mySwiper"
+              centeredSlides={false}
+              navigation={true}
+              breakpoints={{
+                0: {
+                  slidesPerView: 2
+                },
+                300: {
+                  slidesPerView: 3
+                },
+                768: {
+                  slidesPerView: 4
+                },
+                1024: {
+                  slidesPerView: 5
+                }
+              }}
+              modules={[Navigation]}
+              style={{ maxWidth: "85%", marginLeft: -20, paddingLeft: 15 }}>
+              {playlists.items.map((x) => (
+                <SwiperSlide style={{ backgroundColor: "black" }} key={x.id}>
+                  <>
+                    {loading && (
+                      <Grid container={true} item={true} xs={12} style={{ marginRight: 50 }}>
+                        <Skeleton sx={{ bgcolor: "grey.900", width: 330, height: 330 }} />
+                        <Skeleton sx={{ bgcolor: "grey.900", marginTop: -4 }} width="60%" />
+                      </Grid>
+                    )}
+                    <YoutubePlaylistsCards
+                      playlist={x}
+                      loading={loading}
+                      shouldSetLoading={shouldSetLoading}
+                      changeLoading={this.changeLoadingState}
+                    />
+                  </>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </TabPanel>
+        </Grid>
+        <Grid item={true} xs={12} style={{ marginRight: 200 }}>
+          <TabPanel value={value} index={2}>
+            <Swiper
+              slidesPerView={8}
+              slidesPerGroup={4}
+              className="mySwiper"
+              centeredSlides={false}
+              navigation={true}
+              breakpoints={{
+                0: {
+                  slidesPerView: 2
+                },
+                300: {
+                  slidesPerView: 3
+                },
+                768: {
+                  slidesPerView: 5
+                },
+                1024: {
+                  slidesPerView: 8
+                }
+              }}
+              modules={[Navigation]}
+              style={{ maxWidth: "85%", marginLeft: -20 }}>
+              {artists.items.map((artist) => (
+                <SwiperSlide style={{ backgroundColor: "black" }} key={artist.id}>
+                  <>
+                    {loading && (
+                      <Grid container={true} item={true} xs={12} style={{ marginRight: 50 }}>
+                        <Skeleton variant="circular" sx={{ bgcolor: "grey.900", width: 160, height: 160 }} />
+                        <Skeleton sx={{ bgcolor: "grey.900", marginTop: 1, marginLeft: "18px" }} width="60%" />
+                      </Grid>
+                    )}
+                    <PlaylistArtists loading={loading} artist={artist} changeLoading={this.changeLoadingState} />
+                  </>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </TabPanel>
+        </Grid>
+      </Grid>
     );
   }
 }

@@ -47,6 +47,7 @@ const DashboardRoutes = (): JSX.Element => {
 
       if (accessToken) {
         registerSpotifyToken(accessToken);
+        navigate(AppRoutes.Home);
         setIsOnline(true);
       }
     }

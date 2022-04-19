@@ -26,13 +26,11 @@ import {
 import {
   EmailShareButton,
   FacebookShareButton,
-  LinkedinShareButton,
   RedditShareButton,
   TwitterShareButton,
   WhatsappShareButton,
   EmailIcon,
   FacebookIcon,
-  LinkedinIcon,
   RedditIcon,
   TwitterIcon,
   WhatsappIcon
@@ -52,7 +50,6 @@ import { BackdropLoader } from "../loader/loader-backdrop";
 import { useYoutubeAuth } from "../../context/youtube-context";
 
 import "./fontFamily.css";
-import { FeaturedPlaylistState } from "../Home/featured-playlists/featured-card";
 
 export enum SourceType {
   Spotify,
@@ -119,6 +116,7 @@ interface State {
   newPlaylistName: string;
   loading: boolean;
   unchangedPlaylistName: string;
+  savedPlaylistName: string;
 }
 
 type Props = InnerProps & OuterProps;
@@ -162,7 +160,8 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
       newPlaylistName: playlistName,
       unchangedPlaylistName: playlistName,
       loading: false,
-      popoverAnchorEl: null
+      popoverAnchorEl: null,
+      savedPlaylistName: ""
     };
   }
 
@@ -439,8 +438,10 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
   };
 
   private handleOnRename = async () => {
-    const { playlist, sourceType, spotifyApi, myOwn, navigate, userId, deezerToken, youtubeToken } = this.props;
+    const { playlist, sourceType, spotifyApi, myOwn, userId, deezerToken, youtubeToken } = this.props;
     const { newPlaylistName, unchangedPlaylistName } = this.state;
+
+    this.setState({ savedPlaylistName: newPlaylistName });
 
     if (newPlaylistName === "") {
       Notify("Please enter a playlist name", "error");
@@ -464,8 +465,16 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
             })
             .then(() => {
               Notify("Playlist renamed", "success");
-              navigate(AppRoutes.Playlist, { state: { spotifyPlaylist, myOwn: true } as FeaturedPlaylistState });
-              this.setState({ loading: false });
+            })
+            .catch((err) => {
+              if (err.message) {
+                const errorMessage = err.message.split(":")[1];
+
+                if (errorMessage) {
+                  this.setState({ newPlaylistName: unchangedPlaylistName });
+                  Notify(errorMessage, "error");
+                }
+              }
             });
         }
       }
@@ -488,13 +497,7 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
               }
             )
             .then(() => {
-              setTimeout(() => {
-                Notify("Playlist renamed", "success");
-
-                navigate(AppRoutes.Playlist, { state: { youtubePlaylist, myOwn: true } as FeaturedPlaylistState });
-                this.setState({ loading: false });
-                window.location.reload();
-              }, 5000);
+              Notify("Playlist renamed", "success");
             })
             .catch(() => {
               Notify("Error has occurred...", "error");
@@ -516,12 +519,11 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
               title: newPlaylistName
             },
             (response) => {
-              if (response.error) {
+              if (response.error && response.error.message) {
                 Notify(response.error.message, "error");
               } else {
                 Notify("Playlist renamed", "success");
 
-                navigate(AppRoutes.Playlist, { state: { deezerAlbum, myOwn: true } as FeaturedPlaylistState });
                 this.setState({ loading: false });
               }
             }
@@ -544,7 +546,6 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
             .then(() => {
               Notify("Playlist renamed", "success");
 
-              navigate(AppRoutes.Playlist, { state: { ownPlaylist, myOwn: true } as FeaturedPlaylistState });
               this.setState({ loading: false });
             })
             .catch((error) => {
@@ -574,7 +575,7 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
     event.preventDefault();
     event.stopPropagation();
 
-    this.setState((state) => ({ rename: !state.rename, loading: true }));
+    this.setState((state) => ({ rename: !state.rename }));
     this.handleOnRename();
   };
 
@@ -599,7 +600,7 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
   public render(): React.ReactNode {
     const { classes, playlist, sourceType, image: myImage, myOwn } = this.props;
 
-    const { anchorEl, rename, newPlaylistName, loading, popoverAnchorEl } = this.state;
+    const { anchorEl, rename, newPlaylistName, loading, popoverAnchorEl, savedPlaylistName } = this.state;
 
     const open = Boolean(anchorEl);
 
@@ -684,7 +685,11 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
               )}
               {rename && (
                 <ClickAwayListener
-                  onClickAway={playlistName !== newPlaylistName ? this.handleOneClickAway : this.handleOnClose}>
+                  onClickAway={
+                    playlistName !== newPlaylistName && savedPlaylistName !== newPlaylistName
+                      ? this.handleOneClickAway
+                      : this.handleOnClose
+                  }>
                   <Typography fontFamily="Poppins, sans-serif" color="white" fontWeight={700} fontSize={45}>
                     <TextField
                       sx={{
@@ -806,30 +811,27 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
                       style={{
                         maxWidth: sourceType === SourceType.Deezer ? 440 : sourceType === SourceType.Youtube ? 660 : 550
                       }}>
-                      <Grid item={true} xs={12} style={{ textAlignLast: "center" }}>
-                        <EmailShareButton url={shareUrl}>
-                          <EmailIcon size={32} round={true} style={{ paddingLeft: 24, paddingTop: 6 }} />
-                        </EmailShareButton>
-                        <FacebookShareButton url={shareUrl}>
-                          <FacebookIcon size={32} round={true} style={{ paddingLeft: 24, paddingTop: 6 }} />
-                        </FacebookShareButton>
-                        <TwitterShareButton url={shareUrl}>
-                          <TwitterIcon size={32} round={true} style={{ paddingLeft: 24, paddingTop: 6 }} />
-                        </TwitterShareButton>
-                        <LinkedinShareButton url={shareUrl}>
-                          <LinkedinIcon size={32} round={true} style={{ paddingLeft: 24, paddingTop: 6 }} />
-                        </LinkedinShareButton>
-                        <RedditShareButton url={shareUrl}>
-                          <RedditIcon size={32} round={true} style={{ paddingLeft: 24, paddingTop: 6 }} />
-                        </RedditShareButton>
-                        <WhatsappShareButton url={shareUrl}>
-                          <WhatsappIcon size={32} round={true} style={{ paddingLeft: 24, paddingTop: 6 }} />
-                        </WhatsappShareButton>
+                      <Grid item={true} xs={12} style={{ textAlignLast: "center", paddingTop: 14 }}>
                         <CopyToClipboard text={shareUrl} onCopy={() => Notify("Copied To Clipboard", "success")}>
-                          <IconButton style={{ padding: 12, float: "right" }}>
+                          <IconButton style={{ padding: 6, marginRight: -12, marginTop: -22 }}>
                             <LinkVariant />
                           </IconButton>
                         </CopyToClipboard>
+                        <EmailShareButton url={shareUrl}>
+                          <EmailIcon size={32} round={true} style={{ paddingLeft: 24 }} />
+                        </EmailShareButton>
+                        <FacebookShareButton url={shareUrl}>
+                          <FacebookIcon size={32} round={true} style={{ paddingLeft: 24 }} />
+                        </FacebookShareButton>
+                        <TwitterShareButton url={shareUrl}>
+                          <TwitterIcon size={32} round={true} style={{ paddingLeft: 24 }} />
+                        </TwitterShareButton>
+                        <RedditShareButton url={shareUrl}>
+                          <RedditIcon size={32} round={true} style={{ paddingLeft: 24 }} />
+                        </RedditShareButton>
+                        <WhatsappShareButton url={shareUrl}>
+                          <WhatsappIcon size={32} round={true} style={{ paddingLeft: 24 }} />
+                        </WhatsappShareButton>
                       </Grid>
                       <Grid item={true} xs={12} style={{ textAlign: "center" }}>
                         <Typography

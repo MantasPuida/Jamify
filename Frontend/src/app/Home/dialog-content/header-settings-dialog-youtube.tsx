@@ -10,6 +10,7 @@ import {
   useMediaQuery,
   useTheme
 } from "@mui/material";
+import Flags from "country-flag-icons/react/3x2";
 import { WithStyles } from "@mui/styles";
 import { useYoutubeAuth } from "../../../context/youtube-context";
 import { SettingsStyles, useSettingsStyles } from "./settings.styles";
@@ -49,9 +50,9 @@ class HeaderSettingsDialogYouTubeClass extends React.PureComponent<Props, State>
 
     if (isYoutubeConnected) {
       this.fetchUserData(googleAuthObject);
+    } else {
+      this.setState({ loading: false });
     }
-
-    this.setState({ loading: false });
   }
 
   private fetchUserData = (googleAuthObject: gapi.auth2.GoogleAuthBase | undefined): void => {
@@ -64,7 +65,7 @@ class HeaderSettingsDialogYouTubeClass extends React.PureComponent<Props, State>
       })
       .then((response) => {
         if (response.result.items && response.result.items[0].id) {
-          this.setState({ googleUser: googleUserObject, shareUrlId: response.result.items[0].id });
+          this.setState({ googleUser: googleUserObject, shareUrlId: response.result.items[0].id, loading: false });
         }
       });
   };
@@ -134,14 +135,39 @@ class HeaderSettingsDialogYouTubeClass extends React.PureComponent<Props, State>
             <Typography fontFamily="Poppins,sans-serif">{email}</Typography>
           </Grid>
           <br />
-          <br />
+          <Grid item={true} xs={12} className={classes.typographyStyles}>
+            <Typography fontFamily="Poppins,sans-serif" style={{ float: "left" }}>
+              Country: LT
+            </Typography>
+            <Flags.LT title="LT" style={{ maxWidth: 20, paddingLeft: 8, marginTop: 4 }} />
+          </Grid>
           <Grid item={true} xs={4} className={classes.typographyStyles}>
             <Typography fontFamily="Poppins,sans-serif">Playlists: {playlistCount}</Typography>
           </Grid>
-          <Grid item={true} xs={4} className={classes.typographyBreak}>
-            <Typography style={{ wordBreak: "break-all" }} fontFamily="Poppins,sans-serif">
-              Me: {url}
-            </Typography>
+          <Grid container={true} item={true} xs={4} className={classes.customTypographyStyles}>
+            <Grid item={true} xs={2} style={{ maxWidth: 38 }}>
+              <Typography
+                style={{ wordBreak: "break-all", float: "left", paddingRight: 8 }}
+                fontFamily="Poppins,sans-serif">
+                Me:
+              </Typography>
+            </Grid>
+            <Grid item={true} xs={10}>
+              <Button
+                variant="text"
+                style={{ padding: 0, textAlign: "start" }}
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+
+                  const ytUrl = `https://www.youtube.com/channel/${shareUrlId}/playlists`;
+                  window.open(ytUrl, "_blank");
+                }}>
+                <Typography fontFamily="Poppins,sans-serif" className={classes.typographyBreak}>
+                  {url}
+                </Typography>
+              </Button>
+            </Grid>
           </Grid>
         </Grid>
       </Grid>

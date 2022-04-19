@@ -82,7 +82,7 @@ class ArtistContentClass extends React.PureComponent<Props, State> {
                       );
                     })}
                   </TableBody>
-                  <Grid style={{ paddingTop: 8 }}>
+                  <Grid style={{ paddingTop: 16 }}>
                     {trackList.data.length > 4 && (
                       <Button
                         variant="outlined"

@@ -2,15 +2,18 @@ import * as React from "react";
 import { Button, ButtonProps, Grid, Typography } from "@mui/material";
 import Play from "mdi-material-ui/Play";
 import { WithStyles } from "@mui/styles";
+import { useNavigate, NavigateFunction } from "react-router";
 import { DeezerStyles, useDeezerStyles } from "./deezer.styles";
 import { useAppContext } from "../../../context/app-context";
 import { TrackObject, usePlayerContext } from "../../../context/player-context";
 import { LastTick } from "../../../utils/last-tick";
 import { Track } from "../../../types/deezer.types";
+import { AppRoutes } from "../../routes/routes";
 
 interface OuterProps {
   track: Track;
   changeState: () => void;
+  loading: boolean;
 }
 
 interface InnerProps extends WithStyles<typeof DeezerStyles> {
@@ -18,6 +21,7 @@ interface InnerProps extends WithStyles<typeof DeezerStyles> {
   setPlayerTrack: Function;
   setLoading: Function;
   isOpen: boolean;
+  navigate: NavigateFunction;
 }
 
 type Props = InnerProps & OuterProps;
@@ -62,13 +66,27 @@ class DeezerTracksClass extends React.PureComponent<Props> {
       });
   };
 
+  private handleOnArtistClick: ButtonProps["onClick"] = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const { track, navigate } = this.props;
+
+    navigate(AppRoutes.Artist, { state: { artist: track.artist } });
+  };
+
   public render(): React.ReactNode {
-    const { track, classes } = this.props;
+    const { track, classes, loading } = this.props;
+
+    if (loading) {
+      // eslint-disable-next-line react/jsx-no-useless-fragment
+      return <></>;
+    }
 
     return (
       <Grid container={true} item={true} xs={12} key={track.id}>
-        <Grid item={true} xs={2}>
-          <Button onClick={this.handleOnTrackClick}>
+        <Grid item={true} xs={4}>
+          <Button onClick={this.handleOnTrackClick} style={{ width: 140 }}>
             <img
               src={track.album.cover_xl}
               alt={track.title}
@@ -80,8 +98,8 @@ class DeezerTracksClass extends React.PureComponent<Props> {
             </div>
           </Button>
         </Grid>
-        <Grid container={true} item={true} xs={10} style={{ textAlign: "left" }}>
-          <Grid item={true} xs={10}>
+        <Grid container={true} item={true} xs={8} style={{ textAlign: "left" }}>
+          <Grid item={true} xs={10} style={{ marginTop: 12 }}>
             <Button
               onClick={this.handleOnTrackClick}
               style={{
@@ -103,8 +121,9 @@ class DeezerTracksClass extends React.PureComponent<Props> {
               </Typography>
             </Button>
           </Grid>
-          <Grid item={true} xs={10}>
+          <Grid item={true} xs={10} style={{ marginBottom: 12 }}>
             <Button
+              onClick={this.handleOnArtistClick}
               style={{
                 textAlign: "left",
                 textTransform: "none",
@@ -117,7 +136,7 @@ class DeezerTracksClass extends React.PureComponent<Props> {
               className={classes.tracksButtonOnHover}
               variant="text">
               <Typography className={classes.tracksHelperTypography} fontFamily="Poppins,sans-serif" fontSize={12}>
-                {track.album.title}
+                {track.artist.name}
               </Typography>
             </Button>
           </Grid>
@@ -131,10 +150,12 @@ export const DeezerTracks = React.memo<OuterProps>((props) => {
   const { setLoading } = useAppContext();
   const { isOpen, setOpen, setTrack } = usePlayerContext();
   const classes = useDeezerStyles();
+  const navigate = useNavigate();
 
   return (
     <DeezerTracksClass
       {...props}
+      navigate={navigate}
       isOpen={isOpen}
       setLoading={setLoading}
       classes={classes}

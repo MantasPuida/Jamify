@@ -17,6 +17,7 @@ import {
   ToggleButtonGroupProps,
   Typography
 } from "@mui/material";
+import LoadingButton from "@mui/lab/LoadingButton";
 import SpotifyWebApi from "spotify-web-api-node";
 import Plus from "mdi-material-ui/Plus";
 import { useLocation } from "react-router";
@@ -77,6 +78,7 @@ interface State {
   text: string;
   alignment: string;
   foundTrack?: gapi.client.youtube.PlaylistItem;
+  loading: boolean;
 }
 
 interface PlaylistReturnType {
@@ -89,7 +91,7 @@ interface PlaylistReturnType {
 type Props = OuterProps & InnerProps;
 
 class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
-  public state: State = { isClicked: false, text: "", alignment: "left" };
+  public state: State = { isClicked: false, text: "", alignment: "left", loading: false };
 
   private onDialogClose: DialogProps["onClose"] = () => {
     const { setDialogOpen } = this.props;
@@ -167,7 +169,12 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
               this.onDialogClose(event, "backdropClick");
             }
 
+            this.setState({ loading: false });
+
             Notify("Playlist has been created", "success");
+          })
+          .catch(() => {
+            this.setState({ loading: false });
           });
       });
   };
@@ -193,9 +200,12 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
                   this.onDialogClose(event, "backdropClick");
                 }
 
+                this.setState({ loading: false });
+
                 Notify("Playlist has been created", "success");
               })
               .catch((err) => {
+                this.setState({ loading: false });
                 Notify(err, "error");
               });
           }
@@ -212,9 +222,11 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
                   this.onDialogClose(event, "backdropClick");
                 }
 
+                this.setState({ loading: false });
                 Notify("Playlist has been created", "success");
               })
               .catch((err) => {
+                this.setState({ loading: false });
                 Notify(err, "error");
               });
           }
@@ -264,11 +276,11 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
                     );
 
                     if (nextPageTrack && nextPageTrack.length > 0) {
-                      this.setState({ foundTrack: nextPageTrack[0] });
+                      this.setState({ foundTrack: nextPageTrack[0], loading: false });
                     }
                   });
               } else {
-                this.setState({ foundTrack: foundTrack[0] });
+                this.setState({ foundTrack: foundTrack[0], loading: false });
               }
 
               const { foundTrack: myTrack } = this.state;
@@ -289,9 +301,11 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
                       this.onDialogClose(event, "backdropClick");
                     }
 
+                    this.setState({ loading: false });
                     Notify("Playlist has been created", "success");
                   })
                   .catch((err) => {
+                    this.setState({ loading: false });
                     Notify(err, "error");
                   });
               }
@@ -341,9 +355,12 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
                     this.onDialogClose(event, "backdropClick");
                   }
 
+                  this.setState({ loading: false });
+
                   Notify("Playlist has been created", "success");
                 })
                 .catch((err) => {
+                  this.setState({ loading: false });
                   Notify(err, "error");
                 });
             }
@@ -372,11 +389,14 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
               },
               (callback) => {
                 if (callback.error) {
+                  this.setState({ loading: false });
                   Notify(callback.error.message, "error");
                 } else {
                   if (this.onDialogClose) {
                     this.onDialogClose(event, "backdropClick");
                   }
+
+                  this.setState({ loading: false });
 
                   Notify("Playlist has been created", "success");
                 }
@@ -416,11 +436,14 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
               },
               (callback) => {
                 if (callback.error) {
+                  this.setState({ loading: false });
                   Notify(callback.error.message, "error");
                 } else {
                   if (this.onDialogClose) {
                     this.onDialogClose(event, "backdropClick");
                   }
+
+                  this.setState({ loading: false });
 
                   Notify("Playlist has been created", "success");
                 }
@@ -441,6 +464,8 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
     if (text.length < 1) {
       Notify("Please enter a playlist name", "error");
     }
+
+    this.setState({ loading: true });
 
     if (alignment === "left") {
       this.postOwnPlaylist(event);
@@ -475,12 +500,16 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
       deezerTrack,
       deezerPlaylists
     } = this.props;
-    const { isClicked, alignment } = this.state;
+    const { isClicked, alignment, loading } = this.state;
 
     return (
       <Dialog fullScreen={fullScreen} open={dialogOpen} onClose={this.onDialogClose}>
-        <DialogTitle style={{ borderBottom: "1px solid lightgrey", paddingBottom: 8 }}>Save to...</DialogTitle>
-        <DialogContent style={{ paddingTop: 16, borderBottom: "1px solid lightgrey" }}>
+        <DialogTitle style={{ borderBottom: "1px solid lightgrey", paddingBottom: 8 }}>
+          <Typography fontSize={20} fontFamily="Poppins, sans-serif">
+            Save to...
+          </Typography>
+        </DialogTitle>
+        <DialogContent style={{ paddingTop: 16, borderBottom: "1px solid lightgrey", minWidth: 264 }}>
           <DialogContentDialog
             spotifyPlaylists={spotifyPlaylists}
             youtubePlaylists={youtubePlaylists}
@@ -513,7 +542,7 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
               <Grid item={true} xs={12} style={{ textAlign: "center", maxWidth: 40, paddingTop: 16 }}>
                 <ToggleButtonGroup
                   value={alignment}
-                  style={{ color: "black" }}
+                  style={{ color: "black", marginLeft: 64, marginBottom: -12 }}
                   exclusive={true}
                   onChange={this.handleAlignment}
                   sx={{
@@ -527,25 +556,36 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
                       Universal
                     </Typography>
                   </ToggleButton>
-                  <ToggleButton value="center" style={{ textTransform: "none", padding: 6 }} aria-label="centered">
-                    <Typography fontFamily="Poppins, sans-serif" fontWeight={400}>
-                      Spotify
-                    </Typography>
-                  </ToggleButton>
-                  <ToggleButton value="right" style={{ textTransform: "none", padding: 6 }} aria-label="right aligned">
-                    <Typography fontFamily="Poppins, sans-serif" fontWeight={400}>
-                      Youtube
-                    </Typography>
-                  </ToggleButton>
-                  <ToggleButton value="justify" style={{ textTransform: "none", padding: 6 }} aria-label="justified">
-                    <Typography fontFamily="Poppins, sans-serif" fontWeight={400}>
-                      Deezer
-                    </Typography>
-                  </ToggleButton>
+                  {sourceType === SourceType.Spotify && (
+                    <ToggleButton value="center" style={{ textTransform: "none", padding: 6 }} aria-label="centered">
+                      <Typography fontFamily="Poppins, sans-serif" fontWeight={400}>
+                        Spotify
+                      </Typography>
+                    </ToggleButton>
+                  )}
+                  {sourceType === SourceType.Youtube && (
+                    <ToggleButton
+                      value="right"
+                      style={{ textTransform: "none", padding: 6 }}
+                      aria-label="right aligned">
+                      <Typography fontFamily="Poppins, sans-serif" fontWeight={400}>
+                        Youtube
+                      </Typography>
+                    </ToggleButton>
+                  )}
+                  {sourceType === SourceType.Deezer && (
+                    <ToggleButton value="justify" style={{ textTransform: "none", padding: 6 }} aria-label="justified">
+                      <Typography fontFamily="Poppins, sans-serif" fontWeight={400}>
+                        Deezer
+                      </Typography>
+                    </ToggleButton>
+                  )}
                 </ToggleButtonGroup>
               </Grid>
               <Grid item={true} xs={12} style={{ textAlign: "end", paddingTop: 16 }}>
-                <Button onClick={this.handleOnCreate}>Create</Button>
+                <LoadingButton style={{ color: "black" }} size="medium" loading={loading} onClick={this.handleOnCreate}>
+                  Create
+                </LoadingButton>
               </Grid>
             </Grid>
           )}

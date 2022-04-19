@@ -79,7 +79,7 @@ class DialogContentDialogClass extends React.PureComponent<Props, State> {
 
     return (
       <>
-        {spotifyPlaylists && (
+        {spotifyPlaylists && sourceType === SourceType.Spotify && (
           <Accordion
             expanded={expanded === "spotify"}
             onChange={this.handleChange("spotify")}
@@ -87,7 +87,9 @@ class DialogContentDialogClass extends React.PureComponent<Props, State> {
             <AccordionSummary expandIcon={<ChevronDown />} aria-controls="spotifybh-content" id="spotifybh-header">
               <Grid container={true}>
                 <Grid item={true} xs={10}>
-                  <Typography style={{ float: "left", flexShrink: 0, width: "80%" }}>Spotify Playlist</Typography>
+                  <Typography fontFamily="Poppins, sans-serif" style={{ float: "left", flexShrink: 0, width: "80%" }}>
+                    Spotify Playlist
+                  </Typography>
                 </Grid>
                 <Grid item={true} xs={2}>
                   <Spotify style={{ color: "#1DB954" }} />
@@ -111,12 +113,14 @@ class DialogContentDialogClass extends React.PureComponent<Props, State> {
             </AccordionDetails>
           </Accordion>
         )}
-        {youtubePlaylists && (
+        {youtubePlaylists && sourceType === SourceType.Youtube && (
           <Accordion expanded={expanded === "youtube"} onChange={this.handleChange("youtube")}>
             <AccordionSummary expandIcon={<ChevronDown />} aria-controls="youtubebh-content" id="youtubebh-header">
               <Grid container={true}>
                 <Grid item={true} xs={10}>
-                  <Typography style={{ float: "left", flexShrink: 0, width: "80%" }}>Youtube Playlist</Typography>
+                  <Typography fontFamily="Poppins, sans-serif" style={{ float: "left", flexShrink: 0, width: "85%" }}>
+                    Youtube Playlist
+                  </Typography>
                 </Grid>
                 <Grid item={true} xs={2}>
                   <PlayCircleOutline style={{ color: "#FF0000" }} />
@@ -140,15 +144,17 @@ class DialogContentDialogClass extends React.PureComponent<Props, State> {
             </AccordionDetails>
           </Accordion>
         )}
-        {deezerPlaylists && (
+        {deezerPlaylists && sourceType === SourceType.Deezer && (
           <Accordion expanded={expanded === "deezer"} onChange={this.handleChange("deezer")}>
             <AccordionSummary expandIcon={<ChevronDown />} aria-controls="deezerbh-content" id="deezerbh-header">
               <Grid container={true}>
                 <Grid item={true} xs={10}>
-                  <Typography style={{ float: "left", flexShrink: 0, width: "80%" }}>Deezer Playlist</Typography>
+                  <Typography fontFamily="Poppins, sans-serif" style={{ float: "left", flexShrink: 0, width: "80%" }}>
+                    Deezer Playlist
+                  </Typography>
                 </Grid>
                 <Grid item={true} xs={2}>
-                  <FaDeezer style={{ width: 24, height: 24, color: "white" }} />
+                  <FaDeezer style={{ width: 24, height: 24, color: "black" }} />
                 </Grid>
               </Grid>
             </AccordionSummary>
@@ -175,7 +181,9 @@ class DialogContentDialogClass extends React.PureComponent<Props, State> {
             <AccordionSummary expandIcon={<ChevronDown />} aria-controls="ownbh-content" id="ownbh-header">
               <Grid container={true}>
                 <Grid item={true} xs={10}>
-                  <Typography style={{ float: "left", flexShrink: 0, width: "80%" }}>Universal Playlist</Typography>
+                  <Typography fontFamily="Poppins, sans-serif" style={{ float: "left", flexShrink: 0, width: "80%" }}>
+                    Universal Playlist
+                  </Typography>
                 </Grid>
                 <Grid item={true} xs={2}>
                   <MusicRestQuarter style={{ color: "black" }} />
