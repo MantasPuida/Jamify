@@ -1,0 +1,9 @@
+Project: Backend
+Configuration: Debug
+Scope: Assembly
+Maintainability Index: 81
+Cyclomatic Complexity: 156
+Depth of Inheritance: 2
+Class Coupling: 106
+Lines of Source code: 1 881
+Lines of Executable code: 531
