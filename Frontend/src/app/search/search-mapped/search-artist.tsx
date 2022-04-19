@@ -59,7 +59,7 @@ class SearchArtistsClass extends React.PureComponent<Props> {
           </Button>
           <Button
             variant="text"
-            style={{ padding: 0, color: "transparent", textTransform: "none" }}
+            style={{ padding: 0, color: "transparent", textTransform: "none", width: "88%" }}
             onClick={this.handleOnClick}>
             <Typography className={classes.typographyWithPadding} color="white">
               {artist.name}

@@ -132,6 +132,12 @@ class DeezerArtistsClass extends React.PureComponent<InnerProps, State> {
                   slidesPerView: 5
                 },
                 1024: {
+                  slidesPerView: 6
+                },
+                1366: {
+                  slidesPerView: 6
+                },
+                2080: {
                   slidesPerView: 8
                 }
               }}
