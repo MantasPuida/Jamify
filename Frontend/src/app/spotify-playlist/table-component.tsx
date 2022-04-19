@@ -203,19 +203,28 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
     event.stopPropagation();
 
     const { row, setTrack, setOpen, sourceType } = this.props;
+    const { artistName } = this.state;
+    let resolvedArtistNames = "";
+
+    if (Array.isArray(artistName)) {
+      resolvedArtistNames = artistName.join(", ");
+    } else if (typeof artistName === "string") {
+      resolvedArtistNames = artistName;
+    }
 
     if (sourceType === SourceType.Spotify) {
       const spotifyRow = row as SpotifyApi.PlaylistTrackObject;
+      const spArtists = spotifyRow.track.artists.map((artist) => artist.name).join(", ");
 
       gapi.client.youtube.search
         .list({
           part: "snippet",
-          q: spotifyRow.track.name
+          q: `${spotifyRow.track.name} ${spotifyRow.track.artists.map((artist) => artist.name).join(", ")}`
         })
         .then((value) => {
           if (value.result.items && value.result.items[0].id?.videoId) {
             const currentTrack: TrackObject = {
-              channelTitle: spotifyRow.track.album.name,
+              channelTitle: spArtists,
               thumbnail: spotifyRow.track.album.images[0].url,
               title: spotifyRow.track.name,
               videoId: value.result.items[0].id.videoId
@@ -249,7 +258,7 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
 
       const currentTrack: TrackObject = {
         videoId: trackId,
-        channelTitle: "title",
+        channelTitle: resolvedArtistNames,
         thumbnail: imageUrl,
         title: trackName
       };
@@ -260,7 +269,7 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
       const deezerRow = row as DeezerPlaylistTrackType;
 
       const { artist, title, title_short: titleShort } = deezerRow;
-      gapi.client.youtube.search.list({ part: "snippet", q: `${title} ${artist}` }).then((response) => {
+      gapi.client.youtube.search.list({ part: "snippet", q: `${title} ${artist.name}` }).then((response) => {
         const { items } = response.result;
 
         if (items && items.length > 0 && items[0].id?.videoId) {
@@ -268,7 +277,7 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
 
           const currentTrack: TrackObject = {
             videoId: items[0].id?.videoId,
-            channelTitle: "title",
+            channelTitle: artist.name ?? resolvedArtistNames,
             thumbnail: imgUrl ?? "",
             title: titleShort
           };

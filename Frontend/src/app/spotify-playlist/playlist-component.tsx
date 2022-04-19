@@ -194,6 +194,10 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
       spotifyApi.getPlaylistTracks(currentPlaylist.id).then((response) => {
         const responseData = response.body;
 
+        const artists = responseData.items[0].track.artists.map((artist) => artist.name);
+
+        const spotifyArtists = artists.join(", ");
+
         gapi.client.youtube.search
           .list({
             part: "snippet",
@@ -205,7 +209,7 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
                 videoId: value.result.items[0].id.videoId,
                 title: responseData.items[0].track.name,
                 thumbnail: responseData.items[0].track.album.images[0].url,
-                channelTitle: currentPlaylist.name
+                channelTitle: spotifyArtists
               };
 
               if (!isOpen) {
@@ -230,7 +234,7 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
             items &&
             items[0].snippet?.resourceId?.videoId &&
             items[0].snippet.title &&
-            currentPlaylist?.snippet?.channelTitle
+            items[0].snippet.videoOwnerChannelTitle
           ) {
             const imageUrl = extractThumbnail(items[0]?.snippet?.thumbnails);
 
@@ -238,7 +242,7 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
               videoId: items[0].snippet.resourceId.videoId,
               title: items[0].snippet.title,
               thumbnail: imageUrl ?? "",
-              channelTitle: currentPlaylist.snippet.channelTitle
+              channelTitle: items[0].snippet.videoOwnerChannelTitle
             };
 
             if (!isOpen) {
@@ -258,10 +262,12 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
           const data = response as ArtistAlbumsResponse;
           const firstRecord = data.data[0];
 
+          const dzArtistName = firstRecord.artist.name ?? "";
+
           gapi.client.youtube.search
             .list({
               part: "snippet",
-              q: `${firstRecord.title} ${firstRecord.artist.name ?? ""}`
+              q: `${firstRecord.title} ${dzArtistName}`
             })
             .then((value) => {
               if (value.result.items && value.result.items[0].id?.videoId) {
@@ -269,7 +275,7 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
                   videoId: value.result.items[0].id.videoId,
                   title: firstRecord.title_short ?? "",
                   thumbnail: firstRecord.cover_xl ?? "",
-                  channelTitle: currentPlaylist.title ?? ""
+                  channelTitle: dzArtistName
                 };
 
                 if (!isOpen) {
@@ -286,10 +292,12 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
           const data = response as PlaylistTracksResponse;
           const firstRecord = data.data[0];
 
+          const dzArtistName = firstRecord.artist.name ?? "";
+
           gapi.client.youtube.search
             .list({
               part: "snippet",
-              q: `${firstRecord.title ?? ""} ${firstRecord.artist.name ?? ""}`
+              q: `${firstRecord.title ?? ""} ${dzArtistName}`
             })
             .then((value) => {
               if (value.result.items && value.result.items[0].id?.videoId) {
@@ -297,7 +305,7 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
                   videoId: value.result.items[0].id.videoId,
                   title: firstRecord.title ?? "",
                   thumbnail: firstRecord.album.cover_xl ?? "",
-                  channelTitle: currentPlaylist.title ?? ""
+                  channelTitle: dzArtistName
                 };
 
                 if (!isOpen) {

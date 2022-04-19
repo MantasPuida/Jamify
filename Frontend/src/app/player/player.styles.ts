@@ -47,8 +47,7 @@ export const PlayerStyles = () =>
       }
     },
     volumeIcon: {
-      color: "rgba(255,255,255,0.4)",
-      paddingLeft: 20
+      color: "rgba(255,255,255,0.4)"
     }
   });
 

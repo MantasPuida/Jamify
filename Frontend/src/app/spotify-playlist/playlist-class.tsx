@@ -14,6 +14,7 @@ import { PlaylistApi } from "../../api/api-endpoints";
 import { useUserContext } from "../../context/user-context";
 import { PlaylistType } from "../me/me-component";
 import { ArtistAlbumsResponse, Album, OmittedPlaylistResponse, PlaylistTracksResponse } from "../../types/deezer.types";
+import { useYoutubeAuth } from "../../context/youtube-context";
 
 type SpotifyPlaylistTracksResponse = SpotifyApi.PlaylistTrackResponse;
 type DeezerPlaylistType = Album | OmittedPlaylistResponse;
@@ -82,7 +83,8 @@ export const Playlist = React.memo<OuterProps>((props) => {
   const { userId } = useUserContext();
   const locationState = location.state as FeaturedPlaylistState;
   const classes = useHomeLandingPageStyles();
-  const { logout } = useSpotifyAuth();
+  const { logout: logoutSpotify } = useSpotifyAuth();
+  const { logout: logoutYoutube, googleAuthObject } = useYoutubeAuth();
 
   if (
     !locationState ||
@@ -106,7 +108,7 @@ export const Playlist = React.memo<OuterProps>((props) => {
           setTracks(value.body);
         })
         .catch(() => {
-          logout();
+          logoutSpotify();
           Notify("Unable to synchronize with Spotify", "error");
         });
     } else if (ownPlaylist && userId) {
@@ -142,6 +144,14 @@ export const Playlist = React.memo<OuterProps>((props) => {
         })
         .then((playlistItems) => {
           setYoutubePlaylistTracks(playlistItems.result);
+        })
+        .catch(() => {
+          Notify("Unable to synchronize with YouTube", "error");
+          logoutYoutube();
+
+          if (googleAuthObject) {
+            googleAuthObject.signOut();
+          }
         });
     }
   }, [location.pathname]);

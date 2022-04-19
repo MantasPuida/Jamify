@@ -81,6 +81,15 @@ class PlayerClass extends React.PureComponent<Props> {
     return `${minute}:${secondLeft <= 9 ? `0${secondLeft}` : secondLeft}`;
   });
 
+  componentDidUpdate() {
+    const { position, duration, setPosition } = this.props;
+
+    if (position === duration - 1 && this.handleOnNext) {
+      setPosition(0);
+      this.handleNextTrack();
+    }
+  }
+
   private handleSliderOnChange: SliderProps["onChange"] = (_, value) => {
     const { setPosition } = this.props;
 
@@ -118,10 +127,7 @@ class PlayerClass extends React.PureComponent<Props> {
     setPosition(Math.trunc(playedSeconds));
   };
 
-  private handleOnNext: IconButtonProps["onClick"] = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-
+  private handleNextTrack = (): void => {
     const { queue, track, setTrack } = this.props;
 
     if (queue?.queue && track) {
@@ -242,6 +248,13 @@ class PlayerClass extends React.PureComponent<Props> {
         }
       }
     }
+  };
+
+  private handleOnNext: IconButtonProps["onClick"] = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.handleNextTrack();
   };
 
   private handleOnPrevious: IconButtonProps["onClick"] = (event) => {
@@ -443,15 +456,26 @@ class PlayerClass extends React.PureComponent<Props> {
               xs={4}
               style={{ display: "flex", alignItems: "center", justifyContent: "end", width: "100%", marginTop: -8 }}>
               <Grid item={true} xs={10} style={{ textAlign: "end", paddingRight: 8, marginRight: -40 }}>
-                <Typography color="white" noWrap={true}>
+                <Typography color="white" fontSize={18} fontFamily="Poppins, sans-serif" noWrap={true}>
                   {parseTitle(title)}
                 </Typography>
-                <Typography color="white" noWrap={true} letterSpacing={-0.25}>
+                <Typography
+                  color="white"
+                  noWrap={true}
+                  fontWeight={100}
+                  fontFamily="Poppins, sans-serif"
+                  letterSpacing={-0.25}>
                   {channelTitle}
                 </Typography>
               </Grid>
-              <Grid item={true} xs={2} style={{ textAlign: "end", paddingRight: 2 }}>
-                <img alt="alt" src={thumbnail} width={68} height={68} style={{ objectFit: "scale-down" }} />
+              <Grid item={true} xs={2} style={{ textAlign: "end", paddingRight: 8 }}>
+                <img
+                  alt="alt"
+                  src={thumbnail}
+                  width={58}
+                  height={58}
+                  style={{ objectFit: "scale-down", marginTop: 4 }}
+                />
               </Grid>
             </Grid>
           </Grid>
