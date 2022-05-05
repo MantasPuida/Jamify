@@ -2,6 +2,7 @@
 import * as React from "react";
 import { Grid } from "@mui/material";
 import { WithStyles } from "@mui/styles";
+import clsx from "clsx";
 import SpotifyWebApi from "spotify-web-api-node";
 import { useLocation } from "react-router";
 import { HomeLandingPageStyles, useHomeLandingPageStyles } from "./landing-page.styles";
@@ -52,11 +53,15 @@ class HomeLandingPageClass extends React.PureComponent<Props, State> {
     const { forceUpdateYt, forceUpdateSp } = this.state;
 
     return (
-      <Grid container={true} item={true} xs={12} className={classes.homeGrid}>
+      <Grid
+        container={true}
+        item={true}
+        xs={12}
+        className={clsx({ [classes.overflow]: deezerToken && youtubeToken }, classes.homeGrid)}>
         {spotifyToken && (
           <FeaturedPlaylists
             spotifyApi={spotifyApi}
-            shouldSetLoading={forceUpdateSp ? forceUpdateSp : !youtubeToken && !deezerToken}
+            shouldSetLoading={forceUpdateSp ? forceUpdateSp : !youtubeToken || !deezerToken}
           />
         )}
         {youtubeToken && (

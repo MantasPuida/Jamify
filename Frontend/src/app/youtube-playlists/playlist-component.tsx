@@ -253,6 +253,7 @@ class YoutubePlaylistsClass extends React.PureComponent<Props, State> {
                 rows: 4
               }}
               className="mySwiper"
+              id="my-custom-identifier-youtube-tracks"
               centeredSlides={false}
               navigation={true}
               modules={[SwiperGrid, Navigation]}
@@ -351,8 +352,9 @@ class YoutubePlaylistsClass extends React.PureComponent<Props, State> {
         <Grid item={true} xs={12} style={{ marginRight: 200 }}>
           <TabPanel value={value} index={2}>
             <Swiper
-              slidesPerView={8}
+              slidesPerView={6}
               slidesPerGroup={4}
+              id="my-custom-identifier-youtube-artists"
               className="mySwiper"
               centeredSlides={false}
               navigation={true}
@@ -367,7 +369,10 @@ class YoutubePlaylistsClass extends React.PureComponent<Props, State> {
                   slidesPerView: 5
                 },
                 1024: {
-                  slidesPerView: 8
+                  slidesPerView: 6
+                },
+                1980: {
+                  slidesPerView: 7
                 }
               }}
               modules={[Navigation]}

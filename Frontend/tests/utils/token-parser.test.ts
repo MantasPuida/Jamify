@@ -14,4 +14,24 @@ describe("Parse User Token From Hashed Location", () => {
       expires_in: "3600"
     });
   });
+
+  it("Pass invalid location hash", () => {
+    const locationHash = "invalid_hash";
+    const token = getTokenFromHash(locationHash);
+
+    expect(token).toBeInstanceOf(Object);
+
+    expect(token).toEqual({
+      nvalid_hash: "undefined"
+    });
+  });
+
+  it("Pass empty location hash", () => {
+    const locationHash = "";
+    const token = getTokenFromHash(locationHash);
+
+    expect(token).toBeInstanceOf(Object);
+
+    expect(token).toEqual({});
+  });
 });

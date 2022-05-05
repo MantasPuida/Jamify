@@ -83,6 +83,10 @@ const HomeRoutes = (): JSX.Element => {
     setLoading(true);
   }
 
+  if (location.pathname === AppRoutes.Dashboard) {
+    navigate(AppRoutes.Dashboard);
+  }
+
   React.useEffect(() => {
     setLoading(true);
   }, [location.pathname]);

@@ -20,6 +20,7 @@ export const DashboardStyles = (theme: AppTheme) =>
     },
     imageTag: {
       height: "100%",
+      marginLeft: 150,
       [theme.breakpoints.between("md", "xl")]: {
         height: "80%"
       }
@@ -27,7 +28,7 @@ export const DashboardStyles = (theme: AppTheme) =>
     mainText: {
       marginLeft: 45,
       marginTop: 10,
-      width: "calc(100% - 155px)",
+      width: "calc(100% - 175px)",
       fontSize: 56,
       fontWeight: 700,
       [theme.breakpoints.down("sm")]: {

@@ -96,6 +96,7 @@ class FeaturedPlaylistsClass extends React.PureComponent<Props, State> {
           </Grid>
           <Grid item={true}>
             <Typography
+              data-testid="featured-playlists-message"
               fontSize={25}
               fontWeight={400}
               fontFamily="Poppins,sans-serif"
@@ -265,6 +266,9 @@ class FeaturedPlaylistsClass extends React.PureComponent<Props, State> {
                 },
                 1024: {
                   slidesPerView: 8
+                },
+                1980: {
+                  slidesPerView: 7
                 }
               }}
               modules={[Navigation]}

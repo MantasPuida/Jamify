@@ -75,6 +75,26 @@ export const HeaderStyles = (theme: AppTheme) =>
       color: "black",
       width: 25,
       height: 25
+    },
+
+    deleteDialogCancelButton: {
+      color: "gray",
+      "&:hover": {
+        color: "black",
+        fontSize: 16,
+        fontWeight: 600,
+        transition: "all .1s ease-in-out"
+      },
+      transition: "all .1s ease-in-out"
+    },
+
+    deleteDialogDeleteButton: {
+      "&:hover": {
+        fontSize: 16,
+        fontWeight: 600,
+        transition: "all .1s ease-in-out"
+      },
+      transition: "all .1s ease-in-out"
     }
   });
 

@@ -128,8 +128,6 @@ class SettingsDialogClass extends React.PureComponent<Props> {
 
         setIsYoutubeConnected(false);
         ytLogout();
-        navigate("/", { replace: true });
-        window.location.reload();
       }, 500);
     } else if (currentValue === "Deezer") {
       if (handleDialogClose) {

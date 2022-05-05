@@ -46,6 +46,14 @@ class ExploreClass extends React.PureComponent<Props, State> {
     (deezerGenres?: GenreResponse, spotifyGenres?: SpotifyApi.MultipleCategoriesResponse) => {
       const { setLoading } = this.props;
 
+      if (!deezerGenres && !spotifyGenres) {
+        return { sameDzGenres: [], sameSpGenres: [] };
+      }
+
+      if (!deezerGenres && spotifyGenres) {
+        return { sameDzGenres: [], sameSpGenres: spotifyGenres.categories.items };
+      }
+
       const sameDzGenres =
         deezerGenres && spotifyGenres
           ? deezerGenres.data.filter((deezerGenre) => {
@@ -97,7 +105,7 @@ class ExploreClass extends React.PureComponent<Props, State> {
         });
         this.setState({ spotifyGenres: response.data as SpotifyApi.MultipleCategoriesResponse });
       } catch (error) {
-        Notify("Could not fetch Spotify Genres", "error");
+        Notify("Could not resolve Genres", "error");
       }
     }, 1000);
   }

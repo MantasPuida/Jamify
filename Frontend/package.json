@@ -48,11 +48,12 @@
   "scripts": {
     "start": "rimraf ./build && react-scripts start",
     "build": "react-scripts build",
-    "test": "jest",
+    "test": "jest --coverage",
     "eject": "react-scripts eject",
-    "lint": "eslint .",
+    "lint": "eslint ./src --ext",
     "lint:fix": "eslint --fix",
-    "postinstall": "cd .. && husky install"
+    "postinstall": "cd .. && husky install",
+    "cypress:open": "cypress open"
   },
   "eslintConfig": {
     "extends": [
@@ -84,6 +85,7 @@
     "@types/spotify-web-api-node": "^5.0.6",
     "@typescript-eslint/eslint-plugin": "^5.8.0",
     "@typescript-eslint/parser": "^5.8.0",
+    "cypress": "^9.6.0",
     "eslint": "^8.5.0",
     "husky": "^7.0.4",
     "jest": "^27.4.7",

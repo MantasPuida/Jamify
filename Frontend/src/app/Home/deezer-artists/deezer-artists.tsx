@@ -18,6 +18,8 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/grid";
 import { Notify } from "../../notification/notification-component";
+import { useAppContext } from "../../../context/app-context";
+import { useDeezerAuth } from "../../../context/deezer-context";
 
 interface InnerProps extends WithStyles<typeof DeezerStyles> {
   chartResponse?: ChartResponse;
@@ -137,8 +139,8 @@ class DeezerArtistsClass extends React.PureComponent<InnerProps, State> {
                 1366: {
                   slidesPerView: 6
                 },
-                2080: {
-                  slidesPerView: 8
+                1980: {
+                  slidesPerView: 7
                 }
               }}
               modules={[Navigation]}
@@ -274,12 +276,16 @@ class DeezerArtistsClass extends React.PureComponent<InnerProps, State> {
 export const DeezerArtists = React.memo(() => {
   const [chartResponse, setChartResponse] = React.useState<ChartResponse>();
   const classes = useDeezerStyles();
+  const { setLoading } = useAppContext();
+  const { logout } = useDeezerAuth();
   const location = useLocation();
 
   React.useEffect(() => {
     DZ.api("/chart?limit=40", (response) => {
       if (response.error && response.error.message) {
         Notify(response.error.message, "error");
+        logout();
+        setLoading(false);
       } else {
         setChartResponse(response as ChartResponse);
       }

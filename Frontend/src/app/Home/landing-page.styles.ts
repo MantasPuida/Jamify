@@ -3,7 +3,10 @@ import { createStyles, makeStyles } from "@mui/styles";
 export const HomeLandingPageStyles = () =>
   createStyles({
     homeGrid: {
-      backgroundColor: "black",
+      backgroundColor: "black"
+    },
+
+    overflow: {
       overflowX: "hidden"
     }
   });

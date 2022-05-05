@@ -1,6 +1,17 @@
 import { PlaylistApi } from "../../src/api/api-endpoints";
 
 describe("User API endpoints", () => {
+  jest.setTimeout(10000);
+  let Start: number;
+
+  beforeAll(() => {
+    Start = Date.now();
+  });
+
+  afterAll(() => {
+    console.log(`Test took ${Date.now() - Start}ms`);
+  });
+
   const { UserApiEndpoints } = PlaylistApi;
   let userId: string | undefined = undefined;
 

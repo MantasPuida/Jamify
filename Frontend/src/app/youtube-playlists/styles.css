@@ -62,3 +62,35 @@ body {
   height: auto;
   display: -webkit-inline-box;
 }
+
+#my-custom-identifier-youtube-artists .swiper-button-prev {
+  position: absolute;
+  left: 5px;
+  background-image: url(../../assets/svg/chevron-right.svg);
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+  background-position: center;
+  background-color: white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  transform: rotate(180deg) translateY(76%);
+}
+
+#my-custom-identifier-youtube-artists .swiper-button-next {
+  background-image: url(../../assets/svg/chevron-right.svg);
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+  background-position: center;
+  background-color: white;
+  border-radius: 50%;
+  width: 40px;
+  transform: translateY(-76%);
+  height: 40px;
+  position: absolute;
+  right: 0px;
+}
+
+#my-custom-identifier-youtube-tracks .swiper-button-next {
+  right: 12px;
+}

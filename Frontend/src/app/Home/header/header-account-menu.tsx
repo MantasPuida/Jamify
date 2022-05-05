@@ -1,14 +1,26 @@
 import * as React from "react";
+import {
+  Divider,
+  ButtonProps,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Grid
+} from "@mui/material";
+import LoadingButton from "@mui/lab/LoadingButton";
 import Menu from "@mui/material/Menu";
 import { WithStyles } from "@mui/styles";
 import MenuItem, { MenuItemProps } from "@mui/material/MenuItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import IconButton, { IconButtonProps } from "@mui/material/IconButton";
 import Cog from "mdi-material-ui/Cog";
+import AccountCancel from "mdi-material-ui/AccountCancel";
 import LogoutVariant from "mdi-material-ui/LogoutVariant";
 import AccountCircleOutline from "mdi-material-ui/AccountCircleOutline";
 import SpotifyWebApi from "spotify-web-api-node";
-import { ButtonProps, Typography } from "@mui/material";
 import { NavigateFunction, useNavigate } from "react-router";
 import { useSpotifyAuth } from "../../../context/spotify-context";
 import { useYoutubeAuth } from "../../../context/youtube-context";
@@ -19,6 +31,9 @@ import { SettingsDialog } from "./header-settings-dialog";
 
 import "./fontFamily.css";
 import { useAppContext } from "../../../context/app-context";
+import { Timer } from "./timer";
+import { useUserContext } from "../../../context/user-context";
+import { PlaylistApi } from "../../../api/api-endpoints";
 
 type LogoutFunctionType = () => void;
 
@@ -32,6 +47,8 @@ interface InnerProps extends WithStyles<typeof HeaderStyles> {
   logoutSpotify: LogoutFunctionType;
   logoutDeezer: LogoutFunctionType;
   setIsOnline: Function;
+  setUserId: Function;
+  userId: string | undefined;
 }
 
 interface OuterProps {
@@ -40,7 +57,14 @@ interface OuterProps {
 
 type Props = InnerProps & OuterProps;
 
-class AccountMenuClass extends React.PureComponent<Props> {
+interface State {
+  deleteDialogAnchorEl: null | HTMLElement;
+  isButtonDisabled: boolean;
+}
+
+class AccountMenuClass extends React.PureComponent<Props, State> {
+  public state: State = { deleteDialogAnchorEl: null, isButtonDisabled: false };
+
   private handleDialogClose: ButtonProps["onClick"] = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -70,27 +94,6 @@ class AccountMenuClass extends React.PureComponent<Props> {
     setAnchorEl(event.currentTarget);
   };
 
-  // private handleLogoutSpotify = () => {
-  //   const { logoutSpotify, navigate } = this.props;
-
-  //   logoutSpotify();
-  //   navigate(AppRoutes.Dashboard);
-  // };
-
-  // private handleLogoutYoutube = () => {
-  //   const { logoutYoutube, navigate } = this.props;
-
-  //   logoutYoutube();
-  //   navigate(AppRoutes.Dashboard);
-  // };
-
-  // private handleLogoutDeezer = () => {
-  //   const { logoutDeezer, navigate } = this.props;
-
-  //   logoutDeezer();
-  //   navigate(AppRoutes.Dashboard);
-  // };
-
   private handleOnLogout: MenuItemProps["onClick"] = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -100,8 +103,43 @@ class AccountMenuClass extends React.PureComponent<Props> {
     navigate(AppRoutes.Dashboard);
   };
 
+  private handleOnDeleteDialog: MenuItemProps["onClick"] = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.setState({ deleteDialogAnchorEl: event.currentTarget, isButtonDisabled: true });
+
+    setTimeout(() => this.setState({ isButtonDisabled: false }), 5000);
+  };
+
+  private handleDeleteDialogClose: ButtonProps["onClick"] = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.setState({ deleteDialogAnchorEl: null });
+  };
+
+  private handleDeleteAccount: ButtonProps["onClick"] = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const { navigate, userId, setUserId, setIsOnline } = this.props;
+
+    if (userId) {
+      PlaylistApi.UserApiEndpoints()
+        .deleteUser(userId)
+        .then(() => {
+          setUserId(undefined);
+          setIsOnline(false);
+          navigate(AppRoutes.Dashboard);
+        });
+    }
+  };
+
   public render(): React.ReactNode {
     const { anchorEl, classes, isDialogOpen, spotifyApi } = this.props;
+    const { deleteDialogAnchorEl, isButtonDisabled } = this.state;
+    const isDeleteDialogOpen = Boolean(deleteDialogAnchorEl);
     const isMenuOpen = Boolean(anchorEl);
 
     return (
@@ -137,12 +175,74 @@ class AccountMenuClass extends React.PureComponent<Props> {
               Logout
             </Typography>
           </MenuItem>
+          <Divider />
+          <MenuItem onClick={this.handleOnDeleteDialog}>
+            <ListItemIcon>
+              <AccountCancel fontSize="small" className={classes.listItemIcon} />
+            </ListItemIcon>
+            <Typography fontFamily="Poppins,sans-serif" fontSize={24} color="black">
+              Delete
+            </Typography>
+          </MenuItem>
         </Menu>
         <SettingsDialog
           isDialogOpen={isDialogOpen}
           handleDialogClose={this.handleDialogClose}
           spotifyApi={spotifyApi}
         />
+        <Dialog open={isDeleteDialogOpen} onClose={this.handleDeleteDialogClose}>
+          <DialogTitle id="Delete Dialog Title" style={{ paddingBottom: 0 }}>
+            <Typography fontFamily="Poppins, sans-serif" fontWeight={800} fontSize={16}>
+              Do you want to <b>Delete</b> your account?
+            </Typography>
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              <Typography style={{ color: "black" }} fontFamily="Poppins, sans-serif" fontWeight={500} fontSize={14}>
+                This action cannot be undone.
+              </Typography>
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Grid container={true}>
+              <Grid container={true} item={true} xs={12} style={{ textAlign: "center" }}>
+                <Grid item={true} xs={6}>
+                  <LoadingButton variant="text" onClick={this.handleDeleteDialogClose}>
+                    <Typography
+                      className={classes.deleteDialogCancelButton}
+                      fontFamily="Poppins, sans-serif"
+                      fontWeight={500}
+                      fontSize={14}>
+                      Cancel
+                    </Typography>
+                  </LoadingButton>
+                </Grid>
+                <Grid item={true} xs={6}>
+                  <LoadingButton
+                    sx={{
+                      "&:disabled": {
+                        color: "red",
+                        borderColor: "red"
+                      }
+                    }}
+                    disabled={isButtonDisabled}
+                    variant="outlined"
+                    size="small"
+                    color="error"
+                    onClick={this.handleDeleteAccount}>
+                    <Typography
+                      className={classes.deleteDialogDeleteButton}
+                      fontFamily="Poppins, sans-serif"
+                      fontWeight={500}
+                      fontSize={14}>
+                      <Timer initialSeconds={5} />
+                    </Typography>
+                  </LoadingButton>
+                </Grid>
+              </Grid>
+            </Grid>
+          </DialogActions>
+        </Dialog>
       </>
     );
   }
@@ -155,6 +255,7 @@ export const AccountMenu = React.memo<OuterProps>((props) => {
   const { logout: logoutSpotify } = useSpotifyAuth();
   const { logout: logoutYoutube } = useYoutubeAuth();
   const { logout: logoutDeezer } = useDeezerAuth();
+  const { userId, setUserId } = useUserContext();
   const { setIsOnline } = useAppContext();
   const classes = useHeaderStyles();
 
@@ -169,6 +270,8 @@ export const AccountMenu = React.memo<OuterProps>((props) => {
       logoutSpotify={logoutSpotify}
       logoutYoutube={logoutYoutube}
       logoutDeezer={logoutDeezer}
+      userId={userId}
+      setUserId={setUserId}
       classes={classes}
       {...props}
     />

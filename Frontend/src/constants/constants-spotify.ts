@@ -1,6 +1,6 @@
 export namespace SpotifyConstants {
   // TODO: Define only necessary scopes
-  const SPOTIFY_PERMISSION_SCOPE = [
+  export const SPOTIFY_PERMISSION_SCOPE = [
     "ugc-image-upload",
     "user-read-playback-state",
     "user-modify-playback-state",
@@ -28,6 +28,12 @@ export namespace SpotifyConstants {
   export const SPOTIFY_REDIRECT_PATHNAME = "/auth/spotify/callback";
 
   export const SPOTIFY_AUTH_URL = `${SPOTIFY_BASE_URL}?client_id=${encodeURIComponent(
+    process.env.REACT_APP_SPOTIFY_CLIENT_ID!
+  )}&redirect_uri=${encodeURIComponent(SPOTIFY_CALLBACK)}&scope=${encodeURIComponent(
+    SPOTIFY_PERMISSION_SCOPE.join(" ")
+  )}&response_type=token&show_dialog=false`;
+
+  export const ARGS_SPOTIFY_AUTH_URL = `?client_id=${encodeURIComponent(
     process.env.REACT_APP_SPOTIFY_CLIENT_ID!
   )}&redirect_uri=${encodeURIComponent(SPOTIFY_CALLBACK)}&scope=${encodeURIComponent(
     SPOTIFY_PERMISSION_SCOPE.join(" ")

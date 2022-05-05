@@ -161,7 +161,8 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
     const shouldRenderYoutube =
       playlistSource === "Youtube" && youtubePlaylists && youtubePlaylists.items && youtubePlaylists.items.length > 0;
     const shouldRenderOwn = playlistSource === "Own" && ownPlaylist && ownPlaylist.length > 0;
-    const shouldRenderDeezer = playlistSource === "Deezer" && deezerPlaylists && deezerPlaylists.data.length > 0;
+    const shouldRenderDeezer =
+      playlistSource === "Deezer" && deezerPlaylists && deezerPlaylists.data && deezerPlaylists.data.length > 0;
 
     return (
       <Grid container={true}>
@@ -203,7 +204,7 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
                     fontFamily="Poppins,sans-serif"
                     color="white"
                     style={{ float: "left" }}>
-                    {playlistSource} Playlists
+                    Jamify Playlists
                   </Typography>
                 )}
                 {shouldRenderDeezer && (
@@ -265,7 +266,9 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
                     );
                   })}
                 {playlistSource === "Own" &&
-                  ownPlaylist?.map((playlist) => {
+                  ownPlaylist &&
+                  ownPlaylist.length > 0 &&
+                  ownPlaylist.map((playlist) => {
                     if (!playlist.playlistId) {
                       // eslint-disable-next-line react/jsx-no-useless-fragment
                       const randomKey = Math.random() * 50;
@@ -284,6 +287,9 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
                     );
                   })}
                 {playlistSource === "Deezer" &&
+                  deezerPlaylists &&
+                  deezerPlaylists.data &&
+                  deezerPlaylists.data.length > 0 &&
                   deezerPlaylists?.data.map((playlist) => {
                     if (!playlist.id) {
                       // eslint-disable-next-line react/jsx-no-useless-fragment

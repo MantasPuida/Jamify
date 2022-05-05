@@ -30,7 +30,7 @@ export class SearchComponentContent extends React.PureComponent<OuterProps> {
 
     return (
       <>
-        {artists && (
+        {artists && artists.artists && artists.artists.items.length > 0 && (
           <Grid container={true} item={true} xs={12} className={classes.contentGrid}>
             <Grid item={true} xs={12}>
               <Typography fontSize={45} fontWeight={900} fontFamily="Poppins,sans-serif" color="white">
@@ -54,7 +54,7 @@ export class SearchComponentContent extends React.PureComponent<OuterProps> {
             </Grid>
           </Grid>
         )}
-        {playlists && (
+        {playlists && playlists.playlists && playlists.playlists.items.length > 0 && (
           <Grid container={true} item={true} xs={12} className={classes.contentGrid}>
             <Grid item={true} xs={12}>
               <Typography fontSize={45} fontWeight={900} fontFamily="Poppins,sans-serif" color="white">
@@ -78,7 +78,7 @@ export class SearchComponentContent extends React.PureComponent<OuterProps> {
             </Grid>
           </Grid>
         )}
-        {tracks && (
+        {tracks && tracks.tracks && tracks.tracks.items.length > 0 && (
           <Grid container={true} item={true} xs={12} className={classes.contentGrid}>
             <Grid item={true} xs={12}>
               <Typography fontSize={45} fontWeight={900} fontFamily="Poppins,sans-serif" color="white">
