@@ -2,6 +2,7 @@ import * as React from "react";
 import { Grid, Typography } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import memoizeOne from "memoize-one";
+import TopBar from "react-topbar-progress-indicator";
 import axios from "axios";
 import SpotifyWebApi from "spotify-web-api-node";
 import { useAppContext } from "../../context/app-context";
@@ -10,7 +11,6 @@ import { useSpotifyAuth } from "../../context/spotify-context";
 import { GenreData, GenreResponse } from "../../types/deezer.types";
 import { LastTick } from "../../utils/last-tick";
 import { ExploreStyles, useExploreStyles } from "./explore.styles";
-import { BackdropLoader } from "../loader/loader-backdrop";
 import { MappedGenres } from "./mapped-genres";
 import { Notify } from "../notification/notification-component";
 
@@ -87,27 +87,29 @@ class ExploreClass extends React.PureComponent<Props, State> {
 
     const { dzToken, spToken } = props;
 
-    setTimeout(() => {
-      if (dzToken) {
+    if (dzToken) {
+      setTimeout(() => {
         DZ.api("genre", (response) => {
           this.setState({ deezerGenres: response as GenreResponse });
         });
-      }
-    }, 1000);
+      }, 1000);
+    }
 
-    setTimeout(async () => {
-      const apiUrl = "https://api.spotify.com/v1/browse/categories?limit=50";
-      try {
-        const response = await axios.get(apiUrl, {
-          headers: {
-            Authorization: `Bearer ${spToken}`
-          }
-        });
-        this.setState({ spotifyGenres: response.data as SpotifyApi.MultipleCategoriesResponse });
-      } catch (error) {
-        Notify("Could not resolve Genres", "error");
-      }
-    }, 1000);
+    if (spToken) {
+      setTimeout(async () => {
+        const apiUrl = "https://api.spotify.com/v1/browse/categories?limit=50";
+        try {
+          const response = await axios.get(apiUrl, {
+            headers: {
+              Authorization: `Bearer ${spToken}`
+            }
+          });
+          this.setState({ spotifyGenres: response.data as SpotifyApi.MultipleCategoriesResponse });
+        } catch (error) {
+          Notify("Could not resolve Genres", "error");
+        }
+      }, 1000);
+    }
   }
 
   componentDidMount() {
@@ -123,7 +125,7 @@ class ExploreClass extends React.PureComponent<Props, State> {
     const { deezerGenres, spotifyGenres } = this.state;
 
     if ((!deezerGenres && dzToken) || (!spotifyGenres && spToken)) {
-      return <BackdropLoader />;
+      return <TopBar />;
     }
 
     const { sameDzGenres, sameSpGenres } = this.filterSameCategories(deezerGenres, spotifyGenres);
@@ -137,19 +139,51 @@ class ExploreClass extends React.PureComponent<Props, State> {
             </Typography>
           </Grid>
         </Grid>
-        <Grid container={true} item={true} xs={12} style={{ display: "flex", maxWidth: "85%" }}>
-          {sameDzGenres.map((genre, index) => {
-            if (!genre.id || !sameSpGenres[index]) {
-              return null;
-            }
+        {spToken && dzToken && (
+          <Grid container={true} item={true} xs={12} style={{ display: "flex", maxWidth: "85%" }}>
+            {sameDzGenres.map((genre, index) => {
+              if (!genre.id || !sameSpGenres[index]) {
+                return null;
+              }
 
-            return (
-              <Grid item={true} xs={2} key={genre.id}>
-                <MappedGenres deezerGenre={genre} spotifyGenre={sameSpGenres[index]} spotifyApi={spotifyApi} />
-              </Grid>
-            );
-          })}
-        </Grid>
+              return (
+                <Grid item={true} xs={2} key={genre.id}>
+                  <MappedGenres deezerGenre={genre} spotifyGenre={sameSpGenres[index]} spotifyApi={spotifyApi} />
+                </Grid>
+              );
+            })}
+          </Grid>
+        )}
+        {spToken && !dzToken && spotifyGenres && spotifyGenres.categories.items.length > 0 && (
+          <Grid container={true} item={true} xs={12} style={{ display: "flex", maxWidth: "85%" }}>
+            {spotifyGenres?.categories.items.map((genre) => {
+              if (!genre.id) {
+                return null;
+              }
+
+              return (
+                <Grid item={true} xs={2} key={genre.id}>
+                  <MappedGenres spotifyGenre={genre} spotifyApi={spotifyApi} />
+                </Grid>
+              );
+            })}
+          </Grid>
+        )}
+        {!spToken && dzToken && deezerGenres && deezerGenres.data.length > 0 && (
+          <Grid container={true} item={true} xs={12} style={{ display: "flex", maxWidth: "85%" }}>
+            {deezerGenres.data.map((genre) => {
+              if (!genre.id) {
+                return null;
+              }
+
+              return (
+                <Grid item={true} xs={2} key={genre.id}>
+                  <MappedGenres deezerGenre={genre} spotifyApi={spotifyApi} />
+                </Grid>
+              );
+            })}
+          </Grid>
+        )}
       </Grid>
     );
   }

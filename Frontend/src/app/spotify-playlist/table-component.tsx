@@ -1,6 +1,6 @@
 import * as React from "react";
 import Play from "mdi-material-ui/Play";
-import { Button, ButtonProps, TableCell, TableRow, Typography } from "@mui/material";
+import { Button, ButtonProps, Grow, TableCell, TableRow, Typography } from "@mui/material";
 import { NavigateFunction, useNavigate } from "react-router";
 import SpotifyWebApi from "spotify-web-api-node";
 import { WithStyles } from "@mui/styles";
@@ -48,6 +48,7 @@ interface State {
   artistName: string | string[];
   albumName: string;
   duration: string;
+  isImageLoading: boolean;
 }
 
 type Props = InnerProps & OuterProps;
@@ -66,7 +67,8 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
       duration: "",
       imageUrl: "",
       trackId: "",
-      trackName: ""
+      trackName: "",
+      isImageLoading: true
     };
 
     if (sourceType === SourceType.Youtube) {
@@ -95,7 +97,8 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
         duration: resolvedDuration,
         imageUrl: currentPlaylist.cover_xl,
         trackId: id.toString(),
-        trackName: titleShort
+        trackName: titleShort,
+        isImageLoading: true
       };
     } else if (deezerPlaylist.type === "playlist") {
       const currentPlaylist = deezerPlaylist as OmittedPlaylistResponse;
@@ -112,7 +115,8 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
         duration: resolvedDuration,
         imageUrl: artist.picture_xl,
         trackId: id.toString(),
-        trackName: title
+        trackName: title,
+        isImageLoading: true
       };
     }
   };
@@ -131,7 +135,8 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
       trackId: ownRow.trackId,
       albumName: ownRow.album,
       duration: ownRow.duration,
-      artistName: ownRow.artists
+      artistName: ownRow.artists,
+      isImageLoading: true
     };
   };
 
@@ -194,7 +199,8 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
       imageUrl: spotifyRow.track.album.images[0].url,
       artistName: artists,
       albumName: spotifyRow.track.album.name,
-      duration: this.convertMilliseconds(spotifyRow.track.duration_ms)
+      duration: this.convertMilliseconds(spotifyRow.track.duration_ms),
+      isImageLoading: true
     };
   };
 
@@ -356,7 +362,7 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
 
   public render(): React.ReactNode {
     const { classes, sourceType, spotifyApi, playlist, myOwn, trackIndex } = this.props;
-    const { albumName, artistName, duration, imageUrl, trackId, trackName } = this.state;
+    const { albumName, artistName, duration, imageUrl, trackId, trackName, isImageLoading } = this.state;
 
     if (!albumName || !artistName || !imageUrl || !trackId || !trackName) {
       // eslint-disable-next-line react/jsx-no-useless-fragment
@@ -364,66 +370,77 @@ class TracksTableContentClass extends React.PureComponent<Props, State> {
     }
 
     return (
-      <TableRow classes={{ hover: classes.hover }} hover={true} role="checkbox" tabIndex={-1} key={trackId}>
-        <TableCell key={trackId} style={{ paddingLeft: 0, minWidth: 350, maxWidth: 550 }}>
-          <Typography
-            fontSize={20}
-            fontWeight={200}
-            fontFamily="Poppins,sans-serif"
-            color="white"
-            style={{ float: "left", paddingTop: sourceType !== SourceType.Youtube ? 8 : 0, paddingRight: 4 }}>
-            {trackIndex}
-          </Typography>
-          <Button style={{ padding: 0, color: "transparent" }} onClick={this.handleOnTrackClick}>
-            <img className={classes.playlistImageStyle} src={imageUrl} alt={trackName} width={40} id="rowTrackImage" />
-            <div className={classes.playlistIconButton}>
-              <Play id="playSvgIcon" className={classes.playlistIconButtonIcon} />
-            </div>
-          </Button>
-          <Button className={classes.buttonText} variant="text" onClick={this.handleOnTrackClick}>
+      <Grow in={!isImageLoading} style={{ transformOrigin: "0 0 0" }} {...{ timeout: 1000 }}>
+        <TableRow classes={{ hover: classes.hover }} hover={true} role="checkbox" tabIndex={-1} key={trackId}>
+          <TableCell key={trackId} style={{ paddingLeft: 0, minWidth: 350, maxWidth: 550 }}>
             <Typography
-              className={classes.typography}
-              fontFamily="Poppins, sans-serif"
-              fontSize={16}
-              fontWeight={500}
-              color="white">
-              {trackName}
+              fontSize={20}
+              fontWeight={200}
+              fontFamily="Poppins,sans-serif"
+              color="white"
+              style={{ float: "left", paddingTop: sourceType !== SourceType.Youtube ? 8 : 0, paddingRight: 4 }}>
+              {trackIndex}
             </Typography>
-          </Button>
-        </TableCell>
-        <TableCell className={classes.artistTableCell}>
-          {Array.isArray(artistName) &&
-            artistName.map((artistNameMap, index) => {
-              const comma = index !== artistName.length - 1 ? ", " : "";
-
-              return <ArtistNameComponent artistName={`${artistNameMap}${comma}`} sourceType={sourceType} />;
-            })}
-          {typeof artistName === "string" && <ArtistNameComponent artistName={artistName} sourceType={sourceType} />}
-        </TableCell>
-        {sourceType !== SourceType.Youtube && (
-          <TableCell style={{ minWidth: 500 }}>
-            <Button className={classes.buttonTextHover} onClick={this.handleOnAlbumClick} variant="text">
-              <Typography fontFamily="Poppins, sans-serif" fontSize={16} className={classes.artistTypography}>
-                {albumName}
+            <Button style={{ padding: 0, color: "transparent" }} onClick={this.handleOnTrackClick}>
+              {isImageLoading && <img src="" alt="" className={classes.playlistImageStyle} />}
+              <img
+                className={classes.playlistImageStyle}
+                src={imageUrl}
+                alt={trackName}
+                width={40}
+                id="rowTrackImage"
+                style={{ display: isImageLoading ? "none" : "block" }}
+                onLoad={() => this.setState({ isImageLoading: false })}
+              />
+              <div className={classes.playlistIconButton}>
+                <Play id="playSvgIcon" className={classes.playlistIconButtonIcon} />
+              </div>
+            </Button>
+            <Button className={classes.buttonText} variant="text" onClick={this.handleOnTrackClick}>
+              <Typography
+                className={classes.typography}
+                fontFamily="Poppins, sans-serif"
+                fontSize={16}
+                fontWeight={500}
+                color="white">
+                {trackName}
               </Typography>
             </Button>
           </TableCell>
-        )}
-        <TableCell style={{ textAlign: sourceType === SourceType.Youtube ? "center" : "initial" }}>
-          <TrackActionComponent
-            sourceType={sourceType}
-            spotifyApi={spotifyApi}
-            trackName={trackName}
-            playlist={playlist}
-            imageUrl={imageUrl}
-            myOwn={myOwn}
-            artists={artistName}
-          />
-          <Typography fontFamily="Poppins, sans-serif" fontSize={16} className={classes.artistTypographyNoHover}>
-            {duration}
-          </Typography>
-        </TableCell>
-      </TableRow>
+          <TableCell className={classes.artistTableCell}>
+            {Array.isArray(artistName) &&
+              artistName.map((artistNameMap, index) => {
+                const comma = index !== artistName.length - 1 ? ", " : "";
+
+                return <ArtistNameComponent artistName={`${artistNameMap}${comma}`} sourceType={sourceType} />;
+              })}
+            {typeof artistName === "string" && <ArtistNameComponent artistName={artistName} sourceType={sourceType} />}
+          </TableCell>
+          {sourceType !== SourceType.Youtube && (
+            <TableCell style={{ minWidth: 500 }}>
+              <Button className={classes.buttonTextHover} onClick={this.handleOnAlbumClick} variant="text">
+                <Typography fontFamily="Poppins, sans-serif" fontSize={16} className={classes.artistTypography}>
+                  {albumName}
+                </Typography>
+              </Button>
+            </TableCell>
+          )}
+          <TableCell style={{ textAlign: sourceType === SourceType.Youtube ? "center" : "initial" }}>
+            <TrackActionComponent
+              sourceType={sourceType}
+              spotifyApi={spotifyApi}
+              trackName={trackName}
+              playlist={playlist}
+              imageUrl={imageUrl}
+              myOwn={myOwn}
+              artists={artistName}
+            />
+            <Typography fontFamily="Poppins, sans-serif" fontSize={16} className={classes.artistTypographyNoHover}>
+              {duration}
+            </Typography>
+          </TableCell>
+        </TableRow>
+      </Grow>
     );
   }
 }

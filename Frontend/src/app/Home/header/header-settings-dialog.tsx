@@ -102,18 +102,21 @@ class SettingsDialogClass extends React.PureComponent<Props> {
 
       spotifyApi.resetCredentials();
       setTimeout(() => {
-        const logoutWindow = window.open("https://accounts.spotify.com/logout", "_blank");
+        const logoutWindow = window.open(
+          "https://accounts.spotify.com/logout",
+          "_blank",
+          "toolbar=no,status=no,menubar=no,scrollbars=no,resizable=no,left=10000, top=10000, width=10, height=10, visible=none"
+        );
 
         if (logoutWindow) {
           setTimeout(() => {
-            window.close();
-          }, 2000);
+            logoutWindow.close();
+          }, 100);
         }
 
         setIsSpotifyConnected(false);
         spLogout();
         navigate("/", { replace: true });
-        window.location.reload();
       }, 500);
     } else if (currentValue === "YouTube") {
       if (handleDialogClose) {
@@ -128,6 +131,7 @@ class SettingsDialogClass extends React.PureComponent<Props> {
 
         setIsYoutubeConnected(false);
         ytLogout();
+        navigate("/", { replace: true });
       }, 500);
     } else if (currentValue === "Deezer") {
       if (handleDialogClose) {
@@ -138,7 +142,6 @@ class SettingsDialogClass extends React.PureComponent<Props> {
         setIsDeezerConnected(false);
         dzLogout();
         navigate("/", { replace: true });
-        window.location.reload();
       }, 500);
     }
   };

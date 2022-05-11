@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 import * as React from "react";
-import { Grid, Skeleton, Tab, Tabs, TabsProps, Typography } from "@mui/material";
+import { Grid, Tab, Tabs, TabsProps, Typography } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import { Grid as SwiperGrid, Navigation } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -153,15 +153,7 @@ class DeezerArtistsClass extends React.PureComponent<InnerProps, State> {
                 if (artist.picture_xl && artist.id) {
                   return (
                     <SwiperSlide style={{ backgroundColor: "black" }} key={artist.id}>
-                      <>
-                        {loading && (
-                          <Grid container={true} item={true} xs={12} style={{ marginRight: 50 }}>
-                            <Skeleton variant="circular" sx={{ bgcolor: "grey.900", width: 160, height: 160 }} />
-                            <Skeleton sx={{ bgcolor: "grey.900", marginTop: 1, marginLeft: "18px" }} width="60%" />
-                          </Grid>
-                        )}
-                        <ArtistCards loading={loading} artist={artist} changeState={this.changeLoadingState} />
-                      </>
+                      <ArtistCards loading={loading} artist={artist} changeState={this.changeLoadingState} />
                     </SwiperSlide>
                   );
                 }
@@ -192,36 +184,7 @@ class DeezerArtistsClass extends React.PureComponent<InnerProps, State> {
               style={{ maxWidth: "85%", marginLeft: -15, paddingLeft: 10 }}>
               {chartResponse?.tracks.data.map((track) => (
                 <SwiperSlide style={{ backgroundColor: "black" }} key={track.id}>
-                  <>
-                    {loading && (
-                      <Grid container={true} item={true} xs={12} key={track.id}>
-                        <Grid item={true} xs={2}>
-                          <Skeleton sx={{ bgcolor: "grey.900", width: 96, height: 96 }} />
-                        </Grid>
-                        <Grid container={true} item={true} xs={10} style={{ textAlign: "left" }}>
-                          <Grid item={true} xs={10}>
-                            <Typography
-                              style={{ marginLeft: 24, marginTop: 22 }}
-                              fontFamily="Poppins,sans-serif"
-                              fontSize={16}
-                              color="white">
-                              <Skeleton sx={{ bgcolor: "grey.900" }} width={240} />
-                            </Typography>
-                          </Grid>
-                          <Grid item={true} xs={10}>
-                            <Typography
-                              style={{ marginLeft: 24, marginTop: -12 }}
-                              fontFamily="Poppins,sans-serif"
-                              fontSize={16}
-                              color="white">
-                              <Skeleton sx={{ bgcolor: "grey.900" }} width={240} />
-                            </Typography>
-                          </Grid>
-                        </Grid>
-                      </Grid>
-                    )}
-                    <DeezerTracks loading={loading} track={track} changeState={this.changeLoadingState} />
-                  </>
+                  <DeezerTracks loading={loading} track={track} changeState={this.changeLoadingState} />
                 </SwiperSlide>
               ))}
             </Swiper>
@@ -254,15 +217,7 @@ class DeezerArtistsClass extends React.PureComponent<InnerProps, State> {
               style={{ maxWidth: "85%", marginLeft: -20, paddingLeft: 15 }}>
               {chartResponse?.playlists.data.map((x) => (
                 <SwiperSlide style={{ backgroundColor: "black" }} key={x.id}>
-                  <>
-                    {loading && (
-                      <Grid container={true} item={true} xs={12} style={{ marginRight: 50 }}>
-                        <Skeleton sx={{ bgcolor: "grey.900", width: 330, height: 330 }} />
-                        <Skeleton sx={{ bgcolor: "grey.900", marginTop: -4 }} width="60%" />
-                      </Grid>
-                    )}
-                    <DeezerPlaylists loading={loading} playlist={x} changeState={this.changeLoadingState} />
-                  </>
+                  <DeezerPlaylists loading={loading} playlist={x} changeState={this.changeLoadingState} />
                 </SwiperSlide>
               ))}
             </Swiper>
@@ -281,15 +236,17 @@ export const DeezerArtists = React.memo(() => {
   const location = useLocation();
 
   React.useEffect(() => {
-    DZ.api("/chart?limit=40", (response) => {
-      if (response.error && response.error.message) {
-        Notify(response.error.message, "error");
-        logout();
-        setLoading(false);
-      } else {
-        setChartResponse(response as ChartResponse);
-      }
-    });
+    if (!chartResponse) {
+      DZ.api("/chart?limit=40", (response) => {
+        if (response.error && response.error.message) {
+          Notify(response.error.message, "error");
+          logout();
+          setLoading(false);
+        } else {
+          setChartResponse(response as ChartResponse);
+        }
+      });
+    }
   }, [location]);
 
   return <DeezerArtistsClass chartResponse={chartResponse} classes={classes} />;

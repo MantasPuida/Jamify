@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Button, ButtonProps, Grid, Paper, Table, TableBody, TableContainer, Typography } from "@mui/material";
+import TopBar from "react-topbar-progress-indicator";
 import { WithStyles } from "@mui/styles";
 import { useLocation } from "react-router";
 import SpotifyWebApi from "spotify-web-api-node";
@@ -55,9 +56,9 @@ class ArtistContentClass extends React.PureComponent<Props, State> {
     const { classes, trackList, albumList, spotifyApi } = this.props;
     const { isClickedTracks, isClickedAlbums } = this.state;
 
-    if (!trackList) {
+    if (!trackList || !albumList) {
       // eslint-disable-next-line react/jsx-no-useless-fragment
-      return <></>;
+      return <TopBar />;
     }
 
     return (

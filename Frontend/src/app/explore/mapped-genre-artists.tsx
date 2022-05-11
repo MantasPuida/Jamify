@@ -1,6 +1,6 @@
 import * as React from "react";
 import { WithStyles } from "@mui/styles";
-import { Grid, Typography, Button, ButtonProps } from "@mui/material";
+import { Grid, Typography, Button, ButtonProps, Grow } from "@mui/material";
 import SpotifyWebApi from "spotify-web-api-node";
 import { NavigateFunction, useNavigate } from "react-router";
 import { ExploreStyles, useExploreStyles } from "./explore.styles";
@@ -20,7 +20,13 @@ interface OuterProps {
 
 type Props = InnerProps & OuterProps;
 
-class MappedGenreArtistsClass extends React.PureComponent<Props> {
+interface State {
+  isImageLoading: boolean;
+}
+
+class MappedGenreArtistsClass extends React.PureComponent<Props, State> {
+  public state: State = { isImageLoading: true };
+
   componentDidMount() {
     const { setLoading } = this.props;
 
@@ -37,28 +43,45 @@ class MappedGenreArtistsClass extends React.PureComponent<Props> {
 
   public render(): React.ReactNode {
     const { artist, classes } = this.props;
+    const { isImageLoading } = this.state;
 
     return (
-      <Grid container={true} item={true} xs={12} style={{ paddingBottom: 32 }}>
-        <Grid item={true} xs={12}>
-          <Button style={{ color: "black", padding: 0 }} onClick={this.handleOnClick}>
-            <div className="tint-img">
-              <img
-                src={artist.picture_xl}
-                alt={artist.name}
-                style={{ maxWidth: 220, maxHeight: 220, objectFit: "scale-down", borderRadius: "50%" }}
-              />
-            </div>
-          </Button>
+      <Grow in={!isImageLoading} style={{ transformOrigin: "0 0 0" }} {...{ timeout: 1000 }}>
+        <Grid container={true} item={true} xs={12} style={{ paddingBottom: 32 }}>
+          <Grid item={true} xs={12}>
+            <Button style={{ color: "black", padding: 0 }} onClick={this.handleOnClick}>
+              {isImageLoading && (
+                <img
+                  src=""
+                  alt="dummy"
+                  style={{ maxWidth: 220, maxHeight: 220, objectFit: "scale-down", borderRadius: "50%" }}
+                />
+              )}
+              <div className="tint-img">
+                <img
+                  src={artist.picture_xl}
+                  onLoad={() => this.setState({ isImageLoading: false })}
+                  alt={artist.name}
+                  style={{
+                    maxWidth: 220,
+                    maxHeight: 220,
+                    objectFit: "scale-down",
+                    borderRadius: "50%",
+                    display: isImageLoading ? "none" : "block"
+                  }}
+                />
+              </div>
+            </Button>
+          </Grid>
+          <Grid item={true} xs={12} style={{ maxWidth: "67%", textAlign: "center" }}>
+            <Button variant="text" className={classes.genreName} onClick={this.handleOnClick}>
+              <Typography color="white" fontSize={20} fontWeight={200} fontFamily="Poppins,sans-serif">
+                {artist.name}
+              </Typography>
+            </Button>
+          </Grid>
         </Grid>
-        <Grid item={true} xs={12} style={{ maxWidth: "67%", textAlign: "center" }}>
-          <Button variant="text" className={classes.genreName} onClick={this.handleOnClick}>
-            <Typography color="white" fontSize={20} fontWeight={200} fontFamily="Poppins,sans-serif">
-              {artist.name}
-            </Typography>
-          </Button>
-        </Grid>
-      </Grid>
+      </Grow>
     );
   }
 }

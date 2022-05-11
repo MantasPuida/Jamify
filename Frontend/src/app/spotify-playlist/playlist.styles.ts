@@ -24,6 +24,9 @@ export const PlaylistStyles = (theme: AppTheme) =>
     optionalGridText: {
       marginTop: theme.spacing(5)
     },
+    reducePaddingTop: {
+      marginTop: theme.spacing(2)
+    },
     buttonTextHover: {
       padding: 0,
       color: "transparent",

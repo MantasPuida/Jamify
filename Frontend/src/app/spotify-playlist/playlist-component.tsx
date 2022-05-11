@@ -701,7 +701,11 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
             item={true}
             xs={8}
             className={clsx(
-              { [classes.optionalGridText]: sourceType === SourceType.Spotify },
+              {
+                [playlistDescription && playlistDescription.length > 0
+                  ? classes.optionalGridText
+                  : classes.reducePaddingTop]: sourceType === SourceType.Spotify
+              },
               classes.playlistGridText
             )}>
             <Grid item={true}>

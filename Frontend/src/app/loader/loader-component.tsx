@@ -14,7 +14,7 @@ export class Loader extends React.PureComponent {
           justifyContent: "center",
           alignContent: "center"
         }}>
-        <CircularProgress style={{ color: "white" }} size={96} thickness={5} />;
+        <CircularProgress style={{ color: "white" }} size={64} thickness={3} />;
       </Grid>
     );
   }

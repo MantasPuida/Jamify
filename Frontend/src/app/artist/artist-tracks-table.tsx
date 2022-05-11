@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Box, Button, ButtonProps, TableCell, TableRow, Typography } from "@mui/material";
+import { Box, Button, ButtonProps, Grow, TableCell, TableRow, Typography } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import SpotifyWebApi from "spotify-web-api-node";
 import Play from "mdi-material-ui/Play";
@@ -25,7 +25,13 @@ interface InnerProps extends WithStyles<typeof ArtistStyles> {
 
 type Props = InnerProps & OuterProps;
 
-class ArtistTrackTableClass extends React.PureComponent<Props> {
+interface State {
+  isImageLoading: boolean;
+}
+
+class ArtistTrackTableClass extends React.PureComponent<Props, State> {
+  public state: State = { isImageLoading: true };
+
   componentDidMount() {
     const { setLoading } = this.props;
 
@@ -79,50 +85,56 @@ class ArtistTrackTableClass extends React.PureComponent<Props> {
 
   public render(): React.ReactNode {
     const { track, classes, albumList, spotifyApi } = this.props;
+    const { isImageLoading } = this.state;
 
     return (
-      <TableRow classes={{ hover: classes.hover }} hover={true} role="checkbox" tabIndex={-1} key={track.id}>
-        <TableCell key={track.id} style={{ paddingLeft: 0, minWidth: 350, maxWidth: 550 }}>
-          <Button style={{ padding: 0, color: "transparent" }} onClick={this.handleOnClick}>
-            <img
-              className={classes.playlistImageStyle}
-              src={track.album.cover_xl}
-              alt={track.title}
-              width={40}
-              id="rowTrackImage"
-            />
-            <Box className={classes.playlistIconButton}>
-              <Play id="playSvgIcon" className={classes.playlistIconButtonIcon} />
-            </Box>
-          </Button>
-          <Button className={classes.buttonText} variant="text">
-            <Typography
-              style={{ height: "100%", marginTop: 4, textAlign: "left", minWidth: 400 }}
-              fontFamily="Poppins, sans-serif"
-              fontSize={16}
-              fontWeight={500}
-              color="white">
-              {track.title_short}
+      <Grow in={!isImageLoading} style={{ transformOrigin: "0 0 0" }} {...{ timeout: 1000 }}>
+        <TableRow classes={{ hover: classes.hover }} hover={true} role="checkbox" tabIndex={-1} key={track.id}>
+          <TableCell key={track.id} style={{ paddingLeft: 0, minWidth: 350, maxWidth: 550 }}>
+            <Button style={{ padding: 0, color: "transparent" }} onClick={this.handleOnClick}>
+              {isImageLoading && <img src="" alt="dummy" className={classes.playlistImageStyle} />}
+              <img
+                className={classes.playlistImageStyle}
+                src={track.album.cover_xl}
+                onLoad={() => this.setState({ isImageLoading: false })}
+                style={{ display: isImageLoading ? "none" : "block" }}
+                alt={track.title}
+                width={40}
+                id="rowTrackImage"
+              />
+              <Box className={classes.playlistIconButton}>
+                <Play id="playSvgIcon" className={classes.playlistIconButtonIcon} />
+              </Box>
+            </Button>
+            <Button className={classes.buttonText} variant="text">
+              <Typography
+                style={{ height: "100%", marginTop: 4, textAlign: "left", minWidth: 400 }}
+                fontFamily="Poppins, sans-serif"
+                fontSize={16}
+                fontWeight={500}
+                color="white">
+                {track.title_short}
+              </Typography>
+            </Button>
+          </TableCell>
+          <TableCell className={classes.artistTableCell}>
+            {albumList && (
+              <TrackActionComponent
+                sourceType={SourceType.Deezer}
+                spotifyApi={spotifyApi}
+                trackName={track.title_short}
+                playlist={track.album}
+                imageUrl={track.album.cover_xl}
+                artists={track.artist.name}
+                deezerTrack={track}
+              />
+            )}
+            <Typography fontFamily="Poppins, sans-serif" fontSize={16} className={classes.artistTypography}>
+              {this.convertMilliseconds(track.duration)}
             </Typography>
-          </Button>
-        </TableCell>
-        <TableCell className={classes.artistTableCell}>
-          {albumList && (
-            <TrackActionComponent
-              sourceType={SourceType.Deezer}
-              spotifyApi={spotifyApi}
-              trackName={track.title_short}
-              playlist={track.album}
-              imageUrl={track.album.cover_xl}
-              artists={track.artist.name}
-              deezerTrack={track}
-            />
-          )}
-          <Typography fontFamily="Poppins, sans-serif" fontSize={16} className={classes.artistTypography}>
-            {this.convertMilliseconds(track.duration)}
-          </Typography>
-        </TableCell>
-      </TableRow>
+          </TableCell>
+        </TableRow>
+      </Grow>
     );
   }
 }

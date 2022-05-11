@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Button, ButtonProps, Grid, Typography } from "@mui/material";
+import { Button, ButtonProps, Grid, Typography, Grow } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import { NavigateFunction, useNavigate } from "react-router";
 import { FeaturedPlaylistsStyles, useFeaturedPlaylistsStyles } from "./featured.styles";
@@ -20,14 +20,18 @@ interface InnerProps extends WithStyles<typeof FeaturedPlaylistsStyles> {
 
 type Props = InnerProps & OuterProps;
 
-class FeaturedArtistsClass extends React.PureComponent<Props> {
+interface State {
+  isImageLoading: boolean;
+}
+
+class FeaturedArtistsClass extends React.PureComponent<Props, State> {
+  public state: State = { isImageLoading: true };
+
   componentDidMount() {
     const { setLoading, changeState } = this.props;
 
     setLoading(false);
-    setTimeout(() => {
-      changeState();
-    }, 1000);
+    changeState();
   }
 
   private handleOnClick: ButtonProps["onClick"] = (event) => {
@@ -57,41 +61,46 @@ class FeaturedArtistsClass extends React.PureComponent<Props> {
 
   public render(): React.ReactNode {
     const { artist, classes, loading } = this.props;
-
-    if (loading) {
-      // eslint-disable-next-line react/jsx-no-useless-fragment
-      return <></>;
-    }
+    const { isImageLoading } = this.state;
 
     const { images, name, id } = artist;
 
     return (
-      <Grid container={true} key={id}>
-        <Grid container={true} item={true} xs={12} style={{ justifyContent: "center" }}>
-          <Grid item={true} xs={12}>
-            <Button
-              style={{ padding: 0, backgroundColor: "transparent", width: 220, height: 220 }}
-              onClick={this.handleOnClick}>
-              <div id="tintImg" className="tint-img">
-                <img src={images[0].url} alt={name} className={classes.artistImage} />
-              </div>
-            </Button>
-          </Grid>
-          <Grid item={true} xs={8}>
-            <Button className={classes.artistText} onClick={this.handleOnClick}>
-              <Typography
-                style={{ paddingTop: 8 }}
-                fontSize={18}
-                fontWeight={400}
-                fontFamily="Poppins,sans-serif"
-                textTransform="none"
-                color="white">
-                {name}
-              </Typography>
-            </Button>
+      <Grow in={!loading && !isImageLoading} style={{ transformOrigin: "0 0 0" }} {...{ timeout: 1000 }}>
+        <Grid container={true} key={id}>
+          <Grid container={true} item={true} xs={12} style={{ justifyContent: "center" }}>
+            <Grid item={true} xs={12}>
+              <Button
+                style={{ padding: 0, backgroundColor: "transparent", width: 220, height: 220 }}
+                onClick={this.handleOnClick}>
+                {isImageLoading || (loading && <img src="" alt="" className={classes.artistImage} />)}
+                <div id="tintImg" className="tint-img">
+                  <img
+                    src={images[0].url}
+                    alt={name}
+                    className={classes.artistImage}
+                    style={{ display: isImageLoading ? "none" : "block" }}
+                    onLoad={() => this.setState({ isImageLoading: false })}
+                  />
+                </div>
+              </Button>
+            </Grid>
+            <Grid item={true} xs={8}>
+              <Button className={classes.artistText} onClick={this.handleOnClick}>
+                <Typography
+                  style={{ paddingTop: 8 }}
+                  fontSize={18}
+                  fontWeight={400}
+                  fontFamily="Poppins,sans-serif"
+                  textTransform="none"
+                  color="white">
+                  {name}
+                </Typography>
+              </Button>
+            </Grid>
           </Grid>
         </Grid>
-      </Grid>
+      </Grow>
     );
   }
 }

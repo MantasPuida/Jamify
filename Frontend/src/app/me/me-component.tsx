@@ -8,6 +8,7 @@ import { WithStyles } from "@mui/styles";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper";
 import SpotifyWebApi from "spotify-web-api-node";
+import TopBar from "react-topbar-progress-indicator";
 import { HomeLandingPageStyles, useHomeLandingPageStyles } from "../Home/landing-page.styles";
 // eslint-disable-next-line import/no-cycle
 import { PlaylistCard } from "./playlist-component";
@@ -51,10 +52,11 @@ interface State {
   youtubePlaylists?: gapi.client.youtube.PlaylistListResponse;
   deezerPlaylists?: PlaylistsResponseMe;
   ownPlaylist?: PlaylistType[];
+  loading: boolean;
 }
 
 class MePlaylistClass extends React.PureComponent<Props, State> {
-  public state: State = {};
+  public state: State = { loading: true };
 
   constructor(props: Props) {
     super(props);
@@ -75,7 +77,10 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
               access_token: youtubeToken
             })
             .then((response) => {
-              this.setState({ youtubePlaylists: response.result });
+              this.setState({ youtubePlaylists: response.result, loading: false });
+            })
+            .catch(() => {
+              this.setState({ loading: false });
             });
         } else {
           setTimeout(() => {
@@ -87,7 +92,10 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
                   access_token: youtubeToken
                 })
                 .then((response) => {
-                  this.setState({ youtubePlaylists: response.result });
+                  this.setState({ youtubePlaylists: response.result, loading: false });
+                })
+                .catch(() => {
+                  this.setState({ loading: false });
                 });
             } else {
               setTimeout(() => {
@@ -99,8 +107,9 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
                       access_token: youtubeToken
                     })
                     .then((response) => {
-                      this.setState({ youtubePlaylists: response.result });
-                    });
+                      this.setState({ youtubePlaylists: response.result, loading: false });
+                    })
+                    .catch(() => this.setState({ loading: false }));
                 }
               }, 1000);
             }
@@ -118,18 +127,10 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
     }
   }
 
-  componentDidUpdate() {
-    const { setLoading, shouldCancelLoader } = this.props;
-
-    if (shouldCancelLoader) {
-      setLoading(false);
-    }
-  }
-
   private fetchDeezerTracks = () => {
     const { deezerToken } = this.props;
     DZ.api(`user/me/playlists?access_token=${deezerToken}`, (response) => {
-      this.setState({ deezerPlaylists: response });
+      this.setState({ deezerPlaylists: response, loading: false });
     });
   };
 
@@ -139,13 +140,22 @@ class MePlaylistClass extends React.PureComponent<Props, State> {
       .fetchPlaylists(userId)
       // eslint-disable-next-line consistent-return
       .then((value) => {
-        this.setState({ ownPlaylist: value.data as PlaylistType[] });
+        this.setState({ ownPlaylist: value.data as PlaylistType[], loading: false });
+      })
+      .catch(() => {
+        this.setState({ loading: false });
       });
   };
 
   public render(): React.ReactNode {
-    const { classes, playlistSource, spotifyApi, shouldCancelLoader } = this.props;
-    const { spotifyPlaylists, youtubePlaylists, ownPlaylist, deezerPlaylists } = this.state;
+    const { classes, playlistSource, spotifyApi, shouldCancelLoader, setLoading } = this.props;
+    const { spotifyPlaylists, youtubePlaylists, ownPlaylist, deezerPlaylists, loading } = this.state;
+
+    if (!shouldCancelLoader || loading) {
+      <TopBar />;
+    } else {
+      setLoading(false);
+    }
 
     if (
       (playlistSource === "Spotify" && !spotifyPlaylists) ||

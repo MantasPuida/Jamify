@@ -79,8 +79,8 @@ export const DeezerStyles = (theme: AppTheme) =>
     },
     dzImage: {
       borderRadius: "1%",
-      minHeight: 250,
-      minWidth: 250
+      minHeight: 278.8,
+      minWidth: 278.8
     },
 
     tracksHelperTypography: {

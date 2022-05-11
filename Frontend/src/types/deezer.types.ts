@@ -301,3 +301,28 @@ export interface GenreDataArtist extends GenreData {
   tracklist: string;
   radio: boolean;
 }
+
+export interface SearchPlaylistResponse {
+  data: SearchPlaylistData[];
+  next: string;
+  total: number;
+}
+
+export interface SearchPlaylistData {
+  checksum: string;
+  creation_date: string;
+  id: number;
+  link: string;
+  md5_image: string;
+  nb_tracks: number;
+  picture: string;
+  picture_big: string;
+  picture_medium: string;
+  picture_small: string;
+  picture_type: string;
+  picture_xl: string;
+  public: boolean;
+  title: string;
+  tracklist: string;
+  type: string;
+}

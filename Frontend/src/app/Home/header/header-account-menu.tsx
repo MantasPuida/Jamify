@@ -206,7 +206,7 @@ class AccountMenuClass extends React.PureComponent<Props, State> {
           <DialogActions>
             <Grid container={true}>
               <Grid container={true} item={true} xs={12} style={{ textAlign: "center" }}>
-                <Grid item={true} xs={6}>
+                <Grid item={true} xs={6} style={{ alignItems: "center", paddingBottom: 4 }}>
                   <LoadingButton variant="text" onClick={this.handleDeleteDialogClose}>
                     <Typography
                       className={classes.deleteDialogCancelButton}
