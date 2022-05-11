@@ -1,13 +1,12 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import * as React from "react";
-import { Button, Grid, Typography } from "@mui/material";
+import { Button, Grid, Grow, Typography } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import { NavigateFunction, useNavigate } from "react-router";
 import { YoutubeTracksStyles, useYoutubeTracksStyles } from "./playlist.styles";
 import { useAppContext } from "../../context/app-context";
 import { extractThumbnail } from "../../helpers/thumbnails";
-import { LastTick } from "../../utils/last-tick";
 import { FeaturedPlaylistState } from "../Home/featured-playlists/featured-card";
 import { AppRoutes } from "../routes/routes";
 
@@ -27,7 +26,13 @@ interface InnerProps extends WithStyles<typeof YoutubeTracksStyles> {
 
 type Props = InnerProps & OuterProps;
 
-class YoutubePlaylistsClass extends React.PureComponent<Props> {
+interface State {
+  isImageLoading: boolean;
+}
+
+class YoutubePlaylistsClass extends React.PureComponent<Props, State> {
+  public state: State = { isImageLoading: true };
+
   componentDidMount() {
     const { setLoading, shouldSetLoading, changeLoading } = this.props;
 
@@ -35,11 +40,7 @@ class YoutubePlaylistsClass extends React.PureComponent<Props> {
       setLoading(false);
     }
 
-    setTimeout(() => {
-      LastTick(() => {
-        changeLoading();
-      });
-    }, 1000);
+    changeLoading();
   }
 
   private handleOnCardClick: React.MouseEventHandler = (event) => {
@@ -53,6 +54,7 @@ class YoutubePlaylistsClass extends React.PureComponent<Props> {
 
   public render(): React.ReactNode {
     const { classes, playlist, loading } = this.props;
+    const { isImageLoading } = this.state;
 
     if (loading) {
       // eslint-disable-next-line react/jsx-no-useless-fragment
@@ -67,29 +69,34 @@ class YoutubePlaylistsClass extends React.PureComponent<Props> {
     const img = extractThumbnail(playlist.snippet.thumbnails);
 
     return (
-      <Grid container={true} item={true} xs={12} key={playlist.id}>
-        <Grid container={true} item={true} xs={12} style={{ marginRight: 50 }}>
-          <Grid item={true}>
-            <Button style={{ color: "black" }}>
-              <div className="tint-img">
-                <img
-                  src={img ?? ""}
-                  alt={playlist.snippet.title}
-                  className={classes.ytImage}
-                  onClick={this.handleOnCardClick}
-                />
-              </div>
-            </Button>
-          </Grid>
-          <Grid item={true}>
-            <Button className={classes.ytFeaturedText} onClick={this.handleOnCardClick}>
-              <Typography className={classes.ytCarouselItemText} fontFamily="Poppins,sans-serif" color="white">
-                {playlist.snippet.title}
-              </Typography>
-            </Button>
+      <Grow in={!loading && !isImageLoading} style={{ transformOrigin: "0 0 0" }} {...{ timeout: 1000 }}>
+        <Grid container={true} item={true} xs={12} key={playlist.id}>
+          <Grid container={true} item={true} xs={12} style={{ marginRight: 50 }}>
+            <Grid item={true}>
+              <Button style={{ color: "black" }}>
+                <div className="tint-img">
+                  {isImageLoading && <img src="" alt="dummy" className={classes.ytImage} />}
+                  <img
+                    style={{ display: isImageLoading ? "none" : "block" }}
+                    onLoad={() => this.setState({ isImageLoading: false })}
+                    src={img ?? ""}
+                    alt={playlist.snippet.title}
+                    className={classes.ytImage}
+                    onClick={this.handleOnCardClick}
+                  />
+                </div>
+              </Button>
+            </Grid>
+            <Grid item={true}>
+              <Button className={classes.ytFeaturedText} onClick={this.handleOnCardClick}>
+                <Typography className={classes.ytCarouselItemText} fontFamily="Poppins,sans-serif" color="white">
+                  {playlist.snippet.title}
+                </Typography>
+              </Button>
+            </Grid>
           </Grid>
         </Grid>
-      </Grid>
+      </Grow>
     );
   }
 }

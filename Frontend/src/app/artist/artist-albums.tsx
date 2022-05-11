@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Grid, Typography, Button, ButtonProps } from "@mui/material";
+import { Grid, Typography, Button, ButtonProps, Grow } from "@mui/material";
 import { NavigateFunction, useNavigate } from "react-router";
 import { WithStyles } from "@mui/styles";
 import { ArtistStyles, useArtistStyles } from "./artist.styles";
@@ -31,7 +31,13 @@ interface InnerProps extends WithStyles<typeof ArtistStyles> {
 
 type Props = InnerProps & OuterProps;
 
-class ArtistAlbumsClass extends React.PureComponent<Props> {
+interface State {
+  isImageLoading: boolean;
+}
+
+class ArtistAlbumsClass extends React.PureComponent<Props, State> {
+  public state: State = { isImageLoading: true };
+
   private handleOnClick: ButtonProps["onClick"] = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -43,35 +49,45 @@ class ArtistAlbumsClass extends React.PureComponent<Props> {
 
   public render(): React.ReactNode {
     const { album, classes, artist } = this.props;
+    const { isImageLoading } = this.state;
 
     return (
-      <Grid item={true} xs={2} style={{ paddingBottom: 24 }}>
-        <Grid container={true} item={true} xs={12}>
-          <Grid item={true}>
-            <Button onClick={this.handleOnClick} style={{ padding: 0, color: "transparent" }}>
-              <img className="tint-img" src={album.cover_xl} alt={album.title} style={{ maxWidth: 220 }} />
-            </Button>
-          </Grid>
-          <Grid item={true} xs={12}>
-            <Button
-              onClick={this.handleOnClick}
-              style={{ padding: 0, textTransform: "none", justifyContent: "start", color: "transparent" }}>
-              <Typography className={classes.typography} fontFamily="Poppins, sans-serif" color="white">
-                {album.title}
-              </Typography>
-            </Button>
-          </Grid>
-          <Grid item={true} xs={12}>
-            <Button
-              onClick={this.handleOnClick}
-              style={{ padding: 0, textTransform: "none", justifyContent: "start", color: "transparent" }}>
-              <Typography className={classes.typography} fontFamily="sans-serif" color="white">
-                by {artist?.name}
-              </Typography>
-            </Button>
+      <Grow in={!isImageLoading} style={{ transformOrigin: "0 0 0" }} {...{ timeout: 1000 }}>
+        <Grid item={true} xs={2} style={{ paddingBottom: 24 }}>
+          <Grid container={true} item={true} xs={12}>
+            <Grid item={true}>
+              <Button onClick={this.handleOnClick} style={{ padding: 0, color: "transparent" }}>
+                {isImageLoading && <img src="" alt="dummy" style={{ maxWidth: 220, maxHeight: 220 }} />}
+                <img
+                  className="tint-img"
+                  src={album.cover_xl}
+                  alt={album.title}
+                  style={{ maxWidth: 220, display: isImageLoading ? "none" : "block" }}
+                  onLoad={() => this.setState({ isImageLoading: false })}
+                />
+              </Button>
+            </Grid>
+            <Grid item={true} xs={12}>
+              <Button
+                onClick={this.handleOnClick}
+                style={{ padding: 0, textTransform: "none", justifyContent: "start", color: "transparent" }}>
+                <Typography className={classes.typography} fontFamily="Poppins, sans-serif" color="white">
+                  {album.title}
+                </Typography>
+              </Button>
+            </Grid>
+            <Grid item={true} xs={12}>
+              <Button
+                onClick={this.handleOnClick}
+                style={{ padding: 0, textTransform: "none", justifyContent: "start", color: "transparent" }}>
+                <Typography className={classes.typography} fontFamily="sans-serif" color="white">
+                  by {artist?.name}
+                </Typography>
+              </Button>
+            </Grid>
           </Grid>
         </Grid>
-      </Grid>
+      </Grow>
     );
   }
 }

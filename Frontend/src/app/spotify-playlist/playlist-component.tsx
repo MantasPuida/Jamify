@@ -21,7 +21,12 @@ import {
   TextFieldProps,
   ClickAwayListener,
   ClickAwayListenerProps,
-  Popover
+  Popover,
+  DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogContentText,
+  DialogActions
 } from "@mui/material";
 import {
   EmailShareButton,
@@ -117,6 +122,7 @@ interface State {
   loading: boolean;
   unchangedPlaylistName: string;
   savedPlaylistName: string;
+  deleteAnchorEl: HTMLElement | null;
 }
 
 type Props = InnerProps & OuterProps;
@@ -161,7 +167,8 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
       unchangedPlaylistName: playlistName,
       loading: false,
       popoverAnchorEl: null,
-      savedPlaylistName: ""
+      savedPlaylistName: "",
+      deleteAnchorEl: null
     };
   }
 
@@ -371,7 +378,18 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
     this.setState({ anchorEl: event.currentTarget });
   };
 
+  private handleOnDeleteClose = () => {
+    this.setState({ deleteAnchorEl: null });
+  };
+
   private handleOnDelete: MenuItemProps["onClick"] = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.setState({ deleteAnchorEl: event.currentTarget });
+  };
+
+  private handleOnDeleteConfirm: ButtonProps["onClick"] = (event) => {
     event.preventDefault();
     event.stopPropagation();
 
@@ -608,7 +626,8 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
   public render(): React.ReactNode {
     const { classes, playlist, sourceType, image: myImage, myOwn } = this.props;
 
-    const { anchorEl, rename, newPlaylistName, loading, popoverAnchorEl, savedPlaylistName } = this.state;
+    const { anchorEl, rename, newPlaylistName, loading, popoverAnchorEl, savedPlaylistName, deleteAnchorEl } =
+      this.state;
 
     const open = Boolean(anchorEl);
 
@@ -682,7 +701,11 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
             item={true}
             xs={8}
             className={clsx(
-              { [classes.optionalGridText]: sourceType === SourceType.Spotify },
+              {
+                [playlistDescription && playlistDescription.length > 0
+                  ? classes.optionalGridText
+                  : classes.reducePaddingTop]: sourceType === SourceType.Spotify
+              },
               classes.playlistGridText
             )}>
             <Grid item={true}>
@@ -864,6 +887,48 @@ class PlaylistComponentClass extends React.PureComponent<Props, State> {
             </Grid>
           </Grid>
         </Grid>
+        <Dialog id="Delete dialog" open={Boolean(deleteAnchorEl)} onClose={this.handleOnDeleteClose}>
+          <DialogTitle id="Delete Dialog Title" style={{ paddingBottom: 0 }}>
+            <Typography fontFamily="Poppins, sans-serif" fontWeight={800} fontSize={16}>
+              Delete {playlistName}?
+            </Typography>
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              <Typography style={{ color: "black" }} fontFamily="Poppins, sans-serif" fontWeight={500} fontSize={14}>
+                This action cannot be undone.
+              </Typography>
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Grid container={true}>
+              <Grid container={true} item={true} xs={12} style={{ textAlign: "center" }}>
+                <Grid item={true} xs={6}>
+                  <Button variant="text" onClick={this.handleOnDeleteClose}>
+                    <Typography
+                      className={classes.deleteDialogCancelButton}
+                      fontFamily="Poppins, sans-serif"
+                      fontWeight={500}
+                      fontSize={14}>
+                      Cancel
+                    </Typography>
+                  </Button>
+                </Grid>
+                <Grid item={true} xs={6}>
+                  <Button variant="outlined" size="small" color="error" onClick={this.handleOnDeleteConfirm}>
+                    <Typography
+                      className={classes.deleteDialogDeleteButton}
+                      fontFamily="Poppins, sans-serif"
+                      fontWeight={500}
+                      fontSize={14}>
+                      Delete
+                    </Typography>
+                  </Button>
+                </Grid>
+              </Grid>
+            </Grid>
+          </DialogActions>
+        </Dialog>
       </>
     );
   }

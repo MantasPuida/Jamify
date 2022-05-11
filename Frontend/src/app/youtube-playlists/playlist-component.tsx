@@ -1,7 +1,7 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable react/no-unescaped-entities */
 import * as React from "react";
-import { Grid, Tab, Tabs, Typography, TabsProps, Skeleton } from "@mui/material";
+import { Grid, Tab, Tabs, Typography, TabsProps } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import PlayCircleOutline from "mdi-material-ui/PlayCircleOutline";
 import { Grid as SwiperGrid, Navigation } from "swiper";
@@ -48,17 +48,31 @@ class YoutubePlaylistsClass extends React.PureComponent<Props, State> {
     super(props);
 
     this.state = { loading: true, attempts: 0, value: 1 };
-    this.fetchYoutubeTracks();
+    const { artists, playlists, tracks } = this.state;
+
+    if (!tracks) {
+      this.fetchTracks();
+    }
+    if (!playlists) {
+      this.fetchPlaylists();
+    }
+    if (!artists) {
+      this.fetchArtists();
+    }
   }
 
   componentWillUnmount() {
     const { setLoading } = this.props;
 
     setLoading(false);
-    this.setState({ loading: false, attempts: this.maxAttempts });
+    this.setState({ loading: false, attempts: 0 });
   }
 
-  private fetchYoutubeTracks = async () => {
+  private changeLoadingState = () => {
+    this.setState({ loading: false });
+  };
+
+  private fetchTracks = async () => {
     const { attempts } = this.state;
     const todaysHits = "RDCLAK5uy_lqkZ7XVUPH7IZbFwDY6zkjEM6nSCiov0E";
 
@@ -70,7 +84,7 @@ class YoutubePlaylistsClass extends React.PureComponent<Props, State> {
     if (!gapi.client || !gapi.client.youtube || !gapi.client.youtube.playlistItems) {
       setTimeout(() => {
         this.setState((state) => ({ attempts: state.attempts + 1, loading: true }));
-        this.fetchYoutubeTracks();
+        this.fetchTracks();
       }, 100);
     } else {
       await gapi.client.youtube.playlistItems
@@ -81,10 +95,28 @@ class YoutubePlaylistsClass extends React.PureComponent<Props, State> {
         })
         .then((value) => {
           this.setState({
-            tracks: value.result
+            tracks: value.result,
+            loading: false,
+            attempts: 0
           });
         });
+    }
+  };
 
+  private fetchPlaylists = async () => {
+    const { attempts } = this.state;
+
+    if (attempts >= this.maxAttempts) {
+      this.setState({ loading: false, attempts: this.maxAttempts });
+      return;
+    }
+
+    if (!gapi.client || !gapi.client.youtube || !gapi.client.youtube.playlists) {
+      setTimeout(() => {
+        this.setState((state) => ({ attempts: state.attempts + 1, loading: true }));
+        this.fetchPlaylists();
+      }, 100);
+    } else {
       await gapi.client.youtube.playlists
         .list({
           part: "snippet",
@@ -111,10 +143,28 @@ class YoutubePlaylistsClass extends React.PureComponent<Props, State> {
         })
         .then((response) => {
           this.setState({
-            playlists: response.result
+            playlists: response.result,
+            loading: false,
+            attempts: 0
           });
         });
+    }
+  };
 
+  private fetchArtists = async () => {
+    const { attempts } = this.state;
+
+    if (attempts >= this.maxAttempts) {
+      this.setState({ loading: false, attempts: this.maxAttempts });
+      return;
+    }
+
+    if (!gapi.client || !gapi.client.youtube || !gapi.client.youtube.playlistItems) {
+      setTimeout(() => {
+        this.setState((state) => ({ attempts: state.attempts + 1, loading: true }));
+        this.fetchArtists();
+      }, 100);
+    } else {
       await gapi.client.youtube.channels
         .list({
           part: ["snippet"],
@@ -142,14 +192,11 @@ class YoutubePlaylistsClass extends React.PureComponent<Props, State> {
         .then((response) => {
           this.setState({
             artists: response.result,
-            loading: false
+            loading: false,
+            attempts: 0
           });
         });
     }
-  };
-
-  private changeLoadingState = () => {
-    this.setState({ loading: false });
   };
 
   private handleChange: TabsProps["onChange"] = (event, newValue) => {
@@ -157,6 +204,20 @@ class YoutubePlaylistsClass extends React.PureComponent<Props, State> {
     event.stopPropagation();
 
     this.setState({ value: newValue, loading: true });
+
+    const { tracks, playlists, artists } = this.state;
+
+    if (newValue === 1 && !tracks) {
+      this.fetchTracks();
+    }
+
+    if (newValue === 0 && !playlists) {
+      this.fetchPlaylists();
+    }
+
+    if (newValue === 2 && !artists) {
+      this.fetchArtists();
+    }
   };
 
   private a11yProps(index: number) {
@@ -170,17 +231,7 @@ class YoutubePlaylistsClass extends React.PureComponent<Props, State> {
     const { classes, shouldSetLoading } = this.props;
     const { loading, tracks, value, playlists, artists } = this.state;
 
-    if (
-      !tracks ||
-      !tracks.items ||
-      tracks.items?.length === 0 ||
-      !playlists ||
-      !playlists.items ||
-      playlists.items?.length === 0 ||
-      !artists ||
-      !artists.items ||
-      artists.items?.length === 0
-    ) {
+    if (!tracks || !tracks.items || tracks.items?.length === 0) {
       // eslint-disable-next-line react/jsx-no-useless-fragment
       return <></>;
     }
@@ -253,6 +304,7 @@ class YoutubePlaylistsClass extends React.PureComponent<Props, State> {
                 rows: 4
               }}
               className="mySwiper"
+              id="my-custom-identifier-youtube-tracks"
               centeredSlides={false}
               navigation={true}
               modules={[SwiperGrid, Navigation]}
@@ -263,41 +315,12 @@ class YoutubePlaylistsClass extends React.PureComponent<Props, State> {
               style={{ maxWidth: "85%", marginLeft: -15, paddingLeft: 10 }}>
               {tracks.items.map((track) => (
                 <SwiperSlide style={{ backgroundColor: "black" }} key={track.id}>
-                  <>
-                    {loading && (
-                      <Grid container={true} item={true} xs={12} key={track.id}>
-                        <Grid item={true} xs={2}>
-                          <Skeleton sx={{ bgcolor: "grey.900", width: 96, height: 96 }} />
-                        </Grid>
-                        <Grid container={true} item={true} xs={10} style={{ textAlign: "left" }}>
-                          <Grid item={true} xs={10}>
-                            <Typography
-                              style={{ marginLeft: 24, marginTop: 22 }}
-                              fontFamily="Poppins,sans-serif"
-                              fontSize={16}
-                              color="white">
-                              <Skeleton sx={{ bgcolor: "grey.900" }} width={240} />
-                            </Typography>
-                          </Grid>
-                          <Grid item={true} xs={10}>
-                            <Typography
-                              style={{ marginLeft: 24, marginTop: -12 }}
-                              fontFamily="Poppins,sans-serif"
-                              fontSize={16}
-                              color="white">
-                              <Skeleton sx={{ bgcolor: "grey.900" }} width={240} />
-                            </Typography>
-                          </Grid>
-                        </Grid>
-                      </Grid>
-                    )}
-                    <TracksCards
-                      track={track}
-                      loading={loading}
-                      shouldSetLoading={shouldSetLoading}
-                      changeLoading={this.changeLoadingState}
-                    />
-                  </>
+                  <TracksCards
+                    track={track}
+                    loading={loading}
+                    shouldSetLoading={shouldSetLoading}
+                    changeLoading={this.changeLoadingState}
+                  />
                 </SwiperSlide>
               ))}
             </Swiper>
@@ -327,32 +350,28 @@ class YoutubePlaylistsClass extends React.PureComponent<Props, State> {
               }}
               modules={[Navigation]}
               style={{ maxWidth: "85%", marginLeft: -20, paddingLeft: 15 }}>
-              {playlists.items.map((x) => (
-                <SwiperSlide style={{ backgroundColor: "black" }} key={x.id}>
-                  <>
-                    {loading && (
-                      <Grid container={true} item={true} xs={12} style={{ marginRight: 50 }}>
-                        <Skeleton sx={{ bgcolor: "grey.900", width: 330, height: 330 }} />
-                        <Skeleton sx={{ bgcolor: "grey.900", marginTop: -4 }} width="60%" />
-                      </Grid>
-                    )}
+              {playlists &&
+                playlists.items &&
+                playlists.items.length > 0 &&
+                playlists.items.map((x) => (
+                  <SwiperSlide style={{ backgroundColor: "black" }} key={x.id}>
                     <YoutubePlaylistsCards
                       playlist={x}
                       loading={loading}
                       shouldSetLoading={shouldSetLoading}
                       changeLoading={this.changeLoadingState}
                     />
-                  </>
-                </SwiperSlide>
-              ))}
+                  </SwiperSlide>
+                ))}
             </Swiper>
           </TabPanel>
         </Grid>
         <Grid item={true} xs={12} style={{ marginRight: 200 }}>
           <TabPanel value={value} index={2}>
             <Swiper
-              slidesPerView={8}
+              slidesPerView={6}
               slidesPerGroup={4}
+              id="my-custom-identifier-youtube-artists"
               className="mySwiper"
               centeredSlides={false}
               navigation={true}
@@ -367,24 +386,22 @@ class YoutubePlaylistsClass extends React.PureComponent<Props, State> {
                   slidesPerView: 5
                 },
                 1024: {
-                  slidesPerView: 8
+                  slidesPerView: 6
+                },
+                1980: {
+                  slidesPerView: 7
                 }
               }}
               modules={[Navigation]}
               style={{ maxWidth: "85%", marginLeft: -20 }}>
-              {artists.items.map((artist) => (
-                <SwiperSlide style={{ backgroundColor: "black" }} key={artist.id}>
-                  <>
-                    {loading && (
-                      <Grid container={true} item={true} xs={12} style={{ marginRight: 50 }}>
-                        <Skeleton variant="circular" sx={{ bgcolor: "grey.900", width: 160, height: 160 }} />
-                        <Skeleton sx={{ bgcolor: "grey.900", marginTop: 1, marginLeft: "18px" }} width="60%" />
-                      </Grid>
-                    )}
+              {artists &&
+                artists.items &&
+                artists.items.length > 0 &&
+                artists.items.map((artist) => (
+                  <SwiperSlide style={{ backgroundColor: "black" }} key={artist.id}>
                     <PlaylistArtists loading={loading} artist={artist} changeLoading={this.changeLoadingState} />
-                  </>
-                </SwiperSlide>
-              ))}
+                  </SwiperSlide>
+                ))}
             </Swiper>
           </TabPanel>
         </Grid>

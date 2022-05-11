@@ -1,11 +1,12 @@
 import * as React from "react";
 import axios from "axios";
-import { NavigateFunction, useLocation, useNavigate } from "react-router";
+import { NavigateFunction, useNavigate } from "react-router";
 import { Grid as SwiperGrid, Navigation } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/react";
+import TopBar from "react-topbar-progress-indicator";
 import SpotifyWebApi from "spotify-web-api-node";
 import { WithStyles } from "@mui/styles";
-import { Grid, Typography, Tabs, Tab, TabsProps, Skeleton } from "@mui/material";
+import { Grid, Typography, Tabs, Tab, TabsProps } from "@mui/material";
 import Spotify from "mdi-material-ui/Spotify";
 import { FeaturedPlaylistsStyles, useFeaturedPlaylistsStyles } from "./featured.styles";
 import { useSpotifyAuth } from "../../../context/spotify-context";
@@ -13,7 +14,6 @@ import { FeaturedCard } from "./featured-card";
 import { TabPanel } from "./tabs-panels";
 import { FeaturedTracks } from "./featured-tracks";
 import { RecommendationsObject } from "../../../types/spotify.types";
-import { BackdropLoader } from "../../loader/loader-backdrop";
 import { FeaturedArtists } from "./featured-artists";
 
 import "swiper/css";
@@ -28,10 +28,9 @@ interface OuterProps {
 type FeaturedPlaylist = SpotifyApi.ListOfFeaturedPlaylistsResponse;
 
 interface InnerProps extends WithStyles<typeof FeaturedPlaylistsStyles> {
-  featuredPlaylists?: FeaturedPlaylist;
-  featuredTracks?: RecommendationsObject;
   navigate: NavigateFunction;
-  featuredArtists: SpotifyApi.MultipleArtistsResponse | undefined;
+  spotifyToken: string | null;
+  logout: Function;
 }
 
 type Props = OuterProps & InnerProps;
@@ -39,20 +38,116 @@ type Props = OuterProps & InnerProps;
 interface State {
   value: number;
   loading: boolean;
+  featuredPlaylists?: FeaturedPlaylist;
+  featuredTracks?: RecommendationsObject;
+  featuredArtists?: SpotifyApi.MultipleArtistsResponse;
 }
 
 class FeaturedPlaylistsClass extends React.PureComponent<Props, State> {
   public state: State = { value: 0, loading: false };
 
+  constructor(props: Props) {
+    super(props);
+
+    const { featuredArtists, featuredPlaylists, featuredTracks } = this.state;
+    if (!featuredPlaylists) {
+      this.fetchPlaylists(props);
+    }
+    if (!featuredTracks) {
+      this.fetchTracks(props);
+    }
+    if (!featuredArtists) {
+      this.fetchArtists(props);
+    }
+  }
+
   componentWillUnmount() {
     this.setState({ loading: false });
   }
+
+  private fetchPlaylists = (props: Props) => {
+    const { spotifyToken, spotifyApi, logout } = props;
+    if (spotifyToken) {
+      spotifyApi
+        .getFeaturedPlaylists({
+          locale: "en"
+        })
+        .then((value) => {
+          this.setState({ featuredPlaylists: value.body, loading: false });
+        })
+        .catch(() => {
+          this.setState({ loading: false });
+          logout();
+        });
+    }
+  };
+
+  private fetchTracks = (props: Props) => {
+    const { spotifyToken, logout } = props;
+
+    if (!spotifyToken) {
+      return;
+    }
+
+    const apiUrl =
+      "https://api.spotify.com/v1/recommendations?seed_artists=7dGJo4pcD2V6oG8kP0tJRR,4dpARuHxo51G3z768sgnrY,&seed_tracks=0c6xIDDpzE81m2q797ordA&market=ES&limit=50";
+
+    try {
+      const tracksResponse = axios.get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${spotifyToken}`
+        }
+      });
+
+      tracksResponse.then((response) => {
+        this.setState({ featuredTracks: response.data as RecommendationsObject, loading: false });
+      });
+    } catch (error) {
+      logout();
+    }
+  };
+
+  private fetchArtists = (props: Props) => {
+    const { spotifyToken, logout, spotifyApi } = props;
+    const { featuredTracks } = this.state;
+
+    if (!spotifyToken) {
+      return;
+    }
+
+    if (featuredTracks) {
+      const artists = featuredTracks.tracks.map((track) => track.artists[0].id);
+
+      spotifyApi
+        .getArtists(artists)
+        .then((artistsResponse) => {
+          this.setState({ featuredArtists: artistsResponse.body, loading: false });
+        })
+        .catch(() => {
+          logout();
+        });
+    }
+  };
 
   private handleChange: TabsProps["onChange"] = (event, newValue) => {
     event.preventDefault();
     event.stopPropagation();
 
     this.setState({ value: newValue, loading: true });
+
+    const { featuredPlaylists, featuredArtists, featuredTracks } = this.state;
+
+    if (newValue === 0 && !featuredPlaylists) {
+      this.fetchPlaylists(this.props);
+    }
+
+    if (newValue === 1 && !featuredTracks) {
+      this.fetchTracks(this.props);
+    }
+
+    if (newValue === 2 && !featuredArtists) {
+      this.fetchArtists(this.props);
+    }
   };
 
   private changeLoadingState = () => {
@@ -67,11 +162,11 @@ class FeaturedPlaylistsClass extends React.PureComponent<Props, State> {
   }
 
   public render(): React.ReactNode {
-    const { classes, featuredPlaylists, shouldSetLoading, featuredTracks, featuredArtists } = this.props;
-    const { value, loading } = this.state;
+    const { classes, shouldSetLoading } = this.props;
+    const { value, loading, featuredPlaylists, featuredArtists, featuredTracks } = this.state;
 
-    if (!featuredPlaylists || !featuredTracks || !featuredArtists) {
-      return <BackdropLoader />;
+    if (!featuredPlaylists) {
+      return <TopBar />;
     }
 
     const { message, playlists } = featuredPlaylists;
@@ -96,6 +191,7 @@ class FeaturedPlaylistsClass extends React.PureComponent<Props, State> {
           </Grid>
           <Grid item={true}>
             <Typography
+              data-testid="featured-playlists-message"
               fontSize={25}
               fontWeight={400}
               fontFamily="Poppins,sans-serif"
@@ -166,20 +262,12 @@ class FeaturedPlaylistsClass extends React.PureComponent<Props, State> {
               style={{ maxWidth: "85%", marginTop: loading ? -24 : 0, marginLeft: -20, paddingLeft: 15 }}>
               {playlists.items.map((x) => (
                 <SwiperSlide style={{ backgroundColor: "black" }} key={x.id}>
-                  <>
-                    {loading && (
-                      <Grid container={true} item={true} xs={12} style={{ marginRight: 50 }}>
-                        <Skeleton sx={{ bgcolor: "grey.900", width: 330, height: 330 }} />
-                        <Skeleton sx={{ bgcolor: "grey.900", marginTop: -4 }} width="60%" />
-                      </Grid>
-                    )}
-                    <FeaturedCard
-                      playlist={x}
-                      loading={loading}
-                      shouldSetLoading={shouldSetLoading}
-                      changeState={this.changeLoadingState}
-                    />
-                  </>
+                  <FeaturedCard
+                    playlist={x}
+                    loading={loading}
+                    shouldSetLoading={shouldSetLoading}
+                    changeState={this.changeLoadingState}
+                  />
                 </SwiperSlide>
               ))}
             </Swiper>
@@ -202,87 +290,58 @@ class FeaturedPlaylistsClass extends React.PureComponent<Props, State> {
               grabCursor={false}
               noSwiping={true}
               style={{ maxWidth: "85%", marginLeft: -15, paddingLeft: 10 }}>
-              {featuredTracks.tracks.map((track) => (
-                <SwiperSlide style={{ backgroundColor: "black" }} key={track.id}>
-                  <>
-                    {loading && (
-                      <Grid container={true} item={true} xs={12} key={track.id}>
-                        <Grid item={true} xs={2}>
-                          <Skeleton sx={{ bgcolor: "grey.900", width: 96, height: 96 }} />
-                        </Grid>
-                        <Grid container={true} item={true} xs={10} style={{ textAlign: "left" }}>
-                          <Grid item={true} xs={10}>
-                            <Typography
-                              style={{ marginLeft: 24, marginTop: 22 }}
-                              fontFamily="Poppins,sans-serif"
-                              fontSize={16}
-                              color="white">
-                              <Skeleton sx={{ bgcolor: "grey.900" }} width={240} />
-                            </Typography>
-                          </Grid>
-                          <Grid item={true} xs={10}>
-                            <Typography
-                              style={{ marginLeft: 24, marginTop: -12 }}
-                              fontFamily="Poppins,sans-serif"
-                              fontSize={16}
-                              color="white">
-                              <Skeleton sx={{ bgcolor: "grey.900" }} width={240} />
-                            </Typography>
-                          </Grid>
-                        </Grid>
-                      </Grid>
-                    )}
+              {featuredTracks &&
+                featuredTracks.tracks &&
+                featuredTracks.tracks.length > 0 &&
+                featuredTracks.tracks.map((track) => (
+                  <SwiperSlide style={{ backgroundColor: "black" }} key={track.id}>
                     <FeaturedTracks
                       track={track}
                       loading={loading}
                       shouldSetLoading={shouldSetLoading}
                       changeState={this.changeLoadingState}
                     />
-                  </>
-                </SwiperSlide>
-              ))}
+                  </SwiperSlide>
+                ))}
             </Swiper>
           </TabPanel>
         </Grid>
         <Grid item={true} xs={12} style={{ marginRight: 200, maxHeight: 200 }}>
           <TabPanel value={value} index={2}>
-            <Swiper
-              slidesPerView={8}
-              slidesPerGroup={4}
-              className="mySwiper"
-              id="my-custom-identifier-spotify-artists"
-              centeredSlides={false}
-              navigation={true}
-              breakpoints={{
-                0: {
-                  slidesPerView: 2
-                },
-                300: {
-                  slidesPerView: 3
-                },
-                768: {
-                  slidesPerView: 5
-                },
-                1024: {
-                  slidesPerView: 8
-                }
-              }}
-              modules={[Navigation]}
-              style={{ maxWidth: "85%", marginLeft: -20, paddingLeft: 15 }}>
-              {featuredArtists.artists.map((artist) => (
-                <SwiperSlide style={{ backgroundColor: "black" }} key={artist.id}>
-                  <>
-                    {loading && (
-                      <Grid container={true} item={true} xs={12} style={{ marginRight: 50 }}>
-                        <Skeleton variant="circular" sx={{ bgcolor: "grey.900", width: 160, height: 160 }} />
-                        <Skeleton sx={{ bgcolor: "grey.900", marginTop: 1, marginLeft: "18px" }} width="60%" />
-                      </Grid>
-                    )}
+            {featuredArtists && featuredArtists.artists && featuredArtists.artists.length > 0 && (
+              <Swiper
+                slidesPerView={8}
+                slidesPerGroup={4}
+                className="mySwiper"
+                id="my-custom-identifier-spotify-artists"
+                centeredSlides={false}
+                navigation={true}
+                breakpoints={{
+                  0: {
+                    slidesPerView: 2
+                  },
+                  300: {
+                    slidesPerView: 3
+                  },
+                  768: {
+                    slidesPerView: 5
+                  },
+                  1024: {
+                    slidesPerView: 8
+                  },
+                  1980: {
+                    slidesPerView: 7
+                  }
+                }}
+                modules={[Navigation]}
+                style={{ maxWidth: "85%", marginLeft: -20, paddingLeft: 15 }}>
+                {featuredArtists.artists.map((artist) => (
+                  <SwiperSlide style={{ backgroundColor: "black" }} key={artist.id}>
                     <FeaturedArtists loading={loading} artist={artist} changeState={this.changeLoadingState} />
-                  </>
-                </SwiperSlide>
-              ))}
-            </Swiper>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            )}
           </TabPanel>
         </Grid>
       </Grid>
@@ -293,56 +352,16 @@ class FeaturedPlaylistsClass extends React.PureComponent<Props, State> {
 export const FeaturedPlaylists = React.memo<OuterProps>((props) => {
   const classes = useFeaturedPlaylistsStyles();
   const { spotifyToken, logout } = useSpotifyAuth();
-  const location = useLocation();
   const navigate = useNavigate();
-  const [featuredPlaylists, setFeaturedPlaylists] = React.useState<undefined | FeaturedPlaylist>();
-  const [featuredTracks, setFeaturedTracks] = React.useState<undefined | RecommendationsObject>();
-  const [featuredArtists, setFeaturedArtists] = React.useState<undefined | SpotifyApi.MultipleArtistsResponse>();
   const { spotifyApi, shouldSetLoading } = props;
-
-  React.useEffect(() => {
-    if (spotifyToken) {
-      spotifyApi
-        .getFeaturedPlaylists({
-          locale: "en"
-        })
-        .then((value) => {
-          setFeaturedPlaylists(value.body);
-          setTimeout(async () => {
-            const apiUrl =
-              "https://api.spotify.com/v1/recommendations?seed_artists=7dGJo4pcD2V6oG8kP0tJRR,4dpARuHxo51G3z768sgnrY,&seed_tracks=0c6xIDDpzE81m2q797ordA&market=ES&limit=50";
-
-            try {
-              const tracksResponse = await axios.get(apiUrl, {
-                headers: {
-                  Authorization: `Bearer ${spotifyToken}`
-                }
-              });
-
-              setFeaturedTracks(tracksResponse.data as RecommendationsObject);
-              setTimeout(async () => {
-                const artists = tracksResponse.data.tracks.map((track) => track.artists[0].id);
-
-                await spotifyApi.getArtists(artists).then((artistsResponse) => {
-                  setFeaturedArtists(artistsResponse.body);
-                });
-              }, 1000);
-            } catch (error) {
-              logout();
-            }
-          }, 1000);
-        });
-    }
-  }, [location.pathname]);
 
   return (
     <FeaturedPlaylistsClass
       classes={classes}
-      featuredTracks={featuredTracks}
-      featuredArtists={featuredArtists}
+      spotifyToken={spotifyToken}
+      logout={logout}
       navigate={navigate}
       spotifyApi={spotifyApi}
-      featuredPlaylists={featuredPlaylists}
       shouldSetLoading={shouldSetLoading}
     />
   );

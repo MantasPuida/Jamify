@@ -56,22 +56,26 @@ class SearchTrackClass extends React.PureComponent<Props> {
 
     return (
       <Grid container={true}>
-        <Grid item={true} xs={12} style={{ paddingRight: 32 }}>
-          <Button style={{ padding: 0, color: "transparent" }} onClick={this.handleOnClick}>
-            <img
-              src={track.album.images[0].url}
-              alt={track.album.name}
-              style={{ maxWidth: 160, maxHeight: 160, objectFit: "scale-down" }}
-            />
-          </Button>
-          <Button
-            variant="text"
-            style={{ padding: 0, color: "transparent", textTransform: "none" }}
-            onClick={this.handleOnClick}>
-            <Typography className={classes.typography} color="white">
-              {track.name}
-            </Typography>
-          </Button>
+        <Grid container={true} item={true} xs={12} style={{ paddingRight: 32 }}>
+          <Grid item={true} xs={12}>
+            <Button style={{ padding: 0, color: "transparent" }} onClick={this.handleOnClick}>
+              <img
+                src={track.album.images[0].url}
+                alt={track.album.name}
+                style={{ maxWidth: 160, maxHeight: 160, objectFit: "scale-down" }}
+              />
+            </Button>
+          </Grid>
+          <Grid item={true} xs={12}>
+            <Button
+              variant="text"
+              style={{ padding: 0, color: "transparent", textTransform: "none" }}
+              onClick={this.handleOnClick}>
+              <Typography className={classes.typography} color="white">
+                {track.name}
+              </Typography>
+            </Button>
+          </Grid>
         </Grid>
       </Grid>
     );

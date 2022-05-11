@@ -15,11 +15,11 @@ import { WithStyles } from "@mui/styles";
 import { useYoutubeAuth } from "../../../context/youtube-context";
 import { SettingsStyles, useSettingsStyles } from "./settings.styles";
 import youtubeIcon from "../../../assets/dashboard/Youtube_Icon_Black.png";
-import { AppRoutes } from "../../routes/routes";
 import { Notify } from "../../notification/notification-component";
 import { AppTheme } from "../../../shared/app-theme";
 
 import "./fontFamily.css";
+import { AppRoutes } from "../../routes/routes";
 
 interface OuterProps {
   isYoutubeConnected: boolean;

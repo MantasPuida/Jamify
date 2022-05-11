@@ -222,6 +222,7 @@ class SearchClass extends React.PureComponent<Props, State> {
       <Grid container={true} className={classes.homeGrid}>
         <Grid item={true} xs={12}>
           <TextField
+            id="search-field"
             sx={{
               border: "1px solid white",
               ".css-ghsjzk-MuiInputBase-root-MuiInput-root:after": {

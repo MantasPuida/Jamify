@@ -1,6 +1,7 @@
 import * as React from "react";
 import SpotifyWebApi from "spotify-web-api-node";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import TopBar from "react-topbar-progress-indicator";
 import { NotFound } from "../errors/not-found-component";
 import { Home } from "../Home/home-components";
 import { AppRoutes } from "./routes";
@@ -14,7 +15,7 @@ import { usePlayerContext } from "../../context/player-context";
 import { Player } from "../player/player-component";
 import { Artist } from "../artist/artist-component";
 import { useAppContext } from "../../context/app-context";
-import { BackdropLoader } from "../loader/loader-backdrop";
+// import { BackdropLoader } from "../loader/loader-backdrop";
 import { RelativeExploreRoutes } from "../explore/explore-relative-routes";
 import { useYoutubeApiContext } from "../../context/youtube-api-context";
 import { useYoutubeAuth } from "../../context/youtube-context";
@@ -26,6 +27,14 @@ interface Props {
   loading: boolean;
 }
 
+TopBar.config({
+  barColors: {
+    "0": "#fff",
+    "1.0": "#fff"
+  },
+  shadowBlur: 5
+});
+
 function HomeRoutesClass(props: Props) {
   const { spotifyApi, isPlayerOpen, loading } = props;
 
@@ -34,7 +43,7 @@ function HomeRoutesClass(props: Props) {
   return (
     <div style={{ width: "100vw", height: "100vh", backgroundColor: "black", overflowX: "hidden" }}>
       <HeaderComponent spotifyApi={spotifyApi} />
-      {loading && <BackdropLoader />}
+      {loading && <TopBar />}
       <div style={{ paddingBottom: paddingStyle }}>
         <Routes>
           <Route path={AppRoutes.Home} element={<Home spotifyApi={spotifyApi} />} />
@@ -62,6 +71,10 @@ const HomeRoutes = (): JSX.Element => {
   const { setMinePlaylist, minePlaylist } = useYoutubeApiContext();
 
   React.useEffect(() => {
+    setLoading(true);
+  }, [location.pathname]);
+
+  React.useEffect(() => {
     if (!minePlaylist) {
       setTimeout(() => {
         if (youtubeToken) {
@@ -78,14 +91,6 @@ const HomeRoutes = (): JSX.Element => {
       }, 1000);
     }
   }, [location]);
-
-  if (location.pathname === AppRoutes.Me) {
-    setLoading(true);
-  }
-
-  React.useEffect(() => {
-    setLoading(true);
-  }, [location.pathname]);
 
   React.useEffect(() => {
     if (location.pathname === SpotifyConstants.SPOTIFY_REDIRECT_PATHNAME) {

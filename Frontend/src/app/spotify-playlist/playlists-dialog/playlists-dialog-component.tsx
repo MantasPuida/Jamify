@@ -526,7 +526,7 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
         <DialogActions>
           {!isClicked && (
             <Button style={{ width: "100%", color: "black" }} startIcon={<Plus />} onClick={this.handleClick}>
-              Create new playlist.
+              Create new playlist
             </Button>
           )}
           {isClicked && (
@@ -534,6 +534,7 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
               <Grid item={true} xs={12}>
                 <TextField
                   style={{ width: "100%" }}
+                  data-testid="playlist-name"
                   label="Playlist Name"
                   variant="standard"
                   onChange={this.handleOnTextChange}
@@ -583,7 +584,12 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
                 </ToggleButtonGroup>
               </Grid>
               <Grid item={true} xs={12} style={{ textAlign: "end", paddingTop: 16 }}>
-                <LoadingButton style={{ color: "black" }} size="medium" loading={loading} onClick={this.handleOnCreate}>
+                <LoadingButton
+                  style={{ color: "black" }}
+                  size="medium"
+                  loading={loading}
+                  id="CreateNewPlaylist"
+                  onClick={this.handleOnCreate}>
                   Create
                 </LoadingButton>
               </Grid>

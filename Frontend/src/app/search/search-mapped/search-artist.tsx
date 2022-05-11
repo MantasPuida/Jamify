@@ -48,7 +48,7 @@ class SearchArtistsClass extends React.PureComponent<Props> {
     const { artist, classes } = this.props;
 
     return (
-      <Grid container={true}>
+      <Grid container={true} style={{ maxWidth: 280 }}>
         <Grid item={true} xs={12} style={{ paddingRight: 32 }}>
           <Button style={{ padding: 0, color: "transparent" }} onClick={this.handleOnClick}>
             <img
@@ -59,7 +59,7 @@ class SearchArtistsClass extends React.PureComponent<Props> {
           </Button>
           <Button
             variant="text"
-            style={{ padding: 0, color: "transparent", textTransform: "none", width: "88%" }}
+            style={{ padding: 0, color: "transparent", textTransform: "none", width: "64%" }}
             onClick={this.handleOnClick}>
             <Typography className={classes.typographyWithPadding} color="white">
               {artist.name}

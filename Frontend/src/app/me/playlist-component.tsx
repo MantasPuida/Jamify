@@ -1,6 +1,6 @@
 /* eslint-disable import/no-cycle */
 import * as React from "react";
-import { Button, ButtonProps, Grid, Typography } from "@mui/material";
+import { Button, ButtonProps, Grid, Grow, Typography } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import SpotifyWebApi from "spotify-web-api-node";
 import { useNavigate, NavigateFunction } from "react-router";
@@ -33,7 +33,13 @@ interface InnerProps extends WithStyles<typeof SpotifyPlaylistsStyles> {
 
 type Props = InnerProps & OuterProps;
 
-class PlaylistCardClass extends React.PureComponent<Props> {
+interface State {
+  isImageLoading: boolean;
+}
+
+class PlaylistCardClass extends React.PureComponent<Props, State> {
+  public state: State = { isImageLoading: true };
+
   componentDidMount() {
     const { setLoading, shouldCancelLoader, loading } = this.props;
 
@@ -90,25 +96,36 @@ class PlaylistCardClass extends React.PureComponent<Props> {
       image = deezerPlaylist.picture_xl;
     }
 
+    const { isImageLoading } = this.state;
+
     return (
-      <Grid container={true} item={true} xs={12} key={id}>
-        <Grid container={true} item={true} xs={12}>
-          <Grid item={true}>
-            <Button style={{ color: "transparent", paddingLeft: 0 }} onClick={this.handleOnPlaylistClick}>
-              <div className="tint-img">
-                <img src={image} alt={name} className={classes.image} />
-              </div>
-            </Button>
-          </Grid>
-          <Grid item={true} xs={12}>
-            <Button className={classes.featuredText} onClick={this.handleOnPlaylistClick}>
-              <Typography className={classes.carouselItemText} fontFamily="Poppins,sans-serif" color="white">
-                {name}
-              </Typography>
-            </Button>
+      <Grow in={!isImageLoading} style={{ transformOrigin: "0 0 0" }} {...{ timeout: 1000 }}>
+        <Grid container={true} item={true} xs={12} key={id}>
+          <Grid container={true} item={true} xs={12}>
+            <Grid item={true}>
+              <Button style={{ color: "transparent", paddingLeft: 0 }} onClick={this.handleOnPlaylistClick}>
+                {isImageLoading && <img src="" alt="" className={classes.image} />}
+                <div className="tint-img">
+                  <img
+                    src={image}
+                    alt={name}
+                    className={classes.image}
+                    style={{ display: isImageLoading ? "none" : "block" }}
+                    onLoad={() => this.setState({ isImageLoading: false })}
+                  />
+                </div>
+              </Button>
+            </Grid>
+            <Grid item={true} xs={12}>
+              <Button className={classes.featuredText} onClick={this.handleOnPlaylistClick}>
+                <Typography className={classes.carouselItemText} fontFamily="Poppins,sans-serif" color="white">
+                  {name}
+                </Typography>
+              </Button>
+            </Grid>
           </Grid>
         </Grid>
-      </Grid>
+      </Grow>
     );
   }
 }

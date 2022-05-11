@@ -1,0 +1,12 @@
+{
+  "pluginsFile": false,
+  "supportFile": false,
+  "fixturesFolder": false,
+  "chromeWebSecurity": false,
+  "experimentalSessionAndOrigin": false,
+  "experimentalSourceRewriting": false,
+  "experimentalInteractiveRunEvents": false,
+  "experimentalStudio": false,
+  "viewportWidth": 2560,
+  "viewportHeight": 1238
+}

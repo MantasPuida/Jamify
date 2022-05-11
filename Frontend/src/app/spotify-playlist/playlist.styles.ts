@@ -24,6 +24,9 @@ export const PlaylistStyles = (theme: AppTheme) =>
     optionalGridText: {
       marginTop: theme.spacing(5)
     },
+    reducePaddingTop: {
+      marginTop: theme.spacing(2)
+    },
     buttonTextHover: {
       padding: 0,
       color: "transparent",
@@ -137,6 +140,26 @@ export const PlaylistStyles = (theme: AppTheme) =>
       "&:hover": {
         textDecoration: "solid underline rgba(255, 255, 255, .7) 1px"
       }
+    },
+
+    deleteDialogCancelButton: {
+      color: "gray",
+      "&:hover": {
+        color: "black",
+        fontSize: 16,
+        fontWeight: 600,
+        transition: "all .1s ease-in-out"
+      },
+      transition: "all .1s ease-in-out"
+    },
+
+    deleteDialogDeleteButton: {
+      "&:hover": {
+        fontSize: 16,
+        fontWeight: 600,
+        transition: "all .1s ease-in-out"
+      },
+      transition: "all .1s ease-in-out"
     },
 
     root: {

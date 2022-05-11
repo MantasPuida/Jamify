@@ -1,12 +1,11 @@
 import * as React from "react";
-import { Button, ButtonProps, Grid, Typography } from "@mui/material";
+import { Button, ButtonProps, Grid, Grow, Typography } from "@mui/material";
 import Play from "mdi-material-ui/Play";
 import { WithStyles } from "@mui/styles";
 import { useNavigate, NavigateFunction } from "react-router";
 import { DeezerStyles, useDeezerStyles } from "./deezer.styles";
 import { useAppContext } from "../../../context/app-context";
 import { TrackObject, usePlayerContext } from "../../../context/player-context";
-import { LastTick } from "../../../utils/last-tick";
 import { Track } from "../../../types/deezer.types";
 import { AppRoutes } from "../../routes/routes";
 
@@ -26,16 +25,18 @@ interface InnerProps extends WithStyles<typeof DeezerStyles> {
 
 type Props = InnerProps & OuterProps;
 
-class DeezerTracksClass extends React.PureComponent<Props> {
+interface State {
+  isImageLoading: boolean;
+}
+
+class DeezerTracksClass extends React.PureComponent<Props, State> {
+  public state: State = { isImageLoading: true };
+
   componentDidMount() {
     const { setLoading, changeState } = this.props;
 
-    setTimeout(() => {
-      LastTick(() => {
-        changeState();
-        setLoading(false);
-      });
-    }, 1000);
+    changeState();
+    setLoading(false);
   }
 
   private handleOnTrackClick: ButtonProps["onClick"] = (event) => {
@@ -77,6 +78,7 @@ class DeezerTracksClass extends React.PureComponent<Props> {
 
   public render(): React.ReactNode {
     const { track, classes, loading } = this.props;
+    const { isImageLoading } = this.state;
 
     if (loading) {
       // eslint-disable-next-line react/jsx-no-useless-fragment
@@ -84,64 +86,69 @@ class DeezerTracksClass extends React.PureComponent<Props> {
     }
 
     return (
-      <Grid container={true} item={true} xs={12} key={track.id}>
-        <Grid item={true} xs={4}>
-          <Button onClick={this.handleOnTrackClick} style={{ width: 140 }}>
-            <img
-              src={track.album.cover_xl}
-              alt={track.title}
-              className={classes.tracksCarouselImage}
-              id="gridRowTrack"
-            />
-            <div style={{ position: "absolute", width: 32, height: 32, marginTop: 8 }}>
-              <Play id="ytPlaySvgIcon" style={{ color: "white", display: "none" }} />
-            </div>
-          </Button>
-        </Grid>
-        <Grid container={true} item={true} xs={8} style={{ textAlign: "left" }}>
-          <Grid item={true} xs={10} style={{ marginTop: 12 }}>
-            <Button
-              onClick={this.handleOnTrackClick}
-              style={{
-                textAlign: "left",
-                textTransform: "none",
-                justifyContent: "left",
-                maxWidth: 425,
-                paddingTop: 4,
-                paddingBottom: 2,
-                color: "transparent"
-              }}
-              variant="text">
-              <Typography
-                className={classes.tracksTypography}
-                fontFamily="Poppins,sans-serif"
-                fontSize={16}
-                color="white">
-                {track.title_short}
-              </Typography>
+      <Grow in={!loading && !isImageLoading} style={{ transformOrigin: "0 0 0" }} {...{ timeout: 1000 }}>
+        <Grid container={true} item={true} xs={12} key={track.id}>
+          <Grid item={true} xs={4}>
+            <Button onClick={this.handleOnTrackClick} style={{ width: 140 }}>
+              {loading || (isImageLoading && <img src="" alt="" className={classes.tracksCarouselImage} />)}
+              <img
+                src={track.album.cover_xl}
+                alt={track.title}
+                className={classes.tracksCarouselImage}
+                id="gridRowTrack"
+                style={{ display: isImageLoading ? "none" : "block" }}
+                onLoad={() => this.setState({ isImageLoading: false })}
+              />
+              <div style={{ position: "absolute", width: 32, height: 32, marginTop: 8 }}>
+                <Play id="ytPlaySvgIcon" style={{ color: "white", display: "none" }} />
+              </div>
             </Button>
           </Grid>
-          <Grid item={true} xs={10} style={{ marginBottom: 12 }}>
-            <Button
-              onClick={this.handleOnArtistClick}
-              style={{
-                textAlign: "left",
-                textTransform: "none",
-                justifyContent: "left",
-                maxWidth: 425,
-                color: "transparent",
-                paddingTop: 0,
-                paddingBottom: 0
-              }}
-              className={classes.tracksButtonOnHover}
-              variant="text">
-              <Typography className={classes.tracksHelperTypography} fontFamily="Poppins,sans-serif" fontSize={12}>
-                {track.artist.name}
-              </Typography>
-            </Button>
+          <Grid container={true} item={true} xs={8} style={{ textAlign: "left" }}>
+            <Grid item={true} xs={10} style={{ marginTop: 12 }}>
+              <Button
+                onClick={this.handleOnTrackClick}
+                style={{
+                  textAlign: "left",
+                  textTransform: "none",
+                  justifyContent: "left",
+                  maxWidth: 425,
+                  paddingTop: 4,
+                  paddingBottom: 2,
+                  color: "transparent"
+                }}
+                variant="text">
+                <Typography
+                  className={classes.tracksTypography}
+                  fontFamily="Poppins,sans-serif"
+                  fontSize={16}
+                  color="white">
+                  {track.title_short}
+                </Typography>
+              </Button>
+            </Grid>
+            <Grid item={true} xs={10} style={{ marginBottom: 12 }}>
+              <Button
+                onClick={this.handleOnArtistClick}
+                style={{
+                  textAlign: "left",
+                  textTransform: "none",
+                  justifyContent: "left",
+                  maxWidth: 425,
+                  color: "transparent",
+                  paddingTop: 0,
+                  paddingBottom: 0
+                }}
+                className={classes.tracksButtonOnHover}
+                variant="text">
+                <Typography className={classes.tracksHelperTypography} fontFamily="Poppins,sans-serif" fontSize={12}>
+                  {track.artist.name}
+                </Typography>
+              </Button>
+            </Grid>
           </Grid>
         </Grid>
-      </Grid>
+      </Grow>
     );
   }
 }

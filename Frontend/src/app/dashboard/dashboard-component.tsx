@@ -4,12 +4,12 @@ import { ButtonProps } from "@mui/material";
 import { Notify } from "../notification/notification-component";
 import { useYoutubeAuth } from "../../context/youtube-context";
 import { AppRoutes } from "../routes/routes";
-import { SpotifyConstants } from "../../constants/constants-spotify";
 import { LastTick } from "../../utils/last-tick";
 import { useDeezerAuth } from "../../context/deezer-context";
 import { DeezerConstants } from "../../constants/constants-deezer";
 import { DashboardLandingPage } from "./dashboard-landing-page";
 import { useAppContext } from "../../context/app-context";
+import { SpotifyConstants } from "../../constants/constants-spotify";
 
 interface OuterProps {
   error: boolean;
@@ -56,7 +56,6 @@ class DashboardClass extends React.PureComponent<Props> {
   };
 
   private handleLoginSpotify: ButtonProps["onClick"] = () => {
-    // TODO: implement popup
     window.open(SpotifyConstants.SPOTIFY_AUTH_URL, "_self");
   };
 

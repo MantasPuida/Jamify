@@ -52,4 +52,20 @@ describe("LastTick", () => {
 
     expect(jestFunction).toHaveBeenCalled();
   });
+
+  it("execute Synchronously", () => {
+    const promiseTask = new PromiseTask();
+
+    const jestFunction = jest.fn();
+    const resolvePromiseTask = () => {
+      jestFunction();
+      promiseTask.resolve();
+    };
+
+    expect(jestFunction).not.toHaveBeenCalled();
+
+    LastTick(resolvePromiseTask);
+
+    expect(jestFunction).not.toHaveBeenCalled();
+  });
 });
