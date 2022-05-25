@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Grid, Typography, ButtonProps, Button } from "@mui/material";
+import { Grid, Typography, ButtonProps, Button, Grow } from "@mui/material";
 import { WithStyles } from "@mui/styles";
 import { SearchStyles } from "../search.styles";
 import { usePlayerContext } from "../../../context/player-context";
@@ -24,7 +24,13 @@ interface TrackObject {
 
 type Props = OuterProps & InnerProps;
 
-class SearchTrackClass extends React.PureComponent<Props> {
+interface State {
+  isImageLoading: boolean;
+}
+
+class SearchTrackClass extends React.PureComponent<Props, State> {
+  public state: State = { isImageLoading: true };
+
   private handleOnClick: ButtonProps["onClick"] = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -53,31 +59,37 @@ class SearchTrackClass extends React.PureComponent<Props> {
 
   public render(): React.ReactNode {
     const { track, classes } = this.props;
+    const { isImageLoading } = this.state;
 
     return (
-      <Grid container={true}>
-        <Grid container={true} item={true} xs={12} style={{ paddingRight: 32 }}>
-          <Grid item={true} xs={12}>
-            <Button style={{ padding: 0, color: "transparent" }} onClick={this.handleOnClick}>
-              <img
-                src={track.album.images[0].url}
-                alt={track.album.name}
-                style={{ maxWidth: 160, maxHeight: 160, objectFit: "scale-down" }}
-              />
-            </Button>
-          </Grid>
-          <Grid item={true} xs={12}>
-            <Button
-              variant="text"
-              style={{ padding: 0, color: "transparent", textTransform: "none" }}
-              onClick={this.handleOnClick}>
-              <Typography className={classes.typography} color="white">
-                {track.name}
-              </Typography>
-            </Button>
+      <Grow in={!isImageLoading} style={{ transformOrigin: "0 0 0" }} {...{ timeout: 800 }}>
+        <Grid container={true}>
+          <Grid container={true} item={true} xs={12} style={{ paddingRight: 32 }}>
+            <Grid item={true} xs={12}>
+              <Button style={{ padding: 0, color: "transparent" }} onClick={this.handleOnClick}>
+                <div className="tint-img">
+                  <img
+                    src={track.album.images[0].url}
+                    alt={track.album.name}
+                    style={{ maxWidth: 160, maxHeight: 160, objectFit: "scale-down" }}
+                    onLoad={() => this.setState({ isImageLoading: false })}
+                  />
+                </div>
+              </Button>
+            </Grid>
+            <Grid item={true} xs={12}>
+              <Button
+                variant="text"
+                style={{ padding: 0, color: "transparent", textTransform: "none" }}
+                onClick={this.handleOnClick}>
+                <Typography className={classes.typography} color="white">
+                  {track.name}
+                </Typography>
+              </Button>
+            </Grid>
           </Grid>
         </Grid>
-      </Grid>
+      </Grow>
     );
   }
 }

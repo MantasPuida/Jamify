@@ -15,9 +15,9 @@ import {
   ToggleButtonGroup,
   ToggleButton,
   ToggleButtonGroupProps,
-  Typography
+  Typography,
+  CircularProgress
 } from "@mui/material";
-import LoadingButton from "@mui/lab/LoadingButton";
 import SpotifyWebApi from "spotify-web-api-node";
 import Plus from "mdi-material-ui/Plus";
 import { useLocation } from "react-router";
@@ -137,6 +137,7 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
     const { userId, imageUrl, trackName: songName, artists, duration } = this.props;
 
     if (!userId || text.length < 1) {
+      this.setState({ loading: false });
       return;
     }
 
@@ -462,7 +463,9 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
     const { text, alignment } = this.state;
 
     if (text.length < 1) {
+      this.setState({ loading: false });
       Notify("Please enter a playlist name", "error");
+      return;
     }
 
     this.setState({ loading: true });
@@ -584,14 +587,12 @@ class PlaylistsDialogComponentClass extends React.PureComponent<Props, State> {
                 </ToggleButtonGroup>
               </Grid>
               <Grid item={true} xs={12} style={{ textAlign: "end", paddingTop: 16 }}>
-                <LoadingButton
-                  style={{ color: "black" }}
-                  size="medium"
-                  loading={loading}
-                  id="CreateNewPlaylist"
-                  onClick={this.handleOnCreate}>
-                  Create
-                </LoadingButton>
+                {!loading && (
+                  <Button style={{ color: "black" }} size="medium" id="CreateNewPlaylist" onClick={this.handleOnCreate}>
+                    Create
+                  </Button>
+                )}
+                {loading && <CircularProgress size={24} style={{ color: "black" }} />}
               </Grid>
             </Grid>
           )}
