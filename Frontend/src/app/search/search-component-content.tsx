@@ -1,5 +1,6 @@
 import * as React from "react";
-import { Grid, Backdrop, CircularProgress, Typography } from "@mui/material";
+import { Grid, Typography } from "@mui/material";
+import TopBar from "react-topbar-progress-indicator";
 import { WithStyles } from "@mui/styles";
 import { SearchArtists } from "./search-mapped/search-artist";
 import { SearchPlaylist } from "./search-mapped/search-playlist";
@@ -21,11 +22,7 @@ export class SearchComponentContent extends React.PureComponent<OuterProps> {
     let playlistsCount = 0;
 
     if (isLoading) {
-      return (
-        <Backdrop sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }} open={true}>
-          <CircularProgress style={{ color: "white" }} />
-        </Backdrop>
-      );
+      return <TopBar />;
     }
 
     return (
